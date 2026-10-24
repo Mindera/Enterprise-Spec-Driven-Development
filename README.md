@@ -57,7 +57,13 @@ Agent:          Noted as ⚠️ FT-1 with your reason. Now, the second use case.
                 Readiness check: all ✅. Status: Ready for tech proposal.
                 Paste this into BILL-142.
 
-Dev, in VS Code:  /espec-tech-proposal BILL-142
+Dev, in VS Code:  /espec-inspect-feature-definition BILL-142
+Copilot:          Readiness 9/9 ✅. No how outside the forced notes. Every UC and EC has an AC.
+                  Verdict: Ready for tech proposal (0 blocking, 2 advisory).
+                  Advisory: can a running export be cancelled? What if access is revoked
+                  mid-export? Comment ready to post on BILL-142.
+
+Dev:              /espec-tech-proposal BILL-142
 Copilot:          Imported BILL-142 → espec/changes/bill-142-invoice-csv-export/feature.md
                   ✓ tech-proposal.md   architecture, APIs, data model, 3 decisions
                   ✓ specs/invoice-export/spec.md   6 requirements, 11 scenarios
@@ -65,9 +71,21 @@ Copilot:          Imported BILL-142 → espec/changes/bill-142-invoice-csv-expor
                   FT-1 overridden: nightly batch misses the 10 second outcome; async job
                   with status in the same ops dashboard. 1 question for product (not blocking).
 
+QA:               /espec-inspect-tech-proposal bill-142-invoice-csv-export
+Copilot:          Ticket and feature.md identical. 26 product ids traced to scenarios, tasks
+                  and QA lines. FT-1 reviewed. 3 decisions with alternatives.
+                  Verdict: Not yet (2 blocking). The exports list only shows 24 h, so the
+                  Expired state can never appear. The Q4 code freeze has no home in Rollout.
+Dev:              /espec-tech-proposal bill-142-invoice-csv-export
+Copilot:          Updated: 48 h list window, Timing bullet under Rollout.
+QA:               /espec-inspect-tech-proposal
+Copilot:          Verdict: Approve (0 blocking, 5 advisory).
+
 Dev:              /espec-implementation
 Copilot:          Working on task 2.1: export job entity and migration ... ✓
-                  ... 14/14 tasks complete. Run /espec-archive when reviewed.
+                  ... 14/14 tasks complete.
+                  ✓ pull-request.md   summary, proposal vs implementation, every AC → file and test
+                  gh pr create --body-file espec/changes/bill-142-invoice-csv-export/pull-request.md
 
 Dev:              /espec-archive
 Copilot:          Synced invoice-export (new) and invoice-list (1 modified).
