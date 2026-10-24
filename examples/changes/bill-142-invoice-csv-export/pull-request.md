@@ -23,7 +23,7 @@ customer portal, or for `GET /api/v1/invoices`.
 | D-3 | Download through an ownership check and a 302 to a 5-minute pre-signed URL on the EU bucket | As proposed | |
 | `POST /api/v1/invoices/exports` | 202 with the export body; 400, 403, 404, 422, 429 with `Retry-After: 30` | As proposed, except `Retry-After: 60` | On staging a 12,400-row export takes about 40 s (Q.2, Q.6), so a client that retries after 30 s while three such exports run is declined again. 60 s matches what the message tells the user: wait for one to finish. |
 | `GET /api/v1/invoices/exports/{id}` | Status body; 404 for an unknown id or another user's export | As proposed | |
-| `GET /api/v1/invoices/exports` | Caller's exports of the last 24 h, newest first, up to 20 | As proposed | |
+| `GET /api/v1/invoices/exports` | Caller's exports of the last 48 h, newest first, up to 20 | As proposed | |
 | `GET /api/v1/invoices/exports/{id}/download` | 302 to the pre-signed URL; 404, 409, 410; audit event `invoice.export.downloaded` | As proposed | |
 | Job `invoice-export` | Payload `{exportId}`, 2 retries with 30 s backoff, FAILED after the last retry | As proposed | |
 | Audit events | `invoice.export.created`, `invoice.export.downloaded`, `invoice.export.failed` | As proposed | |

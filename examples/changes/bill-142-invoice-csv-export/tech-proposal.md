@@ -68,7 +68,7 @@ idle most of the time and from streaming (no buffering of the whole file), which
 |-----------|----------|----------------|
 | `ExportButton.tsx` | `web/src/features/invoices/` | Toolbar action with count, flag-gated, moves into More actions below 900 px |
 | `useInvoiceExport.ts` | `web/src/features/invoices/` | Create export, poll status (2 s, backing off to 5 s), trigger download, map errors to messages |
-| `ExportsIndicator.tsx` | `web/src/components/` | Top-bar list of the user's exports of the last 24 h with progress and Download |
+| `ExportsIndicator.tsx` | `web/src/components/` | Top-bar list of the user's exports of the last 48 h with progress, Download and Expired |
 | `InvoiceExportController` | `src/main/java/com/ledgerly/invoices/export/` | The three endpoints plus the list endpoint |
 | `InvoiceExportService` | same | Validation, creation, status, download URL, saved-view resolution, audit |
 | `InvoiceExportWorker` | same | `invoice-export` job handler: stream, write, mark READY or FAILED |
@@ -182,7 +182,7 @@ Returns the same body as above with the current `status` (`QUEUED`, `RUNNING`, `
 
 ### `GET /api/v1/invoices/exports`
 
-Returns `{ "items": [ ... ] }`, the caller's exports created in the last 24 hours, newest first, up to 20. Feeds
+Returns `{ "items": [ ... ] }`, the caller's exports created in the last 48 hours, newest first, up to 20, so an export stays listed as Expired for a day after its file is removed. Feeds
 the Exports indicator.
 
 ### `GET /api/v1/invoices/exports/{id}/download`
@@ -347,6 +347,9 @@ Every UC, EC and AC in `feature.md` appears above. No gaps found.
 - Rollback: turn the flag off. In-flight exports finish or fail harmlessly; files expire on their own. No data
   migration in either direction.
 - Finance operations get a 15-minute walkthrough of the new dashboard panel before the general rollout (FT-1).
+- Timing (feature.md, Constraints): the code ships dark in the Q4 2026 release train, before the 5 December
+  2026 code freeze. The three enablement stages above are flag changes that need no deployment, so they can
+  run after the freeze without a release. Everyone is enabled before the January 2027 close.
 
 ## Test strategy
 
