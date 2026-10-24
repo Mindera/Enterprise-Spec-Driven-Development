@@ -220,6 +220,17 @@ and has no `specs/` folder. Do not invent a requirement to fill it.
 The implementation phase checks a box only after the named verification passed, and only on the
 exact line. A partially done task stays unchecked. `tasks.md` is the single progress record.
 
+## Pull request description
+
+Implementation ends by writing `pull-request.md` in the change folder. It is the pull request body,
+and it must read without the code: a summary for product and reviewers, a **proposal versus
+implementation** table with one row per decision, endpoint, data model element, rollout step and
+forced note ("As proposed" or the difference and why), one row per acceptance criterion with the file
+to open first and the test that proves it, deviations and deferred work, a review order, verification
+results, the rollout as implemented, and a release note that archive reuses as the ticket comment.
+The format is in `AGENTS.md`; a filled-in example is in
+[examples/changes/bill-142-invoice-csv-export/pull-request.md](../examples/changes/bill-142-invoice-csv-export/pull-request.md).
+
 ## Change naming
 
 | Situation | Pattern | Example |

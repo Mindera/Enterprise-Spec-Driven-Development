@@ -21,6 +21,7 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
    - Unchecked tasks: list them and ask whether to archive anyway. On yes, record the reason in the
      release note and in `.espec.yaml` under `archived_with_open_tasks: <reason>`.
    - Missing `tech-proposal.md` or (without `skip_specs: true`) missing `specs/`: warn and ask.
+   - Missing `pull-request.md`: warn; the release note is then written from scratch in step 7.
 
 3. **Plan the spec sync.** For every `specs/<capability>/spec.md` in the change:
    - Locate `espec/specs/<capability>/spec.md`.
@@ -47,8 +48,10 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
    date, unless the name already starts with a date. Refuse to overwrite an existing folder. Set
    `status: archived` and `archived: YYYY-MM-DD` in `.espec.yaml` before moving.
 
-7. **Release note.** Print a short note for the ticket: what shipped, which capabilities changed
-   (added, modified, removed requirements by name), what was deferred and why. When a tool can reach
+7. **Release note.** Start from the `## Release note` section of `pull-request.md` when the file
+   exists, and update it for anything that changed since. Otherwise write a short note for the
+   ticket: what shipped, which capabilities changed (added, modified, removed requirements by name),
+   what was deferred and why. When a tool can reach
    the ticket and the user asks, post it as a comment and transition the ticket. Never do so unasked.
 
 ## Output on success

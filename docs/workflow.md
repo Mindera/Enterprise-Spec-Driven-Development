@@ -94,9 +94,9 @@ folder. Record the place in `espec/project.md` under Ticketing. Nothing outside
 | Who | Developer implements. QA runs the `## QA verification` group. |
 | Tool | GitHub Copilot: `/espec-implementation <change-name>`. |
 | Inputs | The approved change folder, re-read from disk every time. |
-| Outputs | Code and tests. `tasks.md` with a task checked off only after its verification passed. `.espec.yaml` moves to `in-progress` after the first check and `implemented` after the last. |
+| Outputs | Code and tests. `tasks.md` with a task checked off only after its verification passed. `pull-request.md`: the pull request description, readable without the code, with a proposal-versus-implementation table. `.espec.yaml` moves to `in-progress` after the first check and `implemented` after the last. |
 | Exit criteria | **All tasks complete**: every checkbox in `tasks.md` is `[x]`, including the QA verification group. |
-| Hand-off | None outside the repo. The pull request links to the ticket. |
+| Hand-off | The pull request, whose description is `pull-request.md`. It links to the ticket, and its Release note section becomes the ticket comment at archive. |
 
 The AI pauses when a task is unclear, needs work the specs do not describe, or would reduce specified
 behaviour. It never narrows scope silently. A design problem found here becomes a tech proposal
@@ -129,6 +129,7 @@ and a confirmed verdict. See [conventions.md](conventions.md#archive-merge-order
 | Tech proposal | Optional link to the pull request | `tech-proposal.md` |
 | Delta specs | Not in the ticket | `espec/changes/<change-name>/specs/<capability>/spec.md` |
 | Tasks and progress | Not in the ticket | `tasks.md`, and `status` in `.espec.yaml` |
+| Pull request description | Link to the pull request | `pull-request.md`, also used as the pull request body |
 | Status | The team's ticket workflow (To do, Ready, In progress, Done) | `status` in `.espec.yaml` |
 | Release note | Comment from engineering | Printed by archive. The archived folder is the record. |
 | Main specs | Not in the ticket | `espec/specs/<capability>/spec.md` |

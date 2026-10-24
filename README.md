@@ -81,7 +81,7 @@ Copilot:          Synced invoice-export (new) and invoice-list (1 modified).
 |---|-------|---------|-----|--------|
 | 1 | **AI Assisted Feature Definition** | `/espec:feature-definition` | Product, Design | Ticket: why, what, use cases, edge cases, out of scope, acceptance criteria |
 | 2 | **Tech Proposal** | `/espec:tech-proposal` | Developers, QA | `tech-proposal.md`, delta specs, `tasks.md` |
-| 3 | **Implementation** | `/espec:implementation` | Developers, QA | Code and tests, tasks checked off as verified |
+| 3 | **Implementation** | `/espec:implementation` | Developers, QA | Code and tests, tasks checked off, PR description |
 | 4 | **Archive** | `/espec:archive` · `/espec:archive-clean` | Developers | Main specs updated; outdated specs purged or corrected |
 
 **Phase 1** only knows product. It asks for every use case, every edge case and an explicit out of
@@ -94,7 +94,8 @@ a traceability table from every product id to a spec scenario and a task, a test
 questions for product that go back on the ticket.
 
 **Phase 3** generates the code from the tech proposal and specs, one task at a time, and never
-narrows scope silently.
+narrows scope silently. It ends with a pull request description a reviewer can read without opening
+the code: what was built, where it differs from the proposal and why, and how it was verified.
 
 **Phase 4** folds the change into the main specs. `archive-clean` goes further: it searches the specs
 for anything the code no longer does, proposes keep, update or purge with evidence, and applies what
@@ -187,7 +188,7 @@ your-repo/
     ├── project.md                         # Your stack, teams, traps
     ├── config.yaml                        # Ticket system, rules, archive settings
     ├── specs/<capability>/spec.md         # The system as it is today
-    ├── changes/<change-name>/             # feature.md · tech-proposal.md · specs/ · tasks.md
+    ├── changes/<change-name>/             # feature.md · tech-proposal.md · specs/ · tasks.md · pull-request.md
     ├── changes/archive/                   # Finished changes and clean-up reports
     ├── templates/                         # Blank files the commands start from
     └── bin/                               # espec validate · new · list, no toolkit needed

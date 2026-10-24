@@ -40,13 +40,20 @@ Follow the phases in order.
    lands its own tests, and the final **QA verification** group holds one line per acceptance criterion with
    the result QA recorded.
 
-5. **Phase 4, archive.**
+5. **Phase 3, pull request description.**
+   [`pull-request.md`](changes/bill-142-invoice-csv-export/pull-request.md) is what `/espec:implementation`
+   wrote when the last task was checked: the pull request body. Read it without opening any code: the summary,
+   the **Proposal versus implementation** table (most rows "As proposed", three small differences with their
+   reasons), one row per acceptance criterion with the file to open first and the test that proves it, the
+   review order, the verification results, the rollout as built, and the release note that archive reuses.
+
+6. **Phase 4, archive.**
    [`specs/invoice-export/spec.md`](specs/invoice-export/spec.md) and
    [`specs/invoice-list/spec.md`](specs/invoice-list/spec.md) show the main specs under `espec/specs/` after
    `/espec:archive` folded the deltas in: the new capability created from the delta's purpose and added
    requirements, and the existing capability with its modified requirement replaced in place.
 
-6. **Phase 4, archive clean.**
+7. **Phase 4, archive clean.**
    [`archive-clean/cleanup.md`](archive-clean/cleanup.md) is a sample report from `/espec:archive-clean` run
    later over four capabilities, showing a Keep, an Update with the corrected text, a Purge with evidence, and
    the applied actions appended after confirmation.
@@ -74,7 +81,8 @@ examples/
 │       ├── specs/
 │       │   ├── invoice-export/spec.md    # delta: new capability
 │       │   └── invoice-list/spec.md      # delta: one modified requirement of an existing capability
-│       └── tasks.md                      # phase 2, tracked through phase 3
+│       ├── tasks.md                      # phase 2, tracked through phase 3
+│       └── pull-request.md               # phase 3: the PR body, proposal versus implementation
 ├── specs/                                # espec/specs/ after /espec:archive
 │   ├── invoice-export/spec.md
 │   └── invoice-list/spec.md
@@ -90,5 +98,7 @@ examples/
 - The feature definition contains no endpoint, table, job or library. The tech proposal contains all of them.
 - The MODIFIED block in the `invoice-list` delta is the whole requirement, including the scenarios that did not
   change. That is what lets the archive step replace it safely.
+- The pull request description is where proposal meets reality. Every difference from the tech proposal is
+  on one table with its reason, so reviewers do not have to diff the code against the design in their heads.
 - Product's forced note was not ignored and not silently followed. It was reviewed, overridden with a reason,
   and the need behind it was met another way.
