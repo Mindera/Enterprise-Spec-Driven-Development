@@ -20,7 +20,7 @@ Input: `${input:source:Change name, ticket key or URL, or a pasted feature defin
 1. **Resolve the change.**
    - A change name that exists under `espec/changes/` → use it. Announce "Using change: <name>".
    - A ticket key, URL or pasted definition → run the Import mode of
-     `/espec:ai-assisted-feature-definition` first (fetch or ask for the text, review it, store
+     `/espec:feature-definition` first (fetch or ask for the text, review it, store
      `feature.md` and `.espec.yaml`), then continue.
    - Nothing usable → ask for one of the above and stop.
 

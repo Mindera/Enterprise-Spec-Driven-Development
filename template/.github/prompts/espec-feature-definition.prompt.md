@@ -3,7 +3,7 @@ mode: agent
 description: "espec phase 1 · AI Assisted Feature Definition: write, import or review a feature definition (what and why, never how) and store it as feature.md."
 ---
 
-# /espec:ai-assisted-feature-definition
+# /espec:feature-definition
 
 You are helping define a feature in **product language**: the what and the why. You never write the how.
 Read [espec/AGENTS.md](../../espec/AGENTS.md), [espec/project.md](../../espec/project.md) and

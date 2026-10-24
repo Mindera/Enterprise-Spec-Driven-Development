@@ -1,6 +1,6 @@
 ---
 name: Feature definition
-about: Product definition of a feature. What and why, never how. Written with /espec:ai-assisted-feature-definition.
+about: Product definition of a feature. What and why, never how. Written with /espec:feature-definition.
 title: "Feature: <title>"
 labels: feature-definition
 ---

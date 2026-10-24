@@ -15,13 +15,13 @@ written in a fixed format that any AI assistant can read and any human can revie
 
 | # | Phase | Command | Who | Tool | Produces |
 |---|-------|---------|-----|------|----------|
-| 1 | AI Assisted Feature Definition | `/espec:ai-assisted-feature-definition` | Product Managers, Designers | Rovo, M365 Copilot (or GitHub Copilot in-repo) | A ticket holding `feature.md` |
+| 1 | AI Assisted Feature Definition | `/espec:feature-definition` | Product Managers, Designers | Rovo, M365 Copilot (or GitHub Copilot in-repo) | A ticket holding `feature.md` |
 | 2 | Tech Proposal | `/espec:tech-proposal` | Developers, QA | GitHub Copilot | `tech-proposal.md`, `specs/`, `tasks.md` |
 | 3 | Implementation | `/espec:implementation` | Developers, QA | GitHub Copilot | Code and tests, tasks checked off |
 | 4 | Archive | `/espec:archive`, `/espec:archive-clean` | Developers | GitHub Copilot | Main specs updated, change archived |
 
 GitHub Copilot prompt files cannot contain `:` in their name, so in Copilot Chat the commands are typed
-with a dash: `/espec-ai-assisted-feature-definition`, `/espec-tech-proposal`, `/espec-implementation`,
+with a dash: `/espec-feature-definition`, `/espec-tech-proposal`, `/espec-implementation`,
 `/espec-archive`, `/espec-archive-clean`. The colon form is the canonical name used in documentation.
 
 ## Directory layout
@@ -47,7 +47,8 @@ espec/
 │       ├── YYYY-MM-DD-<change-name>/
 │       └── YYYY-MM-DD-archive-clean/
 │           └── cleanup.md
-└── templates/                    # Blank files the commands start from
+├── templates/                    # Blank files the commands start from
+└── bin/                          # espec validate, new, list (copied by init, refreshed by update)
 ```
 
 `<capability>` is a kebab-case name for a durable system behaviour (`invoice-export`, `user-auth`),

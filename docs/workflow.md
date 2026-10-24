@@ -58,9 +58,9 @@ Three things to notice:
 
 | | |
 |---|---|
-| Command | `/espec:ai-assisted-feature-definition` |
+| Command | `/espec:feature-definition` |
 | Who | Product Manager writes. Designer fills **Experience and design**. A developer can run it in-repo when the work has no product owner. |
-| Tool | A Rovo Agent or an M365 Copilot agent built from [product-ai/](../product-ai/README.md). In a repo: `/espec-ai-assisted-feature-definition` in Copilot Chat. |
+| Tool | A Rovo Agent or an M365 Copilot agent built from [product-ai/](../product-ai/README.md). In a repo: `/espec-feature-definition` in Copilot Chat. |
 | Inputs | A problem, an idea, research notes, design files. Or an existing ticket to review. |
 | Outputs | A feature definition in the fixed format, pasted as the ticket description. The text starts with `<!-- espec:feature-definition v1 -->` so every tool can recognise it. |
 | Exit criteria | **Ready for tech proposal**: Why, What, at least one UC, edge cases, out of scope and acceptance criteria are present; every UC and EC maps to an AC; open questions are answered or explicitly deferred by product. The status line in the document says so. |

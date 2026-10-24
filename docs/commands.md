@@ -24,19 +24,19 @@ Only phase 1 runs in Rovo and M365 Copilot. Phases 2 to 4 need the repository an
 
 | Command | Phase | Who | Input | Writes |
 |---|---|---|---|---|
-| `/espec:ai-assisted-feature-definition` | 1 | PM, Designer. A developer in-repo. | Idea, ticket key, URL or pasted definition | Ticket description. In-repo also `feature.md` and `.espec.yaml` |
+| `/espec:feature-definition` | 1 | PM, Designer. A developer in-repo. | Idea, ticket key, URL or pasted definition | Ticket description. In-repo also `feature.md` and `.espec.yaml` |
 | `/espec:tech-proposal` | 2 | Developer, QA | Ticket key, URL, change name or pasted definition | `tech-proposal.md`, `specs/`, `tasks.md`, `.espec.yaml` |
 | `/espec:implementation` | 3 | Developer, QA | Change name | Code, tests, `tasks.md`, `.espec.yaml` |
 | `/espec:archive` | 4 | Developer | Change name | `espec/specs/`, the archived folder, a release note |
 | `/espec:archive-clean` | 4 | Developer | Optional capability name | `cleanup.md`, then confirmed edits to `espec/specs/` |
 
-## /espec:ai-assisted-feature-definition
+## /espec:feature-definition
 
 | | |
 |---|---|
-| GitHub Copilot | `/espec-ai-assisted-feature-definition <source>` |
-| Prompt file | [template/.github/prompts/espec-ai-assisted-feature-definition.prompt.md](../template/.github/prompts/espec-ai-assisted-feature-definition.prompt.md) |
-| Product tools | [product-ai/rovo/feature-definition-agent.md](../product-ai/rovo/feature-definition-agent.md), [product-ai/m365-copilot/feature-definition-agent.md](../product-ai/m365-copilot/feature-definition-agent.md), [product-ai/prompts/ai-assisted-feature-definition.prompt.md](../product-ai/prompts/ai-assisted-feature-definition.prompt.md) |
+| GitHub Copilot | `/espec-feature-definition <source>` |
+| Prompt file | [template/.github/prompts/espec-feature-definition.prompt.md](../template/.github/prompts/espec-feature-definition.prompt.md) |
+| Product tools | [product-ai/rovo/feature-definition-agent.md](../product-ai/rovo/feature-definition-agent.md), [product-ai/m365-copilot/feature-definition-agent.md](../product-ai/m365-copilot/feature-definition-agent.md), [product-ai/prompts/feature-definition.prompt.md](../product-ai/prompts/feature-definition.prompt.md) |
 | Who runs it | Product Manager. Designer for the Experience and design section, with the design-notes agent. A developer when the work has no product owner. |
 | Input | One of: a one-line idea (Draft mode), a ticket key, URL or pasted definition (Import mode), an existing `feature.md` (Review mode). The AI says which mode it picked. |
 | Reads | In-repo: `espec/AGENTS.md`, `project.md`, `config.yaml`. The ticket, when a tool can reach it. |
@@ -110,22 +110,39 @@ a note asking for an owner, never Purge.
 
 ## The espec CLI (optional)
 
-[bin/espec](../bin/espec) (bash) and [bin/espec.ps1](../bin/espec.ps1) (PowerShell) are helpers.
-Nothing in the workflow needs them. The prompts read and write the same files. Use the CLI to set a
-repository up and to check formats before a review.
+The CLI is a bash script and a PowerShell script with the same behaviour. Nothing in the workflow
+needs them. The prompts read and write the same files. Use the CLI to set a repository up and to
+check formats before a review.
+
+The scripts live in [template/espec/bin/](../template/espec/bin/), so `init` copies them into every
+project at `espec/bin/`. [bin/espec](../bin/espec) and [bin/espec.ps1](../bin/espec.ps1) at the root
+of this toolkit are wrappers around them.
 
 ```bash
-bash bin/espec init path/to/repo        # macOS, Linux, Git Bash
-pwsh bin/espec.ps1 init path/to/repo    # PowerShell
+bash bin/espec init path/to/repo        # from the toolkit checkout: macOS, Linux, Git Bash
+pwsh bin/espec.ps1 init path/to/repo    # from the toolkit checkout: PowerShell
+```
+
+```bash
+bash espec/bin/espec validate           # from inside a project, no toolkit needed
 ```
 
 | Command | What it does | Touches |
 |---|---|---|
 | `espec init [dir]` | Copies `template/` into a repository and prints the next steps. Never overwrites an existing file. | `.github/` and `espec/` in the target repo |
-| `espec update [dir]` | Refreshes the managed files: the `espec-*` prompts, `espec.instructions.md`, `AGENTS.md` and `templates/`. Leaves `copilot-instructions.md`, `project.md`, `config.yaml`, `specs/` and `changes/` alone. | Managed files only |
+| `espec update [dir]` | Refreshes the managed files: the `espec-*` prompts, `espec.instructions.md`, the `espec-validate.yml` workflow, `AGENTS.md`, `templates/` and `espec/bin/`. Leaves `copilot-instructions.md`, `project.md`, `config.yaml`, `specs/` and `changes/` alone. | Managed files only |
 | `espec new <change-name> [--ticket KEY] [--title "Title"] [dir]` | Scaffolds `espec/changes/<change-name>/` from `espec/templates/`: `feature.md`, `tech-proposal.md`, `tasks.md`, an empty `specs/` and a `.espec.yaml` with the ticket, title and today's date. The name must be kebab-case. | `espec/changes/<change-name>/` |
 | `espec list [dir]` | Lists active changes with name, status and ticket from `.espec.yaml` and task progress counted from `tasks.md`, plus the number of archived changes. | Nothing |
 | `espec validate [change-name] [dir]` | Checks one change, or every active change, plus the main specs: the feature definition marker, required sections and `UC`, `EC`, `AC` ids, the ⚠️ marker on forced notes, leftover placeholders, delta section names, `#### Scenario:` with four hashes, every requirement has a scenario, a Reason on every REMOVED requirement, unique requirement names, the `- [ ] N.M` task format, and a valid `.espec.yaml` status. Exits non-zero on a failure, so it can run in CI. | Nothing |
 
-`[dir]` defaults to the current directory. Run `validate` before you ask for a tech proposal review.
-Run `update` after pulling a new espec release, then commit the result.
+`[dir]` defaults to the current directory. `init` and `update` run from the toolkit checkout; `new`,
+`list` and `validate` also run from `espec/bin/` inside a project. Run `validate` before you ask for
+a tech proposal review. Run `update` after pulling a new espec release, then commit the result.
+
+### Validation in CI
+
+`init` adds `.github/workflows/espec-validate.yml` to the project. It runs `espec/bin/espec validate`
+on every pull request that touches `espec/`, and on demand. Because the validator ships with the
+project, the job needs no network access and no checkout of this toolkit. A draft change committed
+with template placeholders fails the check, which is the point: fill the definition in, or keep the
+draft on a branch until it is ready.

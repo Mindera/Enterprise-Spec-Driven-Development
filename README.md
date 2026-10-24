@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="./LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square"></a>
+  <a href="./LICENSE"><img alt="License: PolyForm Noncommercial 1.0.0" src="https://img.shields.io/badge/License-PolyForm%20Noncommercial%201.0.0-blue.svg?style=flat-square"></a>
   <img alt="GitHub Copilot" src="https://img.shields.io/badge/Developers-GitHub%20Copilot-24292f?style=flat-square">
   <img alt="Rovo" src="https://img.shields.io/badge/Product-Rovo-0052cc?style=flat-square">
   <img alt="M365 Copilot" src="https://img.shields.io/badge/Product-M365%20Copilot-5b5fc7?style=flat-square">
@@ -79,7 +79,7 @@ Copilot:          Synced invoice-export (new) and invoice-list (1 modified).
 
 | # | Phase | Command | Who | Output |
 |---|-------|---------|-----|--------|
-| 1 | **AI Assisted Feature Definition** | `/espec:ai-assisted-feature-definition` | Product, Design | Ticket: why, what, use cases, edge cases, out of scope, acceptance criteria |
+| 1 | **AI Assisted Feature Definition** | `/espec:feature-definition` | Product, Design | Ticket: why, what, use cases, edge cases, out of scope, acceptance criteria |
 | 2 | **Tech Proposal** | `/espec:tech-proposal` | Developers, QA | `tech-proposal.md`, delta specs, `tasks.md` |
 | 3 | **Implementation** | `/espec:implementation` | Developers, QA | Code and tests, tasks checked off as verified |
 | 4 | **Archive** | `/espec:archive` · `/espec:archive-clean` | Developers | Main specs updated; outdated specs purged or corrected |
@@ -139,6 +139,10 @@ Then fill in `espec/project.md` and `espec/config.yaml`, commit, and restart you
 Copilot picks up the prompt files. Type `/espec-` in Copilot Chat to see the five commands.
 Windows users run `bin\espec.ps1` with the same arguments.
 
+Your repo also gets its own copy of the validator in `espec/bin` and a GitHub Actions workflow that
+runs it on every pull request touching `espec/`, so format rules are checked without any dependency
+on this toolkit.
+
 ### Product and design
 
 Open [`product-ai/`](product-ai/), pick `rovo/` or `m365-copilot/`, and create the two agents from
@@ -176,6 +180,7 @@ your-repo/
 │   ├── copilot-instructions.md            # Repo-wide rules for Copilot
 │   ├── prompts/espec-*.prompt.md          # The five commands
 │   ├── instructions/espec.instructions.md # Format rules applied to espec/**
+│   ├── workflows/espec-validate.yml       # CI: validates changes and specs on pull requests
 │   └── ISSUE_TEMPLATE/feature-definition.md
 └── espec/
     ├── AGENTS.md                          # Conventions for humans and AI
@@ -184,7 +189,8 @@ your-repo/
     ├── specs/<capability>/spec.md         # The system as it is today
     ├── changes/<change-name>/             # feature.md · tech-proposal.md · specs/ · tasks.md
     ├── changes/archive/                   # Finished changes and clean-up reports
-    └── templates/                         # Blank files the commands start from
+    ├── templates/                         # Blank files the commands start from
+    └── bin/                               # espec validate · new · list, no toolkit needed
 ```
 
 ## Docs
@@ -203,7 +209,8 @@ documents they produce.
 
 ## License
 
-[MIT](LICENSE)
+[PolyForm Noncommercial 1.0.0](LICENSE). Free to use, copy, modify and share for noncommercial
+purposes. Contact Mindera for commercial use.
 
 ---
 

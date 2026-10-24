@@ -11,7 +11,7 @@ Read `espec/AGENTS.md` for the conventions and `espec/project.md` for project co
 3. **Implementation** follows the tasks and checks them off as they are verified.
 4. **Archive** folds the deltas into `espec/specs/` and moves the change to `espec/changes/archive/`.
 
-Commands in Copilot Chat: `/espec-ai-assisted-feature-definition`, `/espec-tech-proposal`,
+Commands in Copilot Chat: `/espec-feature-definition`, `/espec-tech-proposal`,
 `/espec-implementation`, `/espec-archive`, `/espec-archive-clean`.
 
 ## Rules that always apply

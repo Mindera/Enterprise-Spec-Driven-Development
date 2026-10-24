@@ -52,7 +52,7 @@ Never:
 
 | Phase | Does | Tool |
 |---|---|---|
-| 1 | Optional. Runs the feature definition in-repo when the work has no product owner, or imports a ticket. Pastes the result into a ticket so product can own it. | `/espec-ai-assisted-feature-definition` |
+| 1 | Optional. Runs the feature definition in-repo when the work has no product owner, or imports a ticket. Pastes the result into a ticket so product can own it. | `/espec-feature-definition` |
 | 2 | Runs the tech proposal. Explores the code before writing. Writes `tech-proposal.md`, the delta specs and `tasks.md`. Pastes Questions for Product as a ticket comment. Opens the pull request that adds the change folder. | `/espec-tech-proposal`, an Atlassian or GitHub MCP server to fetch the ticket |
 | 3 | Runs the implementation task by task. Lets the AI pause and decides on each pause. Keeps `tasks.md` as the progress record. | `/espec-implementation` |
 | 4 | Runs archive after the review. Posts the release note. Runs archive-clean on the agreed rhythm and brings the report to the reviewer. | `/espec-archive`, `/espec-archive-clean`, `bin/espec validate` |
@@ -71,7 +71,7 @@ Never:
 
 | Phase | Does | Tool |
 |---|---|---|
-| 1 | Reviews the definition for missing edge cases and untestable acceptance criteria. Proposes `EC-n` entries. | The review prompt in [product-ai/prompts/review-feature-definition.prompt.md](../product-ai/prompts/review-feature-definition.prompt.md), or `/espec-ai-assisted-feature-definition` in Review mode |
+| 1 | Reviews the definition for missing edge cases and untestable acceptance criteria. Proposes `EC-n` entries. | The review prompt in [product-ai/prompts/review-feature-definition.prompt.md](../product-ai/prompts/review-feature-definition.prompt.md), or `/espec-feature-definition` in Review mode |
 | 2 | Writes or reviews the **Test strategy**: how each scenario is verified, at which level, with what data, in which environment. Checks that the traceability table covers every AC and that the `## QA verification` group has one `Q.n` line per AC. | `/espec-tech-proposal`, the pull request review |
 | 3 | Runs the `Q.n` tasks in verification-only mode. Records environment and result in the task line. Checks a task only when it passes. Reports a failing scenario as a pause, not a workaround. | `/espec-implementation <change-name>` with "verification only" |
 | 4 | Confirms the release note matches what was verified and what was deferred. | The ticket |
@@ -122,7 +122,7 @@ Never:
 3. Optional: add a SharePoint site or document library with product context as knowledge.
 4. Share the agents with the product team.
 5. No agent builder available? Paste
-   [product-ai/prompts/ai-assisted-feature-definition.prompt.md](../product-ai/prompts/ai-assisted-feature-definition.prompt.md)
+   [product-ai/prompts/feature-definition.prompt.md](../product-ai/prompts/feature-definition.prompt.md)
    at the start of a Copilot chat, then describe the feature. The output is the same document.
 
 The result is pasted into the ticket. For GitHub Issues, use the issue template that ships with the
@@ -137,9 +137,9 @@ repository, or the body in
 2. Fill in `espec/project.md` and `espec/config.yaml`: ticket system, project key or repo, stack,
    where tests live, where tech proposals are reviewed.
 3. Commit. Prompt files are read from the repository, so the whole team gets the commands on their
-   next pull.
+   next pull. The `espec-validate` workflow now checks `espec/` on every pull request.
 4. Restart the IDE so the prompt files under `.github/prompts/` are picked up. In Copilot Chat the
-   commands then appear as `/espec-ai-assisted-feature-definition`, `/espec-tech-proposal`,
+   commands then appear as `/espec-feature-definition`, `/espec-tech-proposal`,
    `/espec-implementation`, `/espec-archive` and `/espec-archive-clean`. If they do not appear,
    check that prompt files are enabled in the IDE's Copilot settings.
 5. Enable an MCP server when the organisation allows it: the Atlassian MCP server for Jira, or the

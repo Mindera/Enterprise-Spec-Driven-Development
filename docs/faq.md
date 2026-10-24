@@ -22,7 +22,7 @@ last word on how. See [conventions.md](conventions.md#product-boundary-and-force
 
 ## Can a developer start a feature?
 
-Yes. Run `/espec-ai-assisted-feature-definition` in the repository with a one-line idea. The same
+Yes. Run `/espec-feature-definition` in the repository with a one-line idea. The same
 interview and the same format apply, and the result is stored in
 `espec/changes/<change-name>/feature.md`. Paste it into a ticket so product can review and own it.
 A definition nobody from product has read is still a draft.
@@ -77,7 +77,7 @@ for pruning too.
 
 It is not parsed. `### Scenario:` looks like a requirement heading to the tools, and the real
 requirement above it appears to have no scenario, which fails validation and blocks archive. Use
-`#### Scenario:` with exactly four `#`. `bin/espec validate` catches this, and so does the review
+`#### Scenario:` with exactly four `#`. `espec/bin/espec validate` catches this, in CI too,, and so does the review
 step of the tech proposal.
 
 ## Does this need a CLI?
@@ -93,7 +93,7 @@ Do not try to spec everything at once. Pick the capability the next feature will
 baseline using the same evidence approach archive-clean uses: every requirement cites the code and
 tests that prove it. Do it as a change so the rule "never edit `espec/specs/` by hand" still holds:
 
-1. Create a change named `baseline-<capability>` with `bin/espec new` or by hand.
+1. Create a change named `baseline-<capability>` with `espec/bin/espec new` or by hand.
 2. Ask Copilot to draft `specs/<capability>/spec.md` as a delta with a `## Purpose` and ADDED
    requirements, from the code and tests. Review every requirement against the evidence.
 3. Put one task per scenario in `tasks.md`: "verify the code does this today". Check them as you
