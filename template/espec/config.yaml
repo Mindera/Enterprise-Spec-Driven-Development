@@ -1,0 +1,38 @@
+# espec configuration. Read by the espec prompts before they write anything.
+
+tickets:
+  system: jira                  # jira | github
+  jira:
+    base_url: https://your-company.atlassian.net
+    project_key: PROJ
+    feature_issue_type: Story   # Issue type that carries feature definitions (Story, Epic, Feature)
+  github:
+    repo: your-org/your-repo
+    label: feature-definition   # Label applied to issues that carry feature definitions
+
+archive:
+  clean:
+    # Archived change folders older than this many days are listed for pruning by /espec:archive-clean.
+    # 0 keeps every archived change forever.
+    prune_archived_changes_older_than_days: 0
+
+# Free-text context the AI applies when writing tech proposals, specs and tasks.
+# Keep it short. Details that only matter to one phase go under rules.
+context: |
+  Describe the product in two sentences.
+  Tech stack, main frameworks, how services talk to each other.
+  Where tests live and how they run.
+  Anything an engineer new to the repo must know before proposing a change.
+
+# Rules appended to each phase. The AI applies them; it does not paste them into artifacts.
+rules:
+  feature-definition:
+    - Acceptance criteria are written in GIVEN/WHEN/THEN.
+  tech-proposal:
+    - Every public API change is listed with its versioning strategy.
+  specs:
+    - Requirements describe observable behaviour, never internal mechanisms.
+  tasks:
+    - Every task group lands its own tests.
+  implementation:
+    - Run the full test suite before checking the last task of a group.

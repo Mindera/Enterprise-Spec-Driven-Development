@@ -1,0 +1,357 @@
+#!/usr/bin/env bash
+# espec: helper CLI for Enterprise Spec Driven Development (spec-driven development) projects.
+# Dependency free: bash 3.2+ and the POSIX tools grep, sed, awk, find, cp, mkdir, date.
+set -euo pipefail
+
+MARKER='<!-- espec:feature-definition v1 -->'
+CHECKS=0
+FAILS=0
+
+resolve_bin_dir() {
+  local src="$0" dir
+  while [ -L "$src" ]; do
+    dir=$(cd "$(dirname "$src")" && pwd)
+    src=$(readlink "$src")
+    case "$src" in /*) ;; *) src="$dir/$src" ;; esac
+  done
+  cd "$(dirname "$src")" && pwd
+}
+BIN_DIR=$(resolve_bin_dir)
+REPO_ROOT=$(dirname "$BIN_DIR")
+TEMPLATE_DIR="$REPO_ROOT/template"
+
+usage() {
+  cat <<'EOF'
+espec: spec-driven development helper (Enterprise Spec Driven Development)
+
+Usage: espec <command> [arguments]
+
+  init [dir]                 Copy the espec template into a repository (never overwrites existing files)
+  update [dir]               Refresh the managed files: espec prompts, espec instructions, AGENTS.md, templates
+  new <name> [options] [dir] Start a change under espec/changes/<name> (options: --ticket KEY, --title "Title")
+  list [dir]                 Show active changes with status, ticket and task progress
+  validate [name] [dir]      Check one change, or every active change, plus the main specs
+  help                       Show this help
+
+[dir] defaults to the current directory. An espec/ folder marks an initialised project.
+EOF
+}
+
+die() { echo "error: $*" >&2; exit 1; }
+need_template() { [ -d "$TEMPLATE_DIR" ] || die "template directory not found: $TEMPLATE_DIR"; }
+need_project() { [ -d "$1/espec" ] || die "$1 is not a espec project (no espec/ folder). Run: espec init $1"; }
+
+# yaml_value FILE KEY: top-level scalar value without trailing comment, empty when absent.
+yaml_value() {
+  [ -f "$1" ] || return 0
+  awk -v k="$2" 'index($0, k ":") == 1 {
+    v = substr($0, length(k) + 2); sub(/[ \t]+#.*$/, "", v); gsub(/^[ \t]+|[ \t\r]+$/, "", v); print v; exit }' "$1"
+}
+
+# task_counts FILE: prints "done total" for checkbox lines in a tasks.md.
+task_counts() {
+  awk '/^[ \t]*- \[.\]/ { t++ } /^[ \t]*- \[[xX]\]/ { d++ } END { printf "%d %d\n", d, t }' "$1"
+}
+
+# ---------------------------------------------------------------- init / update
+
+cmd_init() {
+  local dir="${1:-.}" src rel
+  need_template
+  mkdir -p "$dir"
+  echo "Initialising espec in $dir"
+  find "$TEMPLATE_DIR" -type f | sort | while IFS= read -r src; do
+    rel="${src#$TEMPLATE_DIR/}"
+    if [ -e "$dir/$rel" ]; then
+      echo "  skipped (exists)  $rel"
+    else
+      mkdir -p "$(dirname "$dir/$rel")"
+      cp "$src" "$dir/$rel"
+      echo "  created           $rel"
+    fi
+  done
+  cat <<EOF
+
+Next steps:
+  1. Edit espec/project.md and espec/config.yaml: product, stack, conventions, ticket system.
+  2. Commit the new files.
+  3. Restart your IDE so GitHub Copilot picks up the prompt files in .github/prompts.
+  4. Point product managers to the product-ai pack (Rovo and M365 Copilot) in $REPO_ROOT/product-ai
+EOF
+}
+
+# Files that update may overwrite, relative to the project root.
+managed_files() {
+  (
+    cd "$TEMPLATE_DIR"
+    find .github/prompts -name 'espec-*.prompt.md'
+    find .github/instructions -name 'espec.instructions.md'
+    echo espec/AGENTS.md
+    find espec/templates -type f
+  ) | sort
+}
+
+cmd_update() {
+  local dir="${1:-.}" rel
+  need_template
+  need_project "$dir"
+  echo "Updating managed espec files in $dir"
+  managed_files | while IFS= read -r rel; do
+    if [ ! -e "$dir/$rel" ]; then
+      mkdir -p "$(dirname "$dir/$rel")"
+      cp "$TEMPLATE_DIR/$rel" "$dir/$rel"
+      echo "  created    $rel"
+    elif cmp -s "$TEMPLATE_DIR/$rel" "$dir/$rel"; then
+      echo "  unchanged  $rel"
+    else
+      cp "$TEMPLATE_DIR/$rel" "$dir/$rel"
+      echo "  updated    $rel"
+    fi
+  done
+  echo "Done. copilot-instructions.md, project.md, config.yaml, specs/ and changes/ were not touched."
+}
+
+# ---------------------------------------------------------------- new / list
+
+cmd_new() {
+  local name="" ticket="" title="" dir="." today change tpl line f
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --ticket) [ $# -ge 2 ] || die "--ticket needs a value"; ticket="$2"; shift 2 ;;
+      --title)  [ $# -ge 2 ] || die "--title needs a value"; title="$2"; shift 2 ;;
+      --ticket=*) ticket="${1#--ticket=}"; shift ;;
+      --title=*)  title="${1#--title=}"; shift ;;
+      -*) die "unknown option: $1" ;;
+      *) if [ -z "$name" ]; then name="$1"; else dir="$1"; fi; shift ;;
+    esac
+  done
+  [ -n "$name" ] || die 'usage: espec new <change-name> [--ticket KEY] [--title "Title"] [dir]'
+  echo "$name" | grep -Eq '^[a-z0-9]+(-[a-z0-9]+)*$' \
+    || die "change name must be kebab-case (lowercase letters, digits, dashes): $name"
+  need_project "$dir"
+  tpl="$dir/espec/templates"
+  for f in feature.md tech-proposal.md tasks.md espec.yaml; do
+    [ -f "$tpl/$f" ] || die "$tpl/$f is missing. Run: espec update $dir"
+  done
+  change="$dir/espec/changes/$name"
+  [ ! -e "$change" ] || die "$change already exists"
+
+  today=$(date +%Y-%m-%d)
+  mkdir -p "$change/specs"
+  for f in feature.md tech-proposal.md tasks.md; do cp "$tpl/$f" "$change/$f"; done
+  while IFS= read -r line || [ -n "$line" ]; do
+    case "$line" in
+      ticket:*)  [ -z "$ticket" ] || line="ticket: $ticket" ;;
+      title:*)   [ -z "$title" ] || line="title: $title" ;;
+      created:*) line="created: $today" ;;
+    esac
+    printf '%s\n' "$line"
+  done < "$tpl/espec.yaml" > "$change/.espec.yaml"
+
+  echo "Created $change"
+  echo "  feature.md  tech-proposal.md  tasks.md  specs/  .espec.yaml"
+  echo
+  echo "Next: in Copilot Chat run  /espec-ai-assisted-feature-definition $name"
+  echo "      or paste the feature definition from the ticket into feature.md and set status: defined"
+}
+
+cmd_list() {
+  local dir="${1:-.}" d name status ticket tasks n=0 archived=0
+  need_project "$dir"
+  printf '%-36s %-13s %-18s %s\n' NAME STATUS TICKET TASKS
+  for d in "$dir"/espec/changes/*/; do
+    [ -d "$d" ] || continue
+    name=$(basename "$d")
+    [ "$name" != archive ] || continue
+    status=$(yaml_value "$d/.espec.yaml" status)
+    ticket=$(yaml_value "$d/.espec.yaml" ticket)
+    if [ -f "$d/tasks.md" ]; then tasks=$(task_counts "$d/tasks.md" | awk '{ print $1 "/" $2 }'); else tasks="no tasks"; fi
+    printf '%-36s %-13s %-18s %s\n' "$name" "${status:-?}" "${ticket:--}" "$tasks"
+    n=$((n + 1))
+  done
+  [ "$n" -gt 0 ] || echo "(no active changes)"
+  for d in "$dir"/espec/changes/archive/*/; do [ ! -d "$d" ] || archived=$((archived + 1)); done
+  echo
+  echo "$n active change(s), $archived archived."
+}
+
+# ---------------------------------------------------------------- validate
+
+ok()   { CHECKS=$((CHECKS + 1)); echo "  ✔ $*"; }
+bad()  { CHECKS=$((CHECKS + 1)); FAILS=$((FAILS + 1)); echo "  ✖ $*"; }
+warn() { echo "  ⚠ warning: $*"; }
+# expect MESSAGE COMMAND...: records a pass when COMMAND succeeds, a failure otherwise.
+expect() { local msg="$1"; shift; if "$@"; then ok "$msg"; else bad "$msg"; fi; }
+# fail_each LABEL TEXT: one failure line per line of TEXT.
+fail_each() { local l; while IFS= read -r l; do [ -z "$l" ] || bad "$1: $l"; done <<EOF
+$2
+EOF
+}
+
+# section FILE "## Heading": the lines of that section up to the next ## heading.
+section() {
+  awk -v h="$2" '{ sub(/\r$/, "") } /^## / { t = $0; sub(/[ \t]+$/, "", t); on = (t == h) } on { print }' "$1"
+}
+section_has_content() {
+  section "$1" "$2" | awk 'NR == 1 { next }
+    inc { if (/-->/) inc = 0; next }
+    /^[ \t]*<!--/ { if (!/-->/) inc = 1; next }
+    /[^ \t\r]/ { found = 1 }
+    END { exit !found }'
+}
+marker_ok() { [ "$(head -n 1 "$1" | tr -d '\r')" = "$MARKER" ]; }
+forced_ok() { section "$1" "## Forced technical notes" | grep -Fq '⚠'; }
+placeholders() { awk '/<[A-Za-z][A-Za-z0-9 -]*>/ && !/^[ \t]*<!--/ { print "line " NR ": " $0 }' "$1"; }
+
+validate_feature() {
+  local f="$1/feature.md" h id ac left
+  if [ ! -f "$f" ]; then bad "feature.md missing"; return 0; fi
+  expect "feature.md: starts with the marker $MARKER" marker_ok "$f"
+  for h in "## Why" "## What" "## Use cases" "## Edge cases" "## Out of scope" "## Acceptance criteria"; do
+    if grep -q "^$h[[:space:]]*$" "$f"; then
+      expect "feature.md: '$h' present and not empty" section_has_content "$f" "$h"
+    else
+      bad "feature.md: '$h' missing"
+    fi
+  done
+  for h in UC EC AC; do expect "feature.md: at least one ### $h-n" grep -q "^### $h-[0-9]" "$f"; done
+  ac=$(section "$f" "## Acceptance criteria")
+  for id in $(sed -n 's/^### \([UE]C-[0-9][0-9]*\).*/\1/p' "$f" | sort -u); do
+    printf '%s\n' "$ac" | grep -Eq "(^|[^A-Za-z0-9])$id([^0-9]|$)" \
+      || warn "feature.md: $id is not referenced in the Acceptance criteria section"
+  done
+  if grep -q '^## Forced technical notes' "$f"; then
+    expect "feature.md: Forced technical notes carry the ⚠️ marker" forced_ok "$f"
+  fi
+  left=$(placeholders "$f")
+  if [ -z "$left" ]; then ok "feature.md: no template placeholders left"; else fail_each "feature.md: placeholder" "$left"; fi
+}
+
+# Structural checks shared by delta specs (mode=delta) and main specs (mode=main). Prints one problem per line.
+SPEC_AWK='
+function flush() {
+  if (cur != "") {
+    if (needscen && scen == 0) print "requirement has no #### Scenario: " cur
+    if (needreason && !reason) print "REMOVED requirement has no **Reason:**: " cur
+  }
+  cur = ""
+}
+{ sub(/\r$/, "") }
+/<[A-Za-z][A-Za-z0-9 -]*>/ && !/^[ \t]*<!--/ { print "template placeholder left on line " NR ": " $0 }
+/^## / {
+  flush(); sec = $0; sub(/[ \t]+$/, "", sec)
+  if (mode == "delta") {
+    if (sec != "## Purpose" && sec != "## ADDED Requirements" && sec != "## MODIFIED Requirements" &&
+        sec != "## REMOVED Requirements" && sec != "## RENAMED Requirements")
+      print "heading not allowed in a delta spec: " sec
+  } else if (sec == "## Purpose") purpose = 1
+  else if (sec == "## Requirements") reqs = 1
+  else print "heading not allowed in a main spec: " sec
+  next
+}
+/^### Requirement:/ {
+  flush(); name = $0; sub(/^### Requirement:[ \t]*/, "", name); sub(/[ \t]+$/, "", name)
+  if (name in seen) print "duplicate requirement name: " name
+  seen[name] = 1; cur = name; scen = 0; reason = 0
+  needscen = (mode == "main" || sec == "## ADDED Requirements" || sec == "## MODIFIED Requirements")
+  needreason = (sec == "## REMOVED Requirements")
+  next
+}
+/^### Scenario:/ || /^##### Scenario:/ { print "scenarios need exactly four #: " $0; next }
+/^### / { flush(); next }
+/^#### Scenario:/ { scen++; next }
+/\*\*Reason:\*\*/ { reason = 1 }
+END {
+  flush()
+  if (mode == "main" && !purpose) print "missing ## Purpose"
+  if (mode == "main" && !reqs) print "missing ## Requirements"
+}'
+
+validate_spec() { # FILE MODE LABEL
+  local out
+  out=$(awk -v mode="$2" "$SPEC_AWK" "$1")
+  if [ -z "$out" ]; then ok "$3: structure ok"; else fail_each "$3" "$out"; fi
+}
+
+validate_tasks() {
+  local f="$1/tasks.md" badlines
+  if [ ! -f "$f" ]; then echo "  - tasks.md not present yet (skipped)"; return 0; fi
+  expect "tasks.md: at least one task" grep -Eq '^[[:space:]]*- \[[ xX]\] [A-Za-z0-9]+\.[0-9]+([[:space:]]|$)' "$f"
+  badlines=$(awk '/^[ \t]*- \[/ && !/^[ \t]*- \[[ xX]\] [A-Za-z0-9]+\.[0-9]+([ \t\r]|$)/ { print "line " NR ": " $0 }' "$f")
+  if [ -z "$badlines" ]; then
+    ok "tasks.md: every checkbox is well formed"
+  else
+    fail_each "tasks.md: use '- [ ] 1.2 ...' or '- [x] 1.2 ...'" "$badlines"
+  fi
+}
+
+validate_meta() {
+  local f="$1/.espec.yaml" status
+  if [ ! -f "$f" ]; then bad ".espec.yaml missing"; return 0; fi
+  status=$(yaml_value "$f" status)
+  case "$status" in
+    defined|proposed|in-progress|implemented|archived) ok ".espec.yaml: status is '$status'" ;;
+    *) bad ".espec.yaml: status '$status' must be one of defined, proposed, in-progress, implemented, archived" ;;
+  esac
+}
+
+validate_change() {
+  local c="$1" specs spec
+  echo "Change: $(basename "$c")"
+  validate_meta "$c"
+  validate_feature "$c"
+  specs=$([ -d "$c/specs" ] && find "$c/specs" -name spec.md | sort || true)
+  if [ -z "$specs" ]; then
+    [ "$(yaml_value "$c/.espec.yaml" skip_specs)" = true ] || echo "  - no delta specs yet (expected after the tech proposal)"
+  fi
+  while IFS= read -r spec; do [ -z "$spec" ] || validate_spec "$spec" delta "${spec#$c/}"; done <<EOF
+$specs
+EOF
+  validate_tasks "$c"
+}
+
+validate_main_specs() {
+  local dir="$1" specs spec
+  specs=$([ -d "$dir/espec/specs" ] && find "$dir/espec/specs" -mindepth 2 -maxdepth 3 -name spec.md | sort || true)
+  if [ -z "$specs" ]; then echo "Main specs: none yet"; return 0; fi
+  echo "Main specs:"
+  while IFS= read -r spec; do [ -z "$spec" ] || validate_spec "$spec" main "${spec#$dir/}"; done <<EOF
+$specs
+EOF
+}
+
+cmd_validate() {
+  local name="" dir="." c
+  if [ $# -ge 2 ]; then name="$1"; dir="$2"
+  elif [ $# -eq 1 ]; then if [ -d "$1/espec" ]; then dir="$1"; else name="$1"; fi
+  fi
+  need_project "$dir"
+  if [ -n "$name" ]; then
+    [ -d "$dir/espec/changes/$name" ] || die "change not found: $dir/espec/changes/$name"
+    validate_change "$dir/espec/changes/$name"
+  else
+    for c in "$dir"/espec/changes/*/; do
+      [ -d "$c" ] || continue
+      [ "$(basename "$c")" != archive ] || continue
+      validate_change "${c%/}"
+    done
+  fi
+  validate_main_specs "$dir"
+  echo
+  echo "$CHECKS checks, $FAILS failures"
+  [ "$FAILS" -eq 0 ] || exit 1
+}
+
+# ---------------------------------------------------------------- dispatch
+
+cmd="${1:-help}"
+[ $# -eq 0 ] || shift
+case "$cmd" in
+  init)     cmd_init "$@" ;;
+  update)   cmd_update "$@" ;;
+  new)      cmd_new "$@" ;;
+  list)     cmd_list "$@" ;;
+  validate) cmd_validate "$@" ;;
+  help|-h|--help) usage ;;
+  *) usage >&2; die "unknown command: $cmd" ;;
+esac
