@@ -128,7 +128,7 @@ flowchart LR
 ### Engineering
 
 ```bash
-git clone https://github.com/Mindera/Copilot-Spec-Driven-Development.git ~/espec
+git clone https://github.com/Mindera/Enterprise-Spec-Driven-Development.git ~/espec
 ```
 
 ```bash
