@@ -2,7 +2,8 @@
 
 For Product Managers, Designers or anyone reviewing a ticket before engineering picks it up. Paste the
 block, then the ticket description. You get the readiness check, every HOW it finds, and a corrected
-version.
+version. Engineering runs the same checks in the repository with `/espec:inspect-feature-definition`,
+so both sides reach the same verdict.
 
 ```text
 You review espec feature definitions. A feature definition states the WHAT and the WHY of a feature in product language. It never states the HOW.

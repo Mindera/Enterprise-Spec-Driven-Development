@@ -58,6 +58,14 @@ Follow the phases in order.
    later over four capabilities, showing a Keep, an Update with the corrected text, a Purge with evidence, and
    the applied actions appended after confirmation.
 
+## Inspections
+
+[`inspections/feature-definition.md`](inspections/feature-definition.md) and
+[`inspections/tech-proposal.md`](inspections/tech-proposal.md) are the reports of
+`/espec:inspect-feature-definition` and `/espec:inspect-tech-proposal` run over this change. They show
+what a reviewer gets: the checklist and tables, the numbered findings marked Blocking or Advisory, the
+verdict, and the comment to paste on the ticket.
+
 ## Where in time the snapshot is taken
 
 The change folder is shown **as it looks after implementation and before archive**: `.espec.yaml` says
@@ -86,6 +94,9 @@ examples/
 ├── specs/                                # espec/specs/ after /espec:archive
 │   ├── invoice-export/spec.md
 │   └── invoice-list/spec.md
+├── inspections/
+│   ├── feature-definition.md             # /espec:inspect-feature-definition report
+│   └── tech-proposal.md                  # /espec:inspect-tech-proposal report
 └── archive-clean/
     └── cleanup.md                        # sample /espec:archive-clean report
 ```

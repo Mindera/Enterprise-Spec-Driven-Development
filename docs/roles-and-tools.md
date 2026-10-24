@@ -53,7 +53,7 @@ Never:
 | Phase | Does | Tool |
 |---|---|---|
 | 1 | Optional. Runs the feature definition in-repo when the work has no product owner, or imports a ticket. Pastes the result into a ticket so product can own it. | `/espec-feature-definition` |
-| 2 | Runs the tech proposal. Explores the code before writing. Writes `tech-proposal.md`, the delta specs and `tasks.md`. Pastes Questions for Product as a ticket comment. Opens the pull request that adds the change folder. | `/espec-tech-proposal`, an Atlassian or GitHub MCP server to fetch the ticket |
+| 2 | Runs the tech proposal. Explores the code before writing. Writes `tech-proposal.md`, the delta specs and `tasks.md`. Runs `/espec-inspect-feature-definition` on the ticket before starting. Pastes Questions for Product as a ticket comment. Opens the pull request that adds the change folder. | `/espec-tech-proposal`, an Atlassian or GitHub MCP server to fetch the ticket |
 | 3 | Runs the implementation task by task. Lets the AI pause and decides on each pause. Keeps `tasks.md` as the progress record. Opens the pull request with `pull-request.md` as its body, so reviewers read what was built and how it differs from the proposal without opening the code first. | `/espec-implementation` |
 | 4 | Runs archive after the review. Posts the release note. Runs archive-clean on the agreed rhythm and brings the report to the reviewer. | `/espec-archive`, `/espec-archive-clean`, `bin/espec validate` |
 
@@ -71,8 +71,8 @@ Never:
 
 | Phase | Does | Tool |
 |---|---|---|
-| 1 | Reviews the definition for missing edge cases and untestable acceptance criteria. Proposes `EC-n` entries. | The review prompt in [product-ai/prompts/review-feature-definition.prompt.md](../product-ai/prompts/review-feature-definition.prompt.md), or `/espec-feature-definition` in Review mode |
-| 2 | Writes or reviews the **Test strategy**: how each scenario is verified, at which level, with what data, in which environment. Checks that the traceability table covers every AC and that the `## QA verification` group has one `Q.n` line per AC. | `/espec-tech-proposal`, the pull request review |
+| 1 | Reviews the definition for missing edge cases and untestable acceptance criteria. Proposes `EC-n` entries. In the repository, `/espec-inspect-feature-definition` produces the same report. | The review prompt in [product-ai/prompts/review-feature-definition.prompt.md](../product-ai/prompts/review-feature-definition.prompt.md), or `/espec-feature-definition` in Review mode |
+| 2 | Writes or reviews the **Test strategy**: how each scenario is verified, at which level, with what data, in which environment. Runs `/espec-inspect-tech-proposal` and checks that the traceability table covers every AC and that the `## QA verification` group has one `Q.n` line per AC. | `/espec-tech-proposal`, the pull request review |
 | 3 | Runs the `Q.n` tasks in verification-only mode. Records environment and result in the task line. Checks a task only when it passes. Reports a failing scenario as a pause, not a workaround. | `/espec-implementation <change-name>` with "verification only" |
 | 4 | Confirms the release note matches what was verified and what was deferred. | The ticket |
 
@@ -86,7 +86,7 @@ Never:
 | Phase | Does | Tool |
 |---|---|---|
 | 1 | Reads. Flags a definition that is really several features. | The ticket |
-| 2 | Reviews the tech proposal: each `D-n` lists real alternatives, each `FT-n` has a verdict, the traceability table is complete, non-functional requirements and rollout are covered. Sets the status line to **Approved**. | The pull request that adds the change folder |
+| 2 | Runs `/espec-inspect-tech-proposal`, then reviews the tech proposal: each `D-n` lists real alternatives, each `FT-n` has a verdict, the traceability table is complete, non-functional requirements and rollout are covered. Sets the status line to **Approved**. | The pull request that adds the change folder |
 | 3 | Decides on pauses that change the design. A design change is a tech proposal update, reviewed again. Reviews the pull request starting from its description: the proposal-versus-implementation table says where to look. | The pull request |
 | 4 | Confirms archive-clean verdicts. Owns the requirements that have no owner. | `/espec-archive-clean` report, `cleanup.md` |
 

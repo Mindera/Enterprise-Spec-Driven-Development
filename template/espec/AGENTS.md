@@ -20,9 +20,18 @@ written in a fixed format that any AI assistant can read and any human can revie
 | 3 | Implementation | `/espec:implementation` | Developers, QA | GitHub Copilot | Code and tests, tasks checked off, `pull-request.md` |
 | 4 | Archive | `/espec:archive`, `/espec:archive-clean` | Developers | GitHub Copilot | Main specs updated, change archived |
 
+Two read-only review commands sit between the phases. They write nothing: they print a report and a
+comment for the ticket.
+
+| Command | Checks | Who | When |
+|---------|--------|-----|------|
+| `/espec:inspect-feature-definition` | A ticket, a pasted definition or `feature.md` against the feature definition rules | Developers, QA, reviewers. Product runs the same checks through the review prompt in the product pack | Before a tech proposal starts |
+| `/espec:inspect-tech-proposal` | `tech-proposal.md`, `specs/` and `tasks.md` against `feature.md` and the live ticket | QA, Engineering Managers, Architects | Before a tech proposal is approved |
+
 GitHub Copilot prompt files cannot contain `:` in their name, so in Copilot Chat the commands are typed
 with a dash: `/espec-feature-definition`, `/espec-tech-proposal`, `/espec-implementation`,
-`/espec-archive`, `/espec-archive-clean`. The colon form is the canonical name used in documentation.
+`/espec-archive`, `/espec-archive-clean`, `/espec-inspect-feature-definition`,
+`/espec-inspect-tech-proposal`. The colon form is the canonical name used in documentation.
 
 ## Directory layout
 
@@ -371,6 +380,106 @@ Rules:
 - When a change ships in several pull requests, keep one `##` block per pull request in the same
   file, newest first, each with the sections above.
 
+## Inspection report formats
+
+Inspect commands print a report in the chat and never edit anything. On request they save it to
+`espec/changes/<change-name>/inspections/YYYY-MM-DD-<command>.md`. A finding is **Blocking** when it
+would change scope or observable behaviour, leaves a product id without a scenario, task or test, or
+leaves a question open that product must answer. Everything else is **Advisory**.
+
+### Feature definition inspection
+
+```markdown
+# Inspection: feature definition · <title> (<ticket>)
+
+**Source:** <ticket key, fetched YYYY-MM-DD | pasted text | espec/changes/<change-name>/feature.md> · **Verdict:** Ready for tech proposal | Draft (<n> blocking, <m> advisory)
+
+## Readiness checklist
+| Check | Result | Fix |
+|-------|--------|-----|
+| Why explains the problem and the cost of doing nothing | ✅ | |
+| What is from the user's point of view, with no solution | ✅ | |
+| At least one UC-n with actor, trigger, main flow and outcome | ✅ | |
+| At least one EC-n, or a stated reason why none apply | ✅ | |
+| Out of scope is an explicit list | ✅ | |
+| Every UC-n and EC-n is covered by an AC-n, and every AC-n says what it covers | ✅ | |
+| Experience and design is filled, or marked "not needed" with a reason | ✅ | |
+| Open questions is "None" or every question has an owner | ✅ | |
+| No how outside Forced technical notes | ✅ | |
+
+## Product boundary
+<!-- Every how found outside Forced technical notes: the quote, where it is, an outcome rephrasing. "None" when clean. -->
+
+## Coverage
+| Id | Covered by | Gap |
+|----|------------|-----|
+| UC-1 | AC-1, AC-2 | |
+
+## Edge cases to consider
+<!-- Standard-list items that apply and are absent, each as a proposed EC-n. "None" when complete. -->
+
+## Testability
+<!-- Acceptance criteria whose THEN is not observable or measurable, each with a rewrite. "None" when clean. -->
+
+## Findings
+| # | Severity | Finding | Where | Suggested fix |
+|---|----------|---------|-------|---------------|
+
+## Comment for the ticket
+<!-- Pasteable: the verdict, blocking findings as questions for product, advisory ones as suggestions. -->
+```
+
+The verdict is **Ready for tech proposal** only with zero blocking findings. A ❌ in the checklist and
+a how outside the forced notes are always blocking.
+
+### Tech proposal inspection
+
+```markdown
+# Inspection: tech proposal · <title> (<ticket>)
+
+**Change:** `espec/changes/<change-name>/` · **Proposal status:** Draft | In review | Approved · **Verdict:** Approve | Not yet (<n> blocking, <m> advisory)
+
+## Ticket versus feature.md
+<!-- "Identical (ticket fetched YYYY-MM-DD)", "Ticket not reachable, feature.md taken as is", or the differences section by section. An unresolved difference is blocking. -->
+
+## Traceability
+| Id | Scenario | Tasks | QA line | Gap |
+|----|----------|-------|---------|-----|
+| UC-1 | invoice-export › Export current filter › Successful export | 2.1, 2.2 | Q.1 | |
+
+## Forced technical notes
+| Note | Verdict in proposal | Finding |
+|------|---------------------|---------|
+
+## Decisions
+| Decision | Alternatives listed | Finding |
+|----------|---------------------|---------|
+
+## Constraints and non-functional requirements
+| Constraint or metric in feature.md | Addressed in | Finding |
+|------------------------------------|--------------|---------|
+
+## Specs
+<!-- Every AC has a scenario; scenarios use four hashes and are testable; MODIFIED blocks are whole; existing capability paths are reused; new capabilities carry a Purpose. -->
+
+## Test strategy
+<!-- Every EC has a test at a named level; one Q.n per AC; non-functional checks present; test data and environments named. -->
+
+## Open questions
+<!-- Blocking questions for product still open; engineering questions that would change specs or tasks. -->
+
+## Findings
+| # | Severity | Finding | Where | Suggested fix |
+|---|----------|---------|-------|---------------|
+
+## Comment for the ticket
+<!-- Pasteable: the verdict and the blocking findings as questions for product or engineering. -->
+```
+
+The verdict is **Approve** only with zero blocking findings. An untraced `UC-n`, `EC-n` or `AC-n`, an
+`FT-n` without a verdict, an acceptance criterion without a scenario, an unresolved ticket difference,
+an open blocking Question for Product and a constraint with no home are always blocking.
+
 ## Change lifecycle (`.espec.yaml`)
 
 ```yaml
@@ -435,6 +544,8 @@ The goal is a `espec/specs/` folder that describes only what the system does tod
   or you are tempted to narrow, defer or simplify specified behaviour, stop and surface it. Never
   silently reduce scope. Only check a task when its behaviour is fully implemented and verified.
 - Phase 4 never deletes a spec without evidence and confirmation.
+- Inspect commands are read-only. They never edit the ticket, `feature.md`, the proposal, specs, tasks
+  or code, and they save a report only when asked.
 - Always read `project.md` and `config.yaml` for project context and rules before writing. Apply them;
   do not paste them into artifacts.
 - Re-read artifacts from disk before building on them. Humans edit them between steps.

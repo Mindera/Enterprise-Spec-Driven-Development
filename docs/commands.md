@@ -1,6 +1,6 @@
 # Commands
 
-Five commands, one per step of the workflow, plus an optional CLI. Canonical names use a colon.
+Five commands, one per step of the workflow, two read-only inspect commands, plus an optional CLI. Canonical names use a colon.
 In GitHub Copilot Chat the same command is typed with a dash, because prompt file names cannot
 contain `:`. Rovo and M365 Copilot have no slash commands. There the command is an agent you
 @-mention or a prompt you paste.
@@ -29,6 +29,8 @@ Only phase 1 runs in Rovo and M365 Copilot. Phases 2 to 4 need the repository an
 | `/espec:implementation` | 3 | Developer, QA | Change name | Code, tests, `tasks.md`, `pull-request.md`, `.espec.yaml` |
 | `/espec:archive` | 4 | Developer | Change name | `espec/specs/`, the archived folder, a release note |
 | `/espec:archive-clean` | 4 | Developer | Optional capability name | `cleanup.md`, then confirmed edits to `espec/specs/` |
+| `/espec:inspect-feature-definition` | before 2 | Developer, QA, reviewer | Ticket key, URL, pasted definition or change name | Nothing. A report and a ticket comment in the chat |
+| `/espec:inspect-tech-proposal` | before 3 | QA, Engineering Manager, Architect | Change name | Nothing. A report and a ticket comment in the chat |
 
 ## /espec:feature-definition
 
@@ -107,6 +109,36 @@ delta specs as a proposed tech proposal update, which the user confirms.
 
 An audit with confirmation, not a sweep. A requirement with no evidence either way is **Update** with
 a note asking for an owner, never Purge.
+
+## /espec:inspect-feature-definition
+
+| | |
+|---|---|
+| GitHub Copilot | `/espec-inspect-feature-definition <source>` |
+| Prompt file | [template/.github/prompts/espec-inspect-feature-definition.prompt.md](../template/.github/prompts/espec-inspect-feature-definition.prompt.md) |
+| Product tools | The same checks run from Rovo or M365 Copilot with [product-ai/prompts/review-feature-definition.prompt.md](../product-ai/prompts/review-feature-definition.prompt.md) |
+| Who runs it | A developer or QA before starting the tech proposal. Any reviewer of the ticket. |
+| Input | A ticket key or URL (fetched when a tool can reach it, otherwise pasted), a pasted definition, or a change name whose `feature.md` is read from disk. |
+| Reads | `AGENTS.md`, the definition, and the ticket when reachable. |
+| Writes | Nothing. On request, saves the report to `espec/changes/<change-name>/inspections/`. |
+| Checks | The readiness checklist, hows outside the forced notes, `UC`/`EC` coverage by `AC`, absent edge cases from the standard list, acceptance criteria that cannot be observed or measured. |
+| Output | The Feature definition inspection report: checklist, product boundary, coverage, edge cases to consider, testability, numbered findings marked Blocking or Advisory, the verdict (Ready for tech proposal, or Draft) and a comment to paste on the ticket. |
+
+## /espec:inspect-tech-proposal
+
+| | |
+|---|---|
+| GitHub Copilot | `/espec-inspect-tech-proposal <change-name>` |
+| Prompt file | [template/.github/prompts/espec-inspect-tech-proposal.prompt.md](../template/.github/prompts/espec-inspect-tech-proposal.prompt.md) |
+| Who runs it | QA, the Engineering Manager or the Architect before approving the proposal. The author, before asking for review. |
+| Input | A change name. Empty input auto-selects when exactly one active change has a `tech-proposal.md`. |
+| Reads | `AGENTS.md`, then from disk `.espec.yaml`, `feature.md`, `tech-proposal.md`, every delta under `specs/`, `tasks.md`, and the ticket when reachable. |
+| Writes | Nothing. On request, saves the report to `espec/changes/<change-name>/inspections/`. |
+| Checks | Ticket versus `feature.md`; every `UC`, `EC` and `AC` traced to a scenario, tasks and a `Q.n` line, verified against the files rather than the table; every `FT-n` accepted or overridden with a reason; every decision with alternatives; every constraint and metric with a home; specs complete and well formed; test strategy and QA group complete; open questions. |
+| Output | The Tech proposal inspection report: the comparison, the tables, numbered findings marked Blocking or Advisory, the verdict (Approve, or Not yet) and a comment to paste on the ticket. |
+
+Both inspect commands are read-only. Fixes go through `/espec:feature-definition`,
+`/espec:tech-proposal` or the ticket. Worked example reports: [examples/inspections/](../examples/inspections/).
 
 ## The espec CLI (optional)
 
