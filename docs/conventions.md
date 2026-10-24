@@ -231,6 +231,32 @@ results, the rollout as implemented, and a release note that archive reuses as t
 The format is in `AGENTS.md`; a filled-in example is in
 [examples/changes/bill-142-invoice-csv-export/pull-request.md](../examples/changes/bill-142-invoice-csv-export/pull-request.md).
 
+## Inspection reports
+
+Two read-only commands review the artifacts without changing them. Each prints a report in the chat,
+ends with one verdict, and closes with a comment ready to paste on the ticket. On request the report is
+saved under `espec/changes/<change-name>/inspections/`.
+
+| Command | Reviews | Sections | Verdict |
+|---|---|---|---|
+| `/espec:inspect-feature-definition` | A ticket, a pasted definition or `feature.md` | Readiness checklist, Product boundary, Coverage, Edge cases to consider, Testability, Findings, Comment for the ticket | **Ready for tech proposal** or **Draft** |
+| `/espec:inspect-tech-proposal` | `tech-proposal.md`, `specs/` and `tasks.md` against `feature.md` and the live ticket | Ticket versus feature.md, Traceability, Forced technical notes, Decisions, Constraints and non-functional requirements, Specs, Test strategy, Open questions, Findings, Comment for the ticket | **Approve** or **Not yet** |
+
+Every finding is numbered and marked **Blocking** or **Advisory**. A finding is blocking when it would
+change scope or observable behaviour, leaves a product id without a scenario, task or test, or leaves a
+question open that product must answer. Everything else is advisory. The verdict is Ready or Approve
+only with zero blocking findings; the counts appear next to it, as in `Not yet (2 blocking, 5 advisory)`.
+
+Some findings are always blocking: a ❌ in the readiness checklist, a how outside the forced notes, an
+untraced `UC-n`, `EC-n` or `AC-n`, an `FT-n` without a verdict, an acceptance criterion without a
+scenario, an unresolved difference between the ticket and `feature.md`, an open blocking Question for
+Product, and a constraint with no home in the proposal.
+
+The tech proposal inspection treats the proposal's own Traceability table as a claim and verifies it
+against the scenario headings in `specs/` and the task numbers in `tasks.md`. The exact formats are in
+`AGENTS.md`; filled-in reports over the worked example, including a **Not yet** with two blocking
+findings, are in [examples/inspections/](../examples/inspections/).
+
 ## Change naming
 
 | Situation | Pattern | Example |

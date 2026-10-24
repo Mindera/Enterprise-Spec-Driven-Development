@@ -214,6 +214,7 @@ your-repo/
     ├── config.yaml                        # Ticket system, rules, archive settings
     ├── specs/<capability>/spec.md         # The system as it is today
     ├── changes/<change-name>/             # feature.md · tech-proposal.md · specs/ · tasks.md · pull-request.md
+    │   └── inspections/                   # Saved inspection reports, only on request
     ├── changes/archive/                   # Finished changes and clean-up reports
     ├── templates/                         # Blank files the commands start from
     └── bin/                               # espec validate · new · list, no toolkit needed
