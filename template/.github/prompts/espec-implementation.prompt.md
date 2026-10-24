@@ -1,6 +1,6 @@
 ---
 mode: agent
-description: "espec phase 3 · Implementation: implement the tasks of an approved change, following its tech proposal and specs, checking tasks off as they are verified."
+description: "espec phase 3 · Implementation: implement the tasks of an approved change, following its tech proposal and specs, check tasks off as they are verified, and write a pull request description that reads without the code."
 ---
 
 # /espec:implementation
@@ -47,7 +47,17 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
    observed in the task line (environment, result), and check it only when it passes. When the user is
    QA or asks for verification only, skip to this group and do not touch application code.
 
-8. **On completion**, set `status: implemented` in `.espec.yaml` and report: tasks completed this
+8. **Write the pull request description.** When every task is checked, or when the user stops early
+   and asks for a pull request anyway, write `pull-request.md` from
+   `espec/templates/pull-request.md`, following the Pull request description format in AGENTS.md.
+   Re-read `tech-proposal.md` from disk and compare it with what you actually built: every decision,
+   endpoint, data model element, rollout step and forced note gets a row, "As proposed" or the
+   difference with its reason. One row per acceptance criterion under Behaviour delivered, each with
+   the file a reviewer opens first and the test and `Q.n` task that verify it. A reader must be able to
+   understand the change without opening the code. Print the file, and the command to use it:
+   `gh pr create --body-file espec/changes/<change-name>/pull-request.md`.
+
+9. **On completion**, set `status: implemented` in `.espec.yaml` and report: tasks completed this
    session, overall progress, anything deferred with the reason, and
    "All tasks complete. Review, then run `/espec:archive <change-name>`."
 
@@ -57,5 +67,8 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
 - Never silently reduce scope. Never check a task that is partially done.
 - Keep changes scoped to the task. Refactors outside the task are a new task, proposed to the user.
 - Keep `tasks.md` as the single progress record. Update it immediately after each task.
+- `pull-request.md` never says "see code" or "self-explanatory". Every row names a file, a test or a
+  result. A difference from the tech proposal that changes observable behaviour also updates the
+  change's delta specs, which you propose and the user confirms.
 - Do not edit `espec/specs/` in this phase. Behaviour changes go in the change's delta specs, and
   that is a tech proposal update, which you propose and the user confirms.

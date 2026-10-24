@@ -340,9 +340,30 @@ function Test-Meta([string]$Change) {
   else { Add-Fail ".espec.yaml: status '$status' must be one of defined, proposed, in-progress, implemented, archived" }
 }
 
+function Test-PullRequest([string]$Change) {
+  $f = Join-Path $Change 'pull-request.md'
+  $meta = Join-Path $Change '.espec.yaml'
+  $status = ''
+  if (Test-Path -LiteralPath $meta) { $status = Get-YamlValue $meta 'status' }
+  if (Test-Path -LiteralPath $f) {
+    $text = Get-Content -LiteralPath $f -Raw
+    $missing = @()
+    foreach ($h in @('## Summary', '## Proposal versus implementation', '## Behaviour delivered', '## Deviations and deferred work', '## How to review', '## Verification', '## Rollout', '## Release note')) {
+      if ($text -notmatch ('(?m)^' + [regex]::Escape($h))) { $missing += $h }
+    }
+    if ($missing.Count -eq 0) { Add-Pass 'pull-request.md: all sections present' }
+    else { Add-Fail ('pull-request.md: missing section(s): ' + ($missing -join ', ')) }
+  } elseif (@('implemented', 'archived') -ccontains $status) {
+    Add-Fail "pull-request.md: missing (required once status is $status)"
+  } else {
+    Write-Output '  - no pull-request.md yet (written at the end of implementation)'
+  }
+}
+
 function Test-Change([string]$Change) {
   Write-Output "Change: $(Split-Path -Leaf $Change)"
   Test-Meta $Change
+  Test-PullRequest $Change
   Test-Feature $Change
   $base = (Resolve-Path -LiteralPath $Change).Path
   $specDir = Join-Path $Change 'specs'

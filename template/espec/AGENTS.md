@@ -17,7 +17,7 @@ written in a fixed format that any AI assistant can read and any human can revie
 |---|-------|---------|-----|------|----------|
 | 1 | AI Assisted Feature Definition | `/espec:feature-definition` | Product Managers, Designers | Rovo, M365 Copilot (or GitHub Copilot in-repo) | A ticket holding `feature.md` |
 | 2 | Tech Proposal | `/espec:tech-proposal` | Developers, QA | GitHub Copilot | `tech-proposal.md`, `specs/`, `tasks.md` |
-| 3 | Implementation | `/espec:implementation` | Developers, QA | GitHub Copilot | Code and tests, tasks checked off |
+| 3 | Implementation | `/espec:implementation` | Developers, QA | GitHub Copilot | Code and tests, tasks checked off, `pull-request.md` |
 | 4 | Archive | `/espec:archive`, `/espec:archive-clean` | Developers | GitHub Copilot | Main specs updated, change archived |
 
 GitHub Copilot prompt files cannot contain `:` in their name, so in Copilot Chat the commands are typed
@@ -42,7 +42,8 @@ espec/
 │   │   ├── specs/                # Phase 2: deltas against espec/specs/
 │   │   │   └── <capability>/
 │   │   │       └── spec.md
-│   │   └── tasks.md              # Phase 2 output, tracked in Phase 3
+│   │   ├── tasks.md              # Phase 2 output, tracked in Phase 3
+│   │   └── pull-request.md       # Phase 3: PR description, proposal versus implementation
 │   └── archive/                  # Finished changes and clean-up logs
 │       ├── YYYY-MM-DD-<change-name>/
 │       └── YYYY-MM-DD-archive-clean/
@@ -323,6 +324,53 @@ Rules:
   criterion, plus exploratory and non-functional checks from the test strategy.
 - Order by dependency. Keep tasks small enough to finish in one session.
 
+## Pull request description format (`pull-request.md`)
+
+Written at the end of implementation. A reviewer or a product manager must be able to understand the
+change from this file alone, without opening the code, and must see exactly where the implementation
+differs from the tech proposal.
+
+```markdown
+# <PR title: verb-first, ending with the ticket key in parentheses>
+
+**Change:** `espec/changes/<change-name>/` · **Ticket:** PROJ-123 · **Tech proposal:** [tech-proposal.md](tech-proposal.md) (Approved) · **Tasks:** 14/14
+
+## Summary
+<!-- 3 to 6 sentences: what users can do now, what changed for operators, what did not change. -->
+
+## Proposal versus implementation
+| Item | Tech proposal | Implementation | Why it differs |
+|------|---------------|----------------|----------------|
+| D-1 Async export job | Job queue with 3 retries | As proposed | |
+| POST /api/v1/invoices/exports | Returns 202 with job id | Returns 202 with job id and a status URL | Avoids a second round trip; agreed in review |
+
+## Behaviour delivered
+| AC | Scenario | Where it lives | Verified by |
+|----|----------|----------------|-------------|
+| AC-1 | invoice-export › Export current filter › Successful export | src/.../ExportController.java | ExportControllerTest, Q.1 |
+
+## Deviations and deferred work
+## How to review
+## Verification
+## Rollout
+## Release note
+```
+
+Rules:
+
+- **Proposal versus implementation** has one row per decision (`D-n`), endpoint, data model element,
+  rollout step and forced note (`FT-n`) in the tech proposal. "As proposed" when identical. Every
+  difference states why. A difference that changes observable behaviour also updates the delta specs.
+- **Behaviour delivered** has one row per acceptance criterion. "Where it lives" is a file path, the
+  entry point a reviewer opens first. "Verified by" names a test and the `Q.n` task.
+- **Deviations and deferred work** lists unchecked tasks with reasons and scope surfaced during
+  implementation. "None" is a valid value and must be written.
+- **Rollout** describes what was implemented, not what was proposed.
+- Never write "see code" or "self-explanatory". Every claim points to a file, a test or a result.
+- The `## Release note` section is reused by `/espec:archive` as the ticket comment.
+- When a change ships in several pull requests, keep one `##` block per pull request in the same
+  file, newest first, each with the sections above.
+
 ## Change lifecycle (`.espec.yaml`)
 
 ```yaml
@@ -342,7 +390,7 @@ archived_with_open_tasks: ""     # set by /espec:archive when the user chose to 
 - `defined`: `feature.md` exists and is marked Ready for tech proposal.
 - `proposed`: `tech-proposal.md`, `specs/` (or `skip_specs`) and `tasks.md` exist and are approved.
 - `in-progress`: at least one task is checked.
-- `implemented`: every task is checked.
+- `implemented`: every task is checked and `pull-request.md` exists.
 - `archived`: folder moved under `changes/archive/`.
 
 ## Archive rules (`/espec:archive`)

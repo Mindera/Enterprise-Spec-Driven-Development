@@ -305,10 +305,27 @@ validate_meta() {
   esac
 }
 
+validate_pull_request() {
+  local f="$1/pull-request.md" status="" h missing=""
+  [ -f "$1/.espec.yaml" ] && status=$(yaml_value "$1/.espec.yaml" status)
+  if [ -f "$f" ]; then
+    for h in "## Summary" "## Proposal versus implementation" "## Behaviour delivered" "## Deviations and deferred work" "## How to review" "## Verification" "## Rollout" "## Release note"; do
+      grep -q "^$h" "$f" || missing="$missing '$h'"
+    done
+    if [ -z "$missing" ]; then ok "pull-request.md: all sections present"; else bad "pull-request.md: missing section(s):$missing"; fi
+  else
+    case "$status" in
+      implemented|archived) bad "pull-request.md: missing (required once status is $status)" ;;
+      *) echo "  - no pull-request.md yet (written at the end of implementation)" ;;
+    esac
+  fi
+}
+
 validate_change() {
   local c="$1" specs spec
   echo "Change: $(basename "$c")"
   validate_meta "$c"
+  validate_pull_request "$c"
   validate_feature "$c"
   specs=$([ -d "$c/specs" ] && find "$c/specs" -name spec.md | sort || true)
   if [ -z "$specs" ]; then

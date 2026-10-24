@@ -26,7 +26,7 @@ Only phase 1 runs in Rovo and M365 Copilot. Phases 2 to 4 need the repository an
 |---|---|---|---|---|
 | `/espec:feature-definition` | 1 | PM, Designer. A developer in-repo. | Idea, ticket key, URL or pasted definition | Ticket description. In-repo also `feature.md` and `.espec.yaml` |
 | `/espec:tech-proposal` | 2 | Developer, QA | Ticket key, URL, change name or pasted definition | `tech-proposal.md`, `specs/`, `tasks.md`, `.espec.yaml` |
-| `/espec:implementation` | 3 | Developer, QA | Change name | Code, tests, `tasks.md`, `.espec.yaml` |
+| `/espec:implementation` | 3 | Developer, QA | Change name | Code, tests, `tasks.md`, `pull-request.md`, `.espec.yaml` |
 | `/espec:archive` | 4 | Developer | Change name | `espec/specs/`, the archived folder, a release note |
 | `/espec:archive-clean` | 4 | Developer | Optional capability name | `cleanup.md`, then confirmed edits to `espec/specs/` |
 
@@ -72,9 +72,9 @@ the approach" as a task.
 | Who runs it | Developer. QA, in verification-only mode, for the `## QA verification` group. |
 | Input | A change name. Empty input auto-selects when exactly one active change exists, otherwise asks. |
 | Reads | `AGENTS.md`, `project.md`, `config.yaml` (the `implementation` rules). Then from disk: `feature.md`, `tech-proposal.md`, every file under `specs/`, `tasks.md`. |
-| Writes | Application code and tests. `tasks.md`: `- [ ]` becomes `- [x]` on the exact line, only after the named verification passed. `.espec.yaml`: `in-progress` after the first check, `implemented` after the last. |
+| Writes | Application code and tests. `tasks.md`: `- [ ]` becomes `- [x]` on the exact line, only after the named verification passed. `pull-request.md` at the end: a description a reviewer can read without the code, with a proposal-versus-implementation table, one row per acceptance criterion, verification, rollout and a release note. `.espec.yaml`: `in-progress` after the first check, `implemented` after the last. |
 | Pauses when | The gate fails: `.espec.yaml` is not `proposed` or `in-progress`, or `tech-proposal.md` or `tasks.md` is missing. A blocking Question for Product is still open. A task is unclear or contradicts another. The task needs work the proposal or specs do not describe. It is tempted to narrow, defer or simplify specified behaviour. Implementation reveals a design problem. A test fails for a reason outside the task. |
-| Output | Progress as `N/M tasks complete` with the next pending tasks. On completion: tasks done this session, anything deferred with the reason, and "All tasks complete. Review, then run `/espec:archive <change-name>`." |
+| Output | Progress as `N/M tasks complete` with the next pending tasks. On completion: `pull-request.md` printed with `gh pr create --body-file espec/changes/<change-name>/pull-request.md`, tasks done this session, anything deferred with the reason, and "All tasks complete. Review, then run `/espec:archive <change-name>`." |
 
 It never edits `espec/specs/`. A behaviour change found during implementation goes into the change's
 delta specs as a proposed tech proposal update, which the user confirms.
@@ -133,7 +133,7 @@ bash espec/bin/espec validate           # from inside a project, no toolkit need
 | `espec update [dir]` | Refreshes the managed files: the `espec-*` prompts, `espec.instructions.md`, the `espec-validate.yml` workflow, `AGENTS.md`, `templates/` and `espec/bin/`. Leaves `copilot-instructions.md`, `project.md`, `config.yaml`, `specs/` and `changes/` alone. | Managed files only |
 | `espec new <change-name> [--ticket KEY] [--title "Title"] [dir]` | Scaffolds `espec/changes/<change-name>/` from `espec/templates/`: `feature.md`, `tech-proposal.md`, `tasks.md`, an empty `specs/` and a `.espec.yaml` with the ticket, title and today's date. The name must be kebab-case. | `espec/changes/<change-name>/` |
 | `espec list [dir]` | Lists active changes with name, status and ticket from `.espec.yaml` and task progress counted from `tasks.md`, plus the number of archived changes. | Nothing |
-| `espec validate [change-name] [dir]` | Checks one change, or every active change, plus the main specs: the feature definition marker, required sections and `UC`, `EC`, `AC` ids, the ⚠️ marker on forced notes, leftover placeholders, delta section names, `#### Scenario:` with four hashes, every requirement has a scenario, a Reason on every REMOVED requirement, unique requirement names, the `- [ ] N.M` task format, and a valid `.espec.yaml` status. Exits non-zero on a failure, so it can run in CI. | Nothing |
+| `espec validate [change-name] [dir]` | Checks one change, or every active change, plus the main specs: the feature definition marker, required sections and `UC`, `EC`, `AC` ids, the ⚠️ marker on forced notes, leftover placeholders, delta section names, `#### Scenario:` with four hashes, every requirement has a scenario, a Reason on every REMOVED requirement, unique requirement names, the `- [ ] N.M` task format, a valid `.espec.yaml` status, and the sections of `pull-request.md` once a change is implemented. Exits non-zero on a failure, so it can run in CI. | Nothing |
 
 `[dir]` defaults to the current directory. `init` and `update` run from the toolkit checkout; `new`,
 `list` and `validate` also run from `espec/bin/` inside a project. Run `validate` before you ask for
