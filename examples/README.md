@@ -66,6 +66,14 @@ Follow the phases in order.
 what a reviewer gets: the checklist and tables, the numbered findings marked Blocking or Advisory, the
 verdict, and the comment to paste on the ticket.
 
+Both reports are honest snapshots, taken before approval. The feature definition came back **Ready for
+tech proposal** with five advisory findings, which product chose to leave as they were. The tech proposal
+came back **Not yet** with two blocking findings: the list of exports only showed the last 24 hours, so the
+Expired state that the design and the spec promise could never appear, and the Q4 2026 code freeze from
+the Constraints had no home in the proposal. The `tech-proposal.md` in this folder is the version after
+both were fixed (a 48-hour list window, and a Timing bullet under Rollout), which is why its status line
+says Approved. The report still quotes the text it inspected, so you can see what the command caught.
+
 ## Where in time the snapshot is taken
 
 The change folder is shown **as it looks after implementation and before archive**: `.espec.yaml` says
