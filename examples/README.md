@@ -14,7 +14,7 @@ Follow the phases in order.
 
 1. **Phase 1, feature definition.**
    [`changes/bill-142-invoice-csv-export/feature.md`](changes/bill-142-invoice-csv-export/feature.md) is what
-   the product manager and the designer produced with `/espec:ai-assisted-feature-definition` and pasted into
+   the product manager and the designer produced with `/espec:feature-definition` and pasted into
    the Jira ticket. It says what and why, never how: use cases `UC-n`, edge cases `EC-n`, acceptance criteria
    `AC-n`, the designer's states and copy, constraints as outcomes. Note the one place where product insisted
    on a how: it is quarantined under **Forced technical notes** as `FT-1` instead of leaking into the rest.

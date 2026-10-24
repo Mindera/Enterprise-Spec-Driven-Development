@@ -1,0 +1,25 @@
+name: espec validate
+
+# Checks every active change and every main spec under espec/ against the espec formats:
+# feature definition sections and ids, four-hash scenarios, delta section names, task checkboxes.
+# The validator ships with the project in espec/bin, so this job needs no network access.
+
+on:
+  pull_request:
+    paths:
+      - "espec/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate espec changes and specs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Run espec validate
+        run: bash espec/bin/espec validate
