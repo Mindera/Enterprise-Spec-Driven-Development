@@ -101,6 +101,13 @@ the code: what was built, where it differs from the proposal and why, and how it
 for anything the code no longer does, proposes keep, update or purge with evidence, and applies what
 you confirm.
 
+Two read-only reviews sit between the phases. `/espec:inspect-feature-definition` checks a ticket
+for missing information before engineering starts: hows outside the forced notes, use cases and edge
+cases with no acceptance criterion, edge cases nobody thought of, criteria that cannot be tested.
+`/espec:inspect-tech-proposal` checks a proposal against its ticket before approval: every product id
+traced to a scenario, a task and a QA line, every forced note answered, every constraint with a home,
+no blocking question open. Both end with a verdict and a comment ready to paste on the ticket.
+
 In GitHub Copilot the commands are typed with a dash (`/espec-tech-proposal`), because prompt file
 names cannot contain a colon. In Rovo and M365 Copilot, phase 1 is an agent you @-mention.
 
@@ -137,7 +144,7 @@ git clone https://github.com/Mindera/Enterprise-Spec-Driven-Development.git ~/es
 ```
 
 Then fill in `espec/project.md` and `espec/config.yaml`, commit, and restart your IDE so GitHub
-Copilot picks up the prompt files. Type `/espec-` in Copilot Chat to see the five commands.
+Copilot picks up the prompt files. Type `/espec-` in Copilot Chat to see the commands.
 Windows users run `bin\espec.ps1` with the same arguments.
 
 Your repo also gets its own copy of the validator in `espec/bin` and a GitHub Actions workflow that
@@ -179,7 +186,7 @@ proposal reads. Browse the [worked example](examples/) for a full change, phase 
 your-repo/
 ├── .github/
 │   ├── copilot-instructions.md            # Repo-wide rules for Copilot
-│   ├── prompts/espec-*.prompt.md          # The five commands
+│   ├── prompts/espec-*.prompt.md          # The five commands and the two inspect reviews
 │   ├── instructions/espec.instructions.md # Format rules applied to espec/**
 │   ├── workflows/espec-validate.yml       # CI: validates changes and specs on pull requests
 │   └── ISSUE_TEMPLATE/feature-definition.md

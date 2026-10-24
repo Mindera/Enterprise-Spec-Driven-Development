@@ -64,7 +64,7 @@ Three things to notice:
 | Inputs | A problem, an idea, research notes, design files. Or an existing ticket to review. |
 | Outputs | A feature definition in the fixed format, pasted as the ticket description. The text starts with `<!-- espec:feature-definition v1 -->` so every tool can recognise it. |
 | Exit criteria | **Ready for tech proposal**: Why, What, at least one UC, edge cases, out of scope and acceptance criteria are present; every UC and EC maps to an AC; open questions are answered or explicitly deferred by product. The status line in the document says so. |
-| Hand-off | The ticket description. The ticket moves to the team's "ready" state. |
+| Hand-off | The ticket description. The ticket moves to the team's "ready" state. Engineering runs `/espec:inspect-feature-definition` on it before starting; a Draft verdict goes back as a ticket comment. |
 
 The AI interviews in short rounds, proposes edge cases, and pushes back on any **how**. When product
 insists, the how is recorded as a ⚠️ forced technical note `FT-n` and nowhere else. See
@@ -79,7 +79,7 @@ insists, the how is recorded as a ⚠️ forced technical note `FT-n` and nowher
 | Tool | GitHub Copilot: `/espec-tech-proposal <ticket key, URL or change name>`. |
 | Inputs | The ticket (fetched through an Atlassian or GitHub MCP server, or pasted), `espec/project.md`, `espec/config.yaml`, the main specs in `espec/specs/`, and the code. |
 | Outputs | `espec/changes/<change-name>/` holding `feature.md` (imported), `tech-proposal.md`, delta specs under `specs/<capability>/spec.md`, `tasks.md`, and `.espec.yaml` with `status: proposed`. |
-| Exit criteria | **Approved**: the reviewer sets the status line in `tech-proposal.md` to Approved. Every `FT-n` is marked Accepted or Overridden. The traceability table covers every UC, EC and AC. No blocking Question for Product is open. |
+| Exit criteria | **Approved**: the reviewer sets the status line in `tech-proposal.md` to Approved. Every `FT-n` is marked Accepted or Overridden. The traceability table covers every UC, EC and AC. No blocking Question for Product is open. `/espec:inspect-tech-proposal` returns Approve. |
 | Hand-off | **Questions for Product** are pasted as a ticket comment. Product answers in the ticket and updates the description. Engineering re-imports and revises. |
 
 The proposal is reviewed where the project says, usually a pull request that adds the change
