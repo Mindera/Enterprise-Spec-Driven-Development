@@ -1,0 +1,11 @@
+ticket: <PROJ-123 or issue URL>
+title: <title>
+status: defined                  # defined | proposed | in-progress | implemented | archived
+created: <YYYY-MM-DD>
+owners:
+  product: <name>
+  engineering: <name>
+  qa: <name>
+skip_specs: false                # true only when no observable behaviour changes
+# archived: <YYYY-MM-DD>                  # set by /espec:archive
+# archived_with_open_tasks: <reason>      # set by /espec:archive when archiving early

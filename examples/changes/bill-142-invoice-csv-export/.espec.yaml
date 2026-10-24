@@ -1,0 +1,9 @@
+ticket: BILL-142
+title: Export invoices as CSV
+status: implemented              # defined | proposed | in-progress | implemented | archived
+created: 2026-10-20
+owners:
+  product: Mariana Costa
+  engineering: Priya Raghavan
+  qa: Daniel Okafor
+skip_specs: false                # true only when no observable behaviour changes
