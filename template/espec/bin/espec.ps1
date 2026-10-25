@@ -431,3 +431,6 @@ switch ($Command.ToLowerInvariant()) {
   '--help'   { Show-Usage }
   default    { Show-Usage; Fail "unknown command: $Command" }
 }
+# Every command that reaches this point succeeded. Set the exit code explicitly, because
+# $LASTEXITCODE otherwise keeps the value of the previous command or script.
+exit 0
