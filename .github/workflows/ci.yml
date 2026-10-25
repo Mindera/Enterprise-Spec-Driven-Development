@@ -1,0 +1,46 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  docs:
+    name: Links, references, template workflow
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - name: Relative links resolve, no forbidden references, no em dashes
+        run: python3 scripts/ci/check-docs.py
+      - name: Template validate workflow parses
+        run: python3 -c "import yaml, sys; d = yaml.safe_load(open('template/.github/workflows/espec-validate.yml')); print('jobs:', list(d['jobs']))"
+
+  cli-bash:
+    name: CLI and worked example (bash, ${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - name: Smoke test
+        run: bash scripts/ci/smoke-bash.sh
+
+  cli-powershell:
+    name: CLI and worked example (PowerShell, ${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - name: Smoke test
+        shell: pwsh
+        run: ./scripts/ci/smoke-pwsh.ps1

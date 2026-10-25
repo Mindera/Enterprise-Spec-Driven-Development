@@ -60,21 +60,27 @@ function Require-Project([string]$Dir) {
 }
 function Get-Lines([string]$File) {
   $raw = [System.IO.File]::ReadAllText((Resolve-Path -LiteralPath $File).Path)
-  return ,@(($raw -replace "`r", '') -split "`n")
+  return @(($raw -replace "`r", '') -split "`n")
 }
 function Get-RelativePath([string]$Base, [string]$Path) {
-  return $Path.Substring($Base.Length).TrimStart('\', '/').Replace('\', '/')
+  $b = $Base.TrimEnd('\', '/')
+  if ($Path.Length -gt $b.Length -and $Path.StartsWith($b, [System.StringComparison]::OrdinalIgnoreCase)) {
+    return $Path.Substring($b.Length).TrimStart('\', '/').Replace('\', '/')
+  }
+  return $Path.Replace('\', '/')
 }
 function Get-FirstOrDot([string[]]$Arguments) { if ($Arguments.Count -gt 0) { $Arguments[0] } else { '.' } }
 function Get-ChangeDirs([string]$Dir) {
   $root = Join-Path $Dir 'espec/changes'
-  if (-not (Test-Path -LiteralPath $root)) { return ,@() }
-  return ,@(Get-ChildItem -LiteralPath $root -Directory | Where-Object { $_.Name -ne 'archive' } | Sort-Object Name)
+  if (-not (Test-Path -LiteralPath $root)) { return @() }
+  return @(Get-ChildItem -LiteralPath $root -Directory | Where-Object { $_.Name -ne 'archive' } | Sort-Object Name)
 }
 function Get-YamlValue([string]$File, [string]$Key) {
   if (-not (Test-Path -LiteralPath $File)) { return '' }
   foreach ($line in @(Get-Lines $File)) {
-    if ($line.StartsWith($Key + ':')) { return ($line.Substring($Key.Length + 1) -replace '\s+#.*$', '').Trim() }
+    if ($line.StartsWith($Key + ':', [System.StringComparison]::Ordinal)) {
+      return (($line -replace ('^' + [regex]::Escape($Key) + ':'), '') -replace '\s+#.*$', '').Trim()
+    }
   }
   return ''
 }
@@ -118,7 +124,7 @@ function Get-ManagedFiles {
   $files += @(Get-Item -LiteralPath (Join-Path $base 'espec/AGENTS.md'))
   $files += @(Get-ChildItem -LiteralPath (Join-Path $base 'espec/templates') -File)
   $files += @(Get-ChildItem -LiteralPath (Join-Path $base 'espec/bin') -File)
-  return ,@($files | ForEach-Object { Get-RelativePath $base $_.FullName } | Sort-Object)
+  return @($files | ForEach-Object { Get-RelativePath $base $_.FullName } | Sort-Object)
 }
 
 function Invoke-Update([string]$Dir) {
@@ -150,8 +156,8 @@ function Invoke-New([string[]]$Arguments) {
     $a = $Arguments[$i]
     if ($a -eq '--ticket' -and ($i + 1) -lt $Arguments.Count) { $ticket = $Arguments[$i + 1]; $i += 2 }
     elseif ($a -eq '--title' -and ($i + 1) -lt $Arguments.Count) { $title = $Arguments[$i + 1]; $i += 2 }
-    elseif ($a -like '--ticket=*') { $ticket = $a.Substring(9); $i++ }
-    elseif ($a -like '--title=*') { $title = $a.Substring(8); $i++ }
+    elseif ($a -like '--ticket=*') { $ticket = $a -replace '^--ticket=', ''; $i++ }
+    elseif ($a -like '--title=*') { $title = $a -replace '^--title=', ''; $i++ }
     elseif ($a -like '-*') { Fail "unknown option: $a" }
     elseif (-not $name) { $name = $a; $i++ }
     else { $dir = $a; $i++ }
@@ -229,7 +235,7 @@ function Get-Section([string[]]$Lines, [string]$Heading) {
     if ($l -cmatch '^## ') { $on = ($l.TrimEnd() -ceq $Heading) }
     if ($on) { $out += $l }
   }
-  return ,$out
+  return $out
 }
 # True when a section has a line that is neither blank nor an HTML comment.
 function Test-SectionContent([string[]]$Section) {
@@ -246,7 +252,7 @@ function Get-Placeholders([string[]]$Lines) {
   for ($i = 0; $i -lt $Lines.Count; $i++) {
     if ($Lines[$i] -cmatch '<[A-Za-z][A-Za-z0-9 -]*>' -and $Lines[$i] -cnotmatch '^\s*<!--') { $out += "line $($i + 1): $($Lines[$i])" }
   }
-  return ,$out
+  return $out
 }
 
 function Test-Feature([string]$Change) {
@@ -425,3 +431,6 @@ switch ($Command.ToLowerInvariant()) {
   '--help'   { Show-Usage }
   default    { Show-Usage; Fail "unknown command: $Command" }
 }
+# Every command that reaches this point succeeded. Set the exit code explicitly, because
+# $LASTEXITCODE otherwise keeps the value of the previous command or script.
+exit 0
