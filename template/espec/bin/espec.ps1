@@ -63,7 +63,11 @@ function Get-Lines([string]$File) {
   return ,@(($raw -replace "`r", '') -split "`n")
 }
 function Get-RelativePath([string]$Base, [string]$Path) {
-  return $Path.Substring($Base.Length).TrimStart('\', '/').Replace('\', '/')
+  $b = $Base.TrimEnd('\', '/')
+  if ($Path.Length -gt $b.Length -and $Path.StartsWith($b, [System.StringComparison]::OrdinalIgnoreCase)) {
+    return $Path.Substring($b.Length).TrimStart('\', '/').Replace('\', '/')
+  }
+  return $Path.Replace('\', '/')
 }
 function Get-FirstOrDot([string[]]$Arguments) { if ($Arguments.Count -gt 0) { $Arguments[0] } else { '.' } }
 function Get-ChangeDirs([string]$Dir) {
@@ -74,7 +78,9 @@ function Get-ChangeDirs([string]$Dir) {
 function Get-YamlValue([string]$File, [string]$Key) {
   if (-not (Test-Path -LiteralPath $File)) { return '' }
   foreach ($line in @(Get-Lines $File)) {
-    if ($line.StartsWith($Key + ':')) { return ($line.Substring($Key.Length + 1) -replace '\s+#.*$', '').Trim() }
+    if ($line.StartsWith($Key + ':', [System.StringComparison]::Ordinal)) {
+      return (($line -replace ('^' + [regex]::Escape($Key) + ':'), '') -replace '\s+#.*$', '').Trim()
+    }
   }
   return ''
 }
@@ -150,8 +156,8 @@ function Invoke-New([string[]]$Arguments) {
     $a = $Arguments[$i]
     if ($a -eq '--ticket' -and ($i + 1) -lt $Arguments.Count) { $ticket = $Arguments[$i + 1]; $i += 2 }
     elseif ($a -eq '--title' -and ($i + 1) -lt $Arguments.Count) { $title = $Arguments[$i + 1]; $i += 2 }
-    elseif ($a -like '--ticket=*') { $ticket = $a.Substring(9); $i++ }
-    elseif ($a -like '--title=*') { $title = $a.Substring(8); $i++ }
+    elseif ($a -like '--ticket=*') { $ticket = $a -replace '^--ticket=', ''; $i++ }
+    elseif ($a -like '--title=*') { $title = $a -replace '^--title=', ''; $i++ }
     elseif ($a -like '-*') { Fail "unknown option: $a" }
     elseif (-not $name) { $name = $a; $i++ }
     else { $dir = $a; $i++ }

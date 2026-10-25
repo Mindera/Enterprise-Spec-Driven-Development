@@ -40,6 +40,11 @@ try {
   if ($upd -notmatch 'unchanged') { throw "update did not report unchanged files:`n$upd" }
 
   Write-Output 'PowerShell CLI smoke test passed'
+} catch {
+  Write-Output "FAILED: $($_.Exception.Message)"
+  Write-Output $_.InvocationInfo.PositionMessage
+  Write-Output $_.ScriptStackTrace
+  throw
 } finally {
   Remove-Item -Recurse -Force $Work -ErrorAction SilentlyContinue
 }
