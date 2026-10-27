@@ -13,7 +13,7 @@ how to set each tool up. The underlying rules are in
 | 2 Tech proposal | Answers Questions for Product | Answers design questions | Writes | Writes the test strategy | Reviews and approves |
 | 3 Implementation | Available for questions | Reviews built screens | Implements, checks tasks | Runs QA verification | Decides on design pauses |
 | 4 Archive | Reads the release note, closes the ticket | | Runs archive and archive-clean | Confirms the note matches what was verified | Confirms clean verdicts |
-| Tool | Rovo or M365 Copilot | Rovo or M365 Copilot | GitHub Copilot | GitHub Copilot | GitHub Copilot, the PR review |
+| Tool | Rovo or M365 Copilot | Rovo or M365 Copilot | GitHub Copilot | GitHub Copilot | GitHub Copilot, the PR review, DiffCompass |
 
 ## Product Manager
 
@@ -87,7 +87,7 @@ Never:
 |---|---|---|
 | 1 | Reads. Flags a definition that is really several features. | The ticket |
 | 2 | Runs `/espec-inspect-tech-proposal`, then reviews the tech proposal: each `D-n` lists real alternatives, each `FT-n` has a verdict, the traceability table is complete, non-functional requirements and rollout are covered. Sets the status line to **Approved**. | The pull request that adds the change folder |
-| 3 | Decides on pauses that change the design. A design change is a tech proposal update, reviewed again. Reviews the pull request starting from its description: the proposal-versus-implementation table says where to look. | The pull request |
+| 3 | Decides on pauses that change the design. A design change is a tech proposal update, reviewed again. Reviews the pull request starting from its description: the proposal-versus-implementation table says where to look. Walks the diff with `diffcompass pr <number> --open`, which follows **How to review** and flags drift from the proposal. | The pull request, [DiffCompass](#diffcompass-reviewers-developers) |
 | 4 | Confirms archive-clean verdicts. Owns the requirements that have no owner. | `/espec-archive-clean` report, `cleanup.md` |
 
 Never:
@@ -151,3 +151,22 @@ repository, or the body in
 
 The instructions in `.github/instructions/espec.instructions.md` apply whenever Copilot edits a file
 under `espec/`, with or without a command.
+
+### DiffCompass (reviewers, developers)
+
+[DiffCompass](https://github.com/Mindera/diffcompass) is the code review tool for implementation pull
+requests: an agent-led tour of the diff in a local browser, where the reviewer asks questions and
+leaves line feedback. It works with Codex, Claude Code, Gemini CLI and GitHub Copilot CLI.
+
+1. Install it with the instructions in its README (the repository is private to Mindera; ask a
+   Mindera GitHub administrator for access). Check with `diffcompass doctor`.
+2. `espec init` adds `.diffcompass.json` at the repository root. It tells the DiffCompass agent to
+   read the change folder before explaining code, order the tour by **How to review** in
+   `pull-request.md`, and flag code that differs from the tech proposal or the delta specs, behaviour
+   no acceptance criterion describes, and direct edits to `espec/specs/`. Add project rules under
+   `analysis.instructions`; init never overwrites the file.
+3. `review.tool: diffcompass` in `espec/config.yaml` makes `/espec-implementation` print the review
+   commands when it finishes. Set it to `none` to turn that off.
+4. Review a pull request with `diffcompass pr <number> --open`, or a branch before it has one with
+   `diffcompass --base origin/main --open`. The tour helps the review; approval still happens in the
+   pull request.

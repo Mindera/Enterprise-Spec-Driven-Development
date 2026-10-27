@@ -10,6 +10,13 @@ tickets:
     repo: your-org/your-repo
     label: feature-definition   # Label applied to issues that carry feature definitions
 
+review:
+  # Code review tool for implementation pull requests. diffcompass | none
+  # DiffCompass (https://github.com/Mindera/diffcompass) gives the reviewer a guided, agent-led tour of
+  # the diff in a local browser. Its espec-aware settings live in .diffcompass.json at the repo root.
+  tool: diffcompass
+  base: origin/main             # Branch the tour compares against before the pull request exists
+
 archive:
   clean:
     # Archived change folders older than this many days are listed for pruning by /espec:archive-clean.

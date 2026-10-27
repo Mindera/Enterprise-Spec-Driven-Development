@@ -380,6 +380,15 @@ Rules:
 - When a change ships in several pull requests, keep one `##` block per pull request in the same
   file, newest first, each with the sections above.
 
+### Reviewing the code
+
+When `review.tool` in `config.yaml` is `diffcompass`, the reviewer walks the diff with
+[DiffCompass](https://github.com/Mindera/diffcompass): `diffcompass pr <number> --open` for a pull
+request, `diffcompass --base <review.base> --open` for a branch. `.diffcompass.json` at the repository
+root tells its agent to read the change folder first, follow **How to review**, and flag code that
+differs from the tech proposal or the delta specs without a row in **Proposal versus implementation**.
+The tour helps the reviewer; it does not replace approval in the pull request.
+
 ## Inspection report formats
 
 Inspect commands print a report in the chat and never edit anything. On request they save it to

@@ -10,6 +10,7 @@ bash -n "$ROOT/template/espec/bin/espec"
 "$ROOT/bin/espec" init "$WORK" >/dev/null
 test -x "$WORK/espec/bin/espec"
 test -f "$WORK/.github/workflows/espec-validate.yml"
+python3 -m json.tool "$WORK/.diffcompass.json" >/dev/null
 [ "$(ls "$WORK/.github/prompts" | wc -l)" -eq 7 ] || { echo "expected 7 prompt files"; exit 1; }
 
 cd "$WORK"
