@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="./VERSION"><img alt="Version: v1.0.1" src="https://img.shields.io/badge/version-v1.0.1-orange.svg?style=flat-square"></a>
+  <a href="./VERSION"><img alt="Version: v1.0.2" src="https://img.shields.io/badge/version-v1.0.2-orange.svg?style=flat-square"></a>
   <a href="./LICENSE"><img alt="License: GPL-3.0" src="https://img.shields.io/badge/License-GPL--3.0-blue.svg?style=flat-square"></a>
   <img alt="GitHub Copilot" src="https://img.shields.io/badge/Developers-GitHub%20Copilot-24292f?style=flat-square">
   <img alt="Rovo" src="https://img.shields.io/badge/Product-Rovo-0052cc?style=flat-square">
@@ -241,7 +241,7 @@ your-repo/
 Issues and pull requests are welcome. Keep the README simple and the prompts shorter than the
 documents they produce.
 
-The current version is **v1.0.1**, kept in [`VERSION`](VERSION). Every change bumps the last number
+The current version is **v1.0.2**, kept in [`VERSION`](VERSION). Every change bumps the last number
 (`vX.Y.Z` → `vX.Y.Z+1`); see [`AGENTS.md`](AGENTS.md) for the rules every contributor and every AI
 assistant follows.
 

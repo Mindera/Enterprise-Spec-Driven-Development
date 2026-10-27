@@ -58,7 +58,7 @@ Three things to notice:
 ## Phase 1: AI Assisted Feature Definition
 
 
-### Product preparation — outside this workflow
+### Product preparation: outside this workflow
 
 The Product Owner and Designer develop the ticket using their usual tools, optionally supported by their own AI assistants. They establish the business **why**, desired **what**, available designs, use cases, acceptance criteria and known uncertainties.
 
@@ -70,13 +70,13 @@ The PO hands the ticket to engineering when either:
 
 - It is sufficiently specified for technical assessment.
 
-- They cannot progress further without engineering input—for example, because the desired behaviour depends on capabilities or constraints they cannot assess.
+- They cannot progress further without engineering input, for example because the desired behaviour depends on capabilities or constraints they cannot assess.
 
 
 This hand-off means **ready for technical investigation**, not necessarily ready for estimation or implementation. The PO is not expected to establish technical feasibility or identify every dependency beforehand.
 
 
-### Developer assessment — inside this workflow
+### Developer assessment: inside this workflow
 
 
 |  |  |
