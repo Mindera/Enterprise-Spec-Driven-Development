@@ -15,8 +15,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
       - name: Relative links resolve, no forbidden references, no em dashes
         run: python3 scripts/ci/check-docs.py
+      - name: README shows VERSION, pull requests bump it
+        run: python3 scripts/ci/check-version.py ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || '' }}
       - name: Template validate workflow parses
         run: python3 -c "import yaml, sys; d = yaml.safe_load(open('template/.github/workflows/espec-validate.yml')); print('jobs:', list(d['jobs']))"
 
