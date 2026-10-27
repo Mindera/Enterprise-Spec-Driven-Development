@@ -57,11 +57,14 @@ Agent:          Noted as ⚠️ FT-1 with your reason. Now, the second use case.
                 Readiness check: all ✅. Status: Ready for tech proposal.
                 Paste this into BILL-142.
 
-Dev, in VS Code:  /espec-inspect-feature-definition BILL-142
+Dev:              /espec-inspect-feature-definition BILL-142
 Copilot:          Readiness 9/9 ✅. No how outside the forced notes. Every UC and EC has an AC.
                   Verdict: Ready for tech proposal (0 blocking, 2 advisory).
                   Advisory: can a running export be cancelled? What if access is revoked
+                  Advisory: add advisory info on tech (Spike needed? APIs?)
                   mid-export? Comment ready to post on BILL-142.
+
+Team              Refinement with Team for alignment/awareness of Tickets
 
 Dev:              /espec-tech-proposal BILL-142
 Copilot:          Imported BILL-142 → espec/changes/bill-142-invoice-csv-export/feature.md
