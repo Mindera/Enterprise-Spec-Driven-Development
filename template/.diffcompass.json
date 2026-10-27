@@ -1,0 +1,14 @@
+{
+  "analysis": {
+    "instructions": [
+      "This repository uses espec. When the diff touches espec/changes/<change-name>/, read that folder's tech-proposal.md, delta specs under specs/, tasks.md and pull-request.md before explaining code. They are the intended behaviour.",
+      "Order the tour by the How to review section of pull-request.md when it exists: entry points, then the core, then tests.",
+      "Flag code that differs from the tech proposal or the delta specs without a matching row in the Proposal versus implementation table of pull-request.md.",
+      "Flag behaviour changes that no acceptance criterion (AC-n) or delta spec scenario describes, and acceptance criteria whose Verified by test is missing from the diff.",
+      "Flag edits to espec/specs/ outside an archive commit: main specs change only through /espec:archive and /espec:archive-clean."
+    ],
+    "findings": {
+      "categories": ["correctness", "security", "testing", "spec-drift"]
+    }
+  }
+}

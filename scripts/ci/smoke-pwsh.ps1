@@ -8,6 +8,7 @@ try {
   $cli = Join-Path $Work 'espec/bin/espec.ps1'
   if (-not (Test-Path -LiteralPath $cli)) { throw 'init did not copy espec/bin/espec.ps1' }
   if (-not (Test-Path -LiteralPath (Join-Path $Work '.github/workflows/espec-validate.yml'))) { throw 'init did not copy the validate workflow' }
+  Get-Content -Raw -LiteralPath (Join-Path $Work '.diffcompass.json') | ConvertFrom-Json | Out-Null
   $prompts = @(Get-ChildItem -LiteralPath (Join-Path $Work '.github/prompts') -File)
   if ($prompts.Count -ne 7) { throw "expected 7 prompt files, got $($prompts.Count)" }
 

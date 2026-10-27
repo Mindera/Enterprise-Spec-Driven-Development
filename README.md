@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="./VERSION"><img alt="Version: v1.0.0" src="https://img.shields.io/badge/version-v1.0.0-orange.svg?style=flat-square"></a>
+  <a href="./VERSION"><img alt="Version: v1.0.1" src="https://img.shields.io/badge/version-v1.0.1-orange.svg?style=flat-square"></a>
   <a href="./LICENSE"><img alt="License: GPL-3.0" src="https://img.shields.io/badge/License-GPL--3.0-blue.svg?style=flat-square"></a>
   <img alt="GitHub Copilot" src="https://img.shields.io/badge/Developers-GitHub%20Copilot-24292f?style=flat-square">
   <img alt="Rovo" src="https://img.shields.io/badge/Product-Rovo-0052cc?style=flat-square">
@@ -117,7 +117,9 @@ questions for product that go back on the ticket.
 
 **Phase 3** generates the code from the tech proposal and specs, one task at a time, and never
 narrows scope silently. It ends with a pull request description a reviewer can read without opening
-the code: what was built, where it differs from the proposal and why, and how it was verified.
+the code: what was built, where it differs from the proposal and why, and how it was verified. The
+reviewer then walks the diff with [DiffCompass](https://github.com/Mindera/diffcompass), which reads
+the change folder and flags code that drifts from the proposal.
 
 **Phase 4** folds the change into the main specs. `archive-clean` goes further: it searches the specs
 for anything the code no longer does, proposes keep, update or purge with evidence, and applies what
@@ -206,6 +208,7 @@ proposal reads. Browse the [worked example](examples/) for a full change, phase 
 
 ```text
 your-repo/
+├── .diffcompass.json                      # Code review tour settings: read the change folder first
 ├── .github/
 │   ├── copilot-instructions.md            # Repo-wide rules for Copilot
 │   ├── prompts/espec-*.prompt.md          # The five commands and the two inspect reviews
@@ -238,7 +241,7 @@ your-repo/
 Issues and pull requests are welcome. Keep the README simple and the prompts shorter than the
 documents they produce.
 
-The current version is **v1.0.0**, kept in [`VERSION`](VERSION). Every change bumps the last number
+The current version is **v1.0.1**, kept in [`VERSION`](VERSION). Every change bumps the last number
 (`vX.Y.Z` → `vX.Y.Z+1`); see [`AGENTS.md`](AGENTS.md) for the rules every contributor and every AI
 assistant follows.
 
