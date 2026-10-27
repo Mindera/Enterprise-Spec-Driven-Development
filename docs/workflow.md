@@ -54,21 +54,54 @@ Three things to notice:
   or when archive-clean runs and the user confirms its verdicts.
 - The next tech proposal starts by reading the main specs. That loop is what keeps the specs true.
 
+
 ## Phase 1: AI Assisted Feature Definition
 
-| | |
-|---|---|
-| Command | `/espec:feature-definition` |
-| Who | Product Manager writes. Designer fills **Experience and design**. A developer can run it in-repo when the work has no product owner. |
-| Tool | A Rovo Agent or an M365 Copilot agent built from [product-ai/](../product-ai/README.md). In a repo: `/espec-feature-definition` in Copilot Chat. |
-| Inputs | A problem, an idea, research notes, design files. Or an existing ticket to review. |
-| Outputs | A feature definition in the fixed format, pasted as the ticket description. The text starts with `<!-- espec:feature-definition v1 -->` so every tool can recognise it. |
-| Exit criteria | **Ready for tech proposal**: Why, What, at least one UC, edge cases, out of scope and acceptance criteria are present; every UC and EC maps to an AC; open questions are answered or explicitly deferred by product. The status line in the document says so. |
-| Hand-off | The ticket description. The ticket moves to the team's "ready" state. Engineering runs `/espec:inspect-feature-definition` on it before starting; a Draft verdict goes back as a ticket comment. |
 
-The AI interviews in short rounds, proposes edge cases, and pushes back on any **how**. When product
-insists, the how is recorded as a ⚠️ forced technical note `FT-n` and nowhere else. See
-[conventions.md](conventions.md#product-boundary-and-forced-technical-notes).
+### Product preparation — outside this workflow
+
+The Product Owner and Designer develop the ticket using their usual tools, optionally supported by their own AI assistants. They establish the business **why**, desired **what**, available designs, use cases, acceptance criteria and known uncertainties.
+
+This preparation is outside the ESpec workflow.
+
+The PO hands the ticket to engineering when either:
+
+
+
+- It is sufficiently specified for technical assessment.
+
+- They cannot progress further without engineering input—for example, because the desired behaviour depends on capabilities or constraints they cannot assess.
+
+
+This hand-off means **ready for technical investigation**, not necessarily ready for estimation or implementation. The PO is not expected to establish technical feasibility or identify every dependency beforehand.
+
+
+### Developer assessment — inside this workflow
+
+
+|  |  |
+| --- | --- |
+| **Command** | `/espec:feature-definition` |
+| **Who** | A developer leads the investigation, involving Product, Design, QA and other teams as needed. |
+| **Tool** | GitHub Copilot, with access to the repository: `/espec-feature-definition`. |
+| **Inputs** | The existing ticket, available designs and research, known questions, relevant code, existing specs and API contracts. |
+| **Activity** | Investigate feasibility with Copilot; identify existing capabilities, alternatives, missing requirements, external dependencies and uncertainties. Seek clarification or confirmation from the appropriate people and create spikes where further investigation is necessary. |
+| **Outputs** | A developer-authored assessment comment on the ticket, including findings, evidence, alternatives and trade-offs, questions, dependencies, and links to any spikes or related work. The PO updates the ticket description after scope decisions are agreed. |
+| **Completion outcome** | Either **Ready for tech proposal**, or **Further discovery required**, with the outstanding questions, dependencies or spikes recorded and their next actions identified. |
+| **Hand-off** | Findings return to Product/Design for clarification or scope decisions, to external teams for confirmation, or to a spike for further investigation. Once sufficiently resolved, the ticket proceeds to the tech proposal phase. |
+
+
+The developer and Copilot investigate together rather than merely checking whether the ticket contains every required heading. They distinguish what the system already supports from what requires additional requests, service changes or other work. Where meaningful alternatives exist, they explain the consequences so Product can make informed scope decisions.
+
+
+Code evidence does not, by itself, confirm another team’s capability or delivery commitment. Those dependencies require confirmation from the relevant owners.
+
+
+The assessment comment preserves the investigation and its rationale. **The PO-maintained ticket description remains the agreed delivery scope**; alternatives and recommendations do not become requirements unless explicitly accepted.
+
+
+**Proposed readiness rule:** proceed to the tech proposal when the agreed scope and available technical evidence are sufficient to develop a credible proposal. Material feasibility blockers must be resolved or removed from scope through an explicit decision; remaining non-blocking assumptions must stay visible.
+
 
 ## Phase 2: Tech Proposal
 
