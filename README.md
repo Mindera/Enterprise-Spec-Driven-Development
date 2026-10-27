@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
-  <strong>Spec-driven development for enterprises where every function has a different AI.</strong>
+  <strong>Spec-driven development for enterprises where different functions have a different AI access.</strong>
 </p>
 
 <p align="center">
