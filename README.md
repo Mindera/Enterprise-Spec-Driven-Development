@@ -10,8 +10,8 @@
 </p>
 
 <p align="center">
-  <a href="./VERSION"><img alt="Version: v1.0.3" src="https://img.shields.io/badge/version-v1.0.3-orange.svg?style=flat-square"></a>
-  <a href="./LICENSE"><img alt="License: GPL-3.0" src="https://img.shields.io/badge/License-GPL--3.0-blue.svg?style=flat-square"></a>
+  <a href="./VERSION"><img alt="Version: v1.0.4" src="https://img.shields.io/badge/version-v1.0.4-orange.svg?style=flat-square"></a>
+  <a href="./LICENSE.md"><img alt="License: Sustainable Use 1.0" src="https://img.shields.io/badge/License-Sustainable%20Use%201.0-blue.svg?style=flat-square"></a>
   <img alt="GitHub Copilot" src="https://img.shields.io/badge/Developers-GitHub%20Copilot-24292f?style=flat-square">
   <img alt="Rovo" src="https://img.shields.io/badge/Product-Rovo-0052cc?style=flat-square">
   <img alt="M365 Copilot" src="https://img.shields.io/badge/Product-M365%20Copilot-5b5fc7?style=flat-square">
@@ -260,14 +260,15 @@ your-repo/
 Issues and pull requests are welcome. Keep the README simple and the prompts shorter than the
 documents they produce.
 
-The current version is **v1.0.3**, kept in [`VERSION`](VERSION). Every change bumps the last number
+The current version is **v1.0.4**, kept in [`VERSION`](VERSION). Every change bumps the last number
 (`vX.Y.Z` → `vX.Y.Z+1`); see [`AGENTS.md`](AGENTS.md) for the rules every contributor and every AI
 assistant follows.
 
 ## License
 
-[GNU General Public License v3.0](LICENSE). Free to use, study, share and modify. Distributed
-copies and derivative works must stay under GPL-3.0 and ship their source.
+[Sustainable Use License 1.0](LICENSE.md). Free to use and modify for your own internal business,
+non-commercial or personal purposes, and to share free of charge for non-commercial purposes. You may
+not sell it or offer it as a paid service, and modified copies must say they were modified.
 
 ---
 

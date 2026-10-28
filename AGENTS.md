@@ -43,4 +43,5 @@ bash scripts/ci/smoke-bash.sh
 
 ## License
 
-GPL-3.0, see [`LICENSE`](LICENSE). Contributions are accepted under the same license.
+Sustainable Use License 1.0, see [`LICENSE.md`](LICENSE.md). Contributions are accepted under the
+same license.
