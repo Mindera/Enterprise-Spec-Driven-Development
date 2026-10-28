@@ -15,7 +15,7 @@ quick reference.
 | Tool | Spelling | Example |
 |---|---|---|
 | Documentation (canonical) | `/espec:<name>` | `/espec:tech-proposal` |
-| GitHub Copilot Chat (VS Code, JetBrains, Visual Studio) | `/espec-<name>` | `/espec-tech-proposal BILL-142` |
+| GitHub Copilot Chat (IDE or Terminal) | `/espec-<name>` | `/espec-tech-proposal BILL-142` |
 | Atlassian Rovo | An agent you @-mention in Rovo Chat or from a Jira issue. No slash commands. | `@Feature Definition define invoice CSV export` |
 | Microsoft 365 Copilot | An agent from Copilot agent builder, or the prompt pasted at the start of a chat. No slash commands. | `@Feature Definition define invoice CSV export` |
 
