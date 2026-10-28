@@ -1,6 +1,6 @@
 ticket: <PROJ-123 or issue URL>
 title: <title>
-status: defined                  # defined | proposed | in-progress | implemented | archived
+status: defined                  # defined | proposed | in-progress | implemented | archived | cancelled
 created: <YYYY-MM-DD>
 owners:
   product: <name>
@@ -9,3 +9,5 @@ owners:
 skip_specs: false                # true only when no observable behaviour changes
 # archived: <YYYY-MM-DD>                  # set by /espec:archive
 # archived_with_open_tasks: <reason>      # set by /espec:archive when archiving early
+# cancelled: <YYYY-MM-DD>                 # set by /espec:archive when the change will not ship
+# cancelled_reason: <reason>              # set together with cancelled

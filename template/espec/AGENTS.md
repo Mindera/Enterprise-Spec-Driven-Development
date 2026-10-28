@@ -550,7 +550,7 @@ an open blocking Question for Product and a constraint with no home are always b
 ```yaml
 ticket: PROJ-123                 # Jira key or GitHub issue URL
 title: Export invoices as CSV
-status: defined                  # defined | proposed | in-progress | implemented | archived
+status: defined                  # defined | proposed | in-progress | implemented | archived | cancelled
 created: 2026-10-24
 owners:
   product: <name>
@@ -559,13 +559,20 @@ owners:
 skip_specs: false                # true only when no observable behaviour changes
 archived: 2026-11-02             # set by /espec:archive
 archived_with_open_tasks: ""     # set by /espec:archive when the user chose to archive early, with the reason
+cancelled: 2026-11-02            # set by /espec:archive when the change will not ship
+cancelled_reason: ""             # why, set together with cancelled
 ```
 
 - `defined`: `feature.md` exists and is marked Ready for tech proposal.
-- `proposed`: `tech-proposal.md`, `specs/` (or `skip_specs`) and `tasks.md` exist and are approved.
+- `proposed`: `tech-proposal.md`, `specs/` (or `skip_specs`) and `tasks.md` exist. Approval is the
+  **Status: Approved** line in `tech-proposal.md`, set by the reviewer. Implementation does not start
+  without it, and `espec validate` fails a change that is `in-progress` on an unapproved proposal.
 - `in-progress`: at least one task is checked.
 - `implemented`: every task is checked and `pull-request.md` exists.
 - `archived`: folder moved under `changes/archive/`.
+- `cancelled`: the change will not ship. The folder is moved under `changes/archive/` without applying
+  its deltas, with `cancelled` and `cancelled_reason` set. A cancelled change is a record, never
+  evidence of behaviour.
 
 ## Archive rules (`/espec:archive`)
 
@@ -582,6 +589,9 @@ archived_with_open_tasks: ""     # set by /espec:archive when the user chose to 
 6. Move `changes/<change-name>/` to `changes/archive/YYYY-MM-DD-<change-name>/` and set
    `status: archived`. Never overwrite an existing archive folder.
 7. Produce a short release note for the ticket: what shipped, which specs changed, what was deferred.
+8. A change that will not ship is cancelled instead of archived: set `status: cancelled`, `cancelled`
+   and `cancelled_reason` in `.espec.yaml`, skip the spec sync, move the folder as in rule 6, and
+   write a note for the ticket saying what was cancelled and why. Its deltas are never applied.
 
 ## Archive clean rules (`/espec:archive-clean`)
 
@@ -589,7 +599,8 @@ The goal is a `espec/specs/` folder that describes only what the system does tod
 
 1. Inventory every requirement in `espec/specs/`.
 2. For each requirement, gather evidence: code and tests that implement it, archived changes that
-   added or last modified it, and archived changes or open changes that contradict it.
+   added or last modified it, and archived changes or open changes that contradict it. A change under
+   `archive/` with `status: cancelled` never counts: its deltas were not applied.
 3. Classify each requirement as **Keep** (evidence found, still true), **Update** (still true in part;
    propose the corrected text), or **Purge** (no code, no tests, superseded, duplicated, or marked
    deprecated past its sunset). Record the evidence next to the verdict.

@@ -62,8 +62,9 @@ Dev:              /espec-inspect-feature-definition BILL-142
 Copilot:          Readiness 9/9 ✅. No how outside the forced notes. Every UC and EC has an AC.
                   Verdict: Ready for tech proposal (0 blocking, 2 advisory).
                   Advisory: can a running export be cancelled? What if access is revoked
+                  mid-export?
                   Advisory: add advisory info on tech (Spike needed? APIs?)
-                  mid-export? Comment ready to post on BILL-142.
+                  Comment ready to post on BILL-142.
 
 Dev:              /espec-assess BILL-142
 Copilot:          Read 13 ACs and 7 constraints against main. Exists today: filters, entity
@@ -246,6 +247,7 @@ your-repo/
 
 ## Docs
 
+- [Step-by-step guides](docs/guides/README.md) · setup for engineering and product, then one walkthrough per step
 - [Workflow](docs/workflow.md) · the end-to-end flow and hand-offs
 - [Commands](docs/commands.md) · every command, input and output
 - [Conventions](docs/conventions.md) · formats, delta operations, archive rules

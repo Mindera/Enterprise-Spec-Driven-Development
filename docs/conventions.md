@@ -280,7 +280,7 @@ Capabilities are named for what the system does, not for the change that introdu
 ```yaml
 ticket: BILL-142                 # Jira key or GitHub issue URL
 title: Export invoices as CSV
-status: proposed                 # defined | proposed | in-progress | implemented | archived
+status: proposed                 # defined | proposed | in-progress | implemented | archived | cancelled
 created: 2026-10-24
 owners:
   product: <name>
@@ -292,10 +292,11 @@ skip_specs: false                # true only when no observable behaviour change
 | Status | Set by | Meaning |
 |---|---|---|
 | `defined` | Phase 1 | `feature.md` exists and is Ready for tech proposal |
-| `proposed` | Phase 2 | `tech-proposal.md`, `specs/` (or `skip_specs: true`) and `tasks.md` exist and are approved |
+| `proposed` | Phase 2 | `tech-proposal.md`, `specs/` (or `skip_specs: true`) and `tasks.md` exist. Approval is the **Status: Approved** line in `tech-proposal.md`, which implementation checks |
 | `in-progress` | Phase 3 | At least one task is checked |
 | `implemented` | Phase 3 | Every task is checked |
 | `archived` | Phase 4 | Folder moved under `changes/archive/`. Archive also adds `archived: YYYY-MM-DD`, and `archived_with_open_tasks: <reason>` when the user chose to archive early |
+| `cancelled` | Phase 4 | The change will not ship. Archive moves the folder under `changes/archive/` without applying its deltas and records `cancelled: YYYY-MM-DD` and `cancelled_reason`. Never evidence for archive-clean |
 
 The file stays with the folder. It is the audit record of the change.
 

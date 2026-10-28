@@ -162,15 +162,17 @@ under `espec/`, with or without a command.
 requests: an agent-led tour of the diff in a local browser, where the reviewer asks questions and
 leaves line feedback. It works with Codex, Claude Code, Gemini CLI and GitHub Copilot CLI.
 
-1. Install it with the instructions in its README (the repository is private to Mindera; ask a
-   Mindera GitHub administrator for access). Check with `diffcompass doctor`.
+1. Install it with the instructions in its README. The repository is public; the installer needs Git
+   and falls back to a plain download when the GitHub CLI is not signed in. Check with
+   `diffcompass doctor`.
 2. `espec init` adds `.diffcompass.json` at the repository root. It tells the DiffCompass agent to
    read the change folder before explaining code, order the tour by **How to review** in
    `pull-request.md`, and flag code that differs from the tech proposal or the delta specs, behaviour
    no acceptance criterion describes, and direct edits to `espec/specs/`. Add project rules under
    `analysis.instructions`; init never overwrites the file.
-3. `review.tool: diffcompass` in `espec/config.yaml` makes `/espec-implementation` print the review
-   commands when it finishes. Set it to `none` to turn that off.
+3. `review.tool: diffcompass` in `espec/config.yaml`, the template default, makes
+   `/espec-implementation` print the review commands when it finishes. Set it to `none` to turn
+   that off.
 4. Review a pull request with `diffcompass pr <number> --open`, or a branch before it has one with
    `diffcompass --base origin/main --open`. The tour helps the review; approval still happens in the
    pull request.

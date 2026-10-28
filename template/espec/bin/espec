@@ -212,6 +212,18 @@ section_has_content() {
 marker_ok() { [ "$(head -n 1 "$1" | tr -d '\r')" = "$MARKER" ]; }
 forced_ok() { section "$1" "## Forced technical notes" | grep -Fq '⚠'; }
 placeholders() { awk '/<[A-Za-z][A-Za-z0-9 -]*>/ && !/^[ \t]*<!--/ { print "line " NR ": " $0 }' "$1"; }
+# placeholders_outside_code FILE: as placeholders, but fenced blocks and inline code are skipped.
+placeholders_outside_code() {
+  awk '/^[ \t]*```/ { fence = !fence; next } fence { next }
+       { l = $0; gsub(/`[^`]*`/, "", l) }
+       l ~ /<[A-Za-z][A-Za-z0-9 -]*>/ && l !~ /^[ \t]*<!--/ { print "line " NR ": " $0 }' "$1"
+}
+# feature_ids FILE: UC-n, EC-n and AC-n headings of a feature.md, each once, in order.
+feature_ids() { sed -n 's/^### \([UEA]C-[0-9][0-9]*\).*/\1/p' "$1" | awk '!s[$0]++'; }
+# forced_ids FILE: FT-n notes of a feature.md, each once.
+forced_ids() { sed -n 's/^- \*\*\(FT-[0-9][0-9]*\):\*\*.*/\1/p' "$1" | awk '!s[$0]++'; }
+# proposal_status FILE: Draft, In review or Approved from the status line, empty when absent.
+proposal_status() { grep -oE '\*\*Status:\*\* *(Draft|In review|Approved)' "$1" | head -n 1 | sed 's/.*\*\* *//'; }
 
 validate_feature() {
   local f="$1/feature.md" h id ac left
@@ -235,6 +247,53 @@ validate_feature() {
   fi
   left=$(placeholders "$f")
   if [ -z "$left" ]; then ok "feature.md: no template placeholders left"; else fail_each "feature.md: placeholder" "$left"; fi
+}
+
+validate_tech_proposal() {
+  local c="$1" f="$1/tech-proposal.md" status="" h missing="" st trace review id ft n before left
+  [ -f "$c/.espec.yaml" ] && status=$(yaml_value "$c/.espec.yaml" status)
+  case "$status" in defined|cancelled) echo "  - tech-proposal.md not checked (status $status)"; return 0 ;; esac
+  if [ ! -f "$f" ]; then
+    case "$status" in
+      proposed|in-progress|implemented|archived) bad "tech-proposal.md: missing (required once status is $status)" ;;
+      *) echo "  - no tech-proposal.md yet (written by the tech proposal)" ;;
+    esac
+    return 0
+  fi
+  for h in "## Context" "## Approach" "## Architecture" "## APIs and contracts" "## Data model and migrations" \
+           "## Technology decisions" "## Traceability" "## Non-functional requirements" "## Rollout and migration" \
+           "## Test strategy" "## Risks and trade-offs" "## Questions for Product" "## Open engineering questions"; do
+    grep -q "^$h[[:space:]]*$" "$f" || missing="$missing '$h'"
+  done
+  if [ -z "$missing" ]; then ok "tech-proposal.md: all sections present"; else bad "tech-proposal.md: missing section(s):$missing"; fi
+  st=$(proposal_status "$f")
+  case "$st" in
+    Draft|"In review"|Approved) ok "tech-proposal.md: status line is '$st'" ;;
+    *) bad "tech-proposal.md: status line must be one of Draft, In review, Approved" ;;
+  esac
+  case "$status" in
+    in-progress|implemented|archived)
+      if [ "$st" = Approved ]; then ok "tech-proposal.md: Approved before implementation"
+      else bad "tech-proposal.md: status line must be Approved once .espec.yaml status is $status"; fi ;;
+  esac
+  if [ -f "$c/feature.md" ]; then
+    trace=$(section "$f" "## Traceability"); n=0; before=$FAILS
+    for id in $(feature_ids "$c/feature.md"); do
+      n=$((n + 1))
+      printf '%s\n' "$trace" | grep -Eq "(^|[^A-Za-z0-9])$id([^0-9]|$)" \
+        || bad "tech-proposal.md: $id from feature.md is not in the Traceability table"
+    done
+    [ "$n" -eq 0 ] || [ "$FAILS" -ne "$before" ] || ok "tech-proposal.md: every UC, EC and AC is in the Traceability table"
+    review=$(section "$f" "## Forced technical notes review"); n=0; before=$FAILS
+    for ft in $(forced_ids "$c/feature.md"); do
+      n=$((n + 1))
+      printf '%s\n' "$review" | grep -Eq "(^|[^A-Za-z0-9])$ft([^0-9]|$)" \
+        || bad "tech-proposal.md: $ft has no row in Forced technical notes review"
+    done
+    [ "$n" -eq 0 ] || [ "$FAILS" -ne "$before" ] || ok "tech-proposal.md: every FT-n has a verdict in the review"
+  fi
+  left=$(placeholders_outside_code "$f")
+  if [ -z "$left" ]; then ok "tech-proposal.md: no template placeholders left"; else fail_each "tech-proposal.md: placeholder" "$left"; fi
 }
 
 # Structural checks shared by delta specs (mode=delta) and main specs (mode=main). Prints one problem per line.
@@ -300,8 +359,8 @@ validate_meta() {
   if [ ! -f "$f" ]; then bad ".espec.yaml missing"; return 0; fi
   status=$(yaml_value "$f" status)
   case "$status" in
-    defined|proposed|in-progress|implemented|archived) ok ".espec.yaml: status is '$status'" ;;
-    *) bad ".espec.yaml: status '$status' must be one of defined, proposed, in-progress, implemented, archived" ;;
+    defined|proposed|in-progress|implemented|archived|cancelled) ok ".espec.yaml: status is '$status'" ;;
+    *) bad ".espec.yaml: status '$status' must be one of defined, proposed, in-progress, implemented, archived, cancelled" ;;
   esac
 }
 
@@ -327,6 +386,7 @@ validate_change() {
   validate_meta "$c"
   validate_pull_request "$c"
   validate_feature "$c"
+  validate_tech_proposal "$c"
   specs=$([ -d "$c/specs" ] && find "$c/specs" -name spec.md | sort || true)
   if [ -z "$specs" ]; then
     [ "$(yaml_value "$c/.espec.yaml" skip_specs)" = true ] || echo "  - no delta specs yet (expected after the tech proposal)"
