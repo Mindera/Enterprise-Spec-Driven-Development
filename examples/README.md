@@ -88,6 +88,24 @@ freeze from the Constraints, which the assessment had flagged, still had no home
 Timing bullet under Rollout), which is why its status line says Approved. Each report still quotes the
 text it inspected, so you can see what the command caught.
 
+## Coverage reports
+
+[`coverage/tech-proposal.md`](coverage/tech-proposal.md) and
+[`coverage/implementation.md`](coverage/implementation.md) are the self-checks that `/espec:tech-proposal`
+and `/espec:implementation` printed at the end of their runs over this change. The first says how much of
+the feature definition the proposal covers: every `UC`, `EC` and `AC` with the scenario, tasks and `Q.n`
+found on disk, every constraint, metric, design item and forced note with where the proposal addresses it,
+a match figure and a short judgement. The second says how much of the proposal and the definition the
+code delivers: every acceptance criterion with its file, the test that passed in the session and the QA
+line, and every proposal item as proposed or differing with a reason.
+
+The proposal report shown is from the re-run after the two fixes the inspection asked for, so it matches
+the Approved `tech-proposal.md` in this folder. The first run's report had marked `EC-8` as Covered,
+because the scenarios it named existed, while the inspection read what those scenarios promised and found
+the Expired state could never appear. That is the difference between the two: a coverage report is a claim
+the command makes about its own output, the inspection verifies it. The implementation report counts
+tests that ran and QA lines that were checked, so its 100% is backed by `tasks.md` and the test output.
+
 ## Where in time the snapshot is taken
 
 The change folder is shown **as it looks after implementation and before archive**: `.espec.yaml` says
@@ -120,6 +138,9 @@ examples/
 │   ├── feature-definition.md             # /espec:inspect-feature-definition report
 │   ├── assess.md                         # /espec:assess report
 │   └── tech-proposal.md                  # /espec:inspect-tech-proposal report
+├── coverage/
+│   ├── tech-proposal.md                  # coverage report printed by /espec:tech-proposal
+│   └── implementation.md                 # coverage report printed by /espec:implementation
 └── archive-clean/
     └── cleanup.md                        # sample /espec:archive-clean report
 ```

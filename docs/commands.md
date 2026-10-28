@@ -40,6 +40,16 @@ developers see what each run cost. When the tool does not show usage to the agen
 and points to where the developer can check it. The agent never estimates the figure. See
 [Usage report](../template/espec/AGENTS.md#usage-report).
 
+`/espec:tech-proposal` and `/espec:implementation` also end with a **coverage report**, printed just
+before the usage line: how much of the feature definition the proposal covers (every `UC`, `EC` and
+`AC` as Covered, Partial or Missing, every constraint and forced note as Addressed or No home), and
+how much of the proposal and the feature definition the implementation delivers (every `AC` as
+Delivered, Partial or Not delivered, every proposal item as proposed or differing with a reason). Each
+starts with a match figure, such as `12 of 13 product ids covered (92%)`. It is a self-check computed
+from the files on disk, saved only on request, and never an approval: the inspection and the code
+review verify the same claims. See [Coverage report](../template/espec/AGENTS.md#coverage-report)
+and the worked examples in [examples/coverage/](../examples/coverage/).
+
 ## /espec:feature-definition
 
 | | |
@@ -68,7 +78,7 @@ and stops.
 | Reads | `AGENTS.md`, `project.md`, `config.yaml` (the `context` and the `tech-proposal`, `specs` and `tasks` rules). `feature.md` from disk. Every main spec that covers part of the behaviour. The modules, tests and configuration the feature touches. |
 | Writes | Inside `espec/changes/<change-name>/` only: `tech-proposal.md`, `specs/<capability>/spec.md` per capability, `tasks.md`, and `.espec.yaml` with `status: proposed` and the engineering and QA owners. With no behaviour change: `skip_specs: true` and no `specs/` folder. |
 | Pauses when | The feature definition is not Ready for tech proposal: lists the gaps and asks whether to continue (each gap becomes a Question for Product). An ambiguity would change scope, observable behaviour, compatibility or acceptance criteria. Nothing usable was given as input. |
-| Output | The list of files written, the Questions for Product ready to paste as a ticket comment, and the line "Review the tech proposal. When approved, run `/espec:implementation <change-name>`." |
+| Output | The list of files written, the Questions for Product ready to paste as a ticket comment, the coverage report (every `UC`, `EC` and `AC` as Covered, Partial or Missing with the match figure, every constraint and `FT-n` as Addressed or No home, a short judgement), and the line "Review the tech proposal. When approved, run `/espec:implementation <change-name>`." |
 
 Planning only. It never edits application code. It never leaves "explore the codebase" or "decide
 the approach" as a task.
@@ -84,7 +94,7 @@ the approach" as a task.
 | Reads | `AGENTS.md`, `project.md`, `config.yaml` (the `implementation` rules). Then from disk: `feature.md`, `tech-proposal.md`, every file under `specs/`, `tasks.md`. |
 | Writes | Application code and tests. `tasks.md`: `- [ ]` becomes `- [x]` on the exact line, only after the named verification passed. `pull-request.md` at the end: a description a reviewer can read without the code, with a proposal-versus-implementation table, one row per acceptance criterion, verification, rollout and a release note. `.espec.yaml`: `in-progress` after the first check, `implemented` after the last. |
 | Pauses when | The gate fails: `.espec.yaml` is not `proposed` or `in-progress`, `tech-proposal.md` or `tasks.md` is missing, or the status line of `tech-proposal.md` is not Approved. A blocking Question for Product is still open. A task is unclear or contradicts another. The task needs work the proposal or specs do not describe. It is tempted to narrow, defer or simplify specified behaviour. Implementation reveals a design problem. A test fails for a reason outside the task. |
-| Output | Progress as `N/M tasks complete` with the next pending tasks. On completion: `pull-request.md` printed with `gh pr create --body-file espec/changes/<change-name>/pull-request.md`, tasks done this session, anything deferred with the reason, and "All tasks complete. Review, then run `/espec:archive <change-name>`." With `review.tool: diffcompass` in `config.yaml`, `/espec:review <change-name>` for the reviewer. |
+| Output | Progress as `N/M tasks complete` with the next pending tasks. On completion: `pull-request.md` printed with `gh pr create --body-file espec/changes/<change-name>/pull-request.md`, tasks done this session, anything deferred with the reason, and "All tasks complete. Review, then run `/espec:archive <change-name>`." With `review.tool: diffcompass` in `config.yaml`, `/espec:review <change-name>` for the reviewer. At the end of every session, finished or stopped early, the coverage report: every `AC` as Delivered, Partial or Not delivered with its file, test and `Q.n`, every proposal item as proposed or differing with a reason, and the match figure. |
 
 It never edits `espec/specs/`. A behaviour change found during implementation goes into the change's
 delta specs as a proposed tech proposal update, which the user confirms.
