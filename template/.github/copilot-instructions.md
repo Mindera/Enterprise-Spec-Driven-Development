@@ -14,7 +14,8 @@ Read `espec/AGENTS.md` for the conventions and `espec/project.md` for project co
 Commands in Copilot Chat: `/espec-feature-definition`, `/espec-tech-proposal`,
 `/espec-implementation`, `/espec-archive`, `/espec-archive-clean`. Read-only reviews:
 `/espec-inspect-feature-definition`, `/espec-assess` (the technical assessment that sits between
-the feature definition and the tech proposal), `/espec-inspect-tech-proposal`.
+the feature definition and the tech proposal), `/espec-inspect-tech-proposal`. Code review:
+`/espec-review` (a DiffCompass tour of the implementation pull request).
 
 ## Rules that always apply
 

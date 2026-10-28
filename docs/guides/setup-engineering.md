@@ -92,9 +92,10 @@ everyone gets the commands on their next pull.
 ## Step 5: check the commands in Copilot Chat
 
 1. Pull `main` and restart the IDE.
-2. Open Copilot Chat, switch to **Agent** mode, and type `/espec-`. The seven commands appear:
+2. Open Copilot Chat, switch to **Agent** mode, and type `/espec-`. The nine commands appear:
    `/espec-feature-definition`, `/espec-tech-proposal`, `/espec-implementation`, `/espec-archive`,
-   `/espec-archive-clean`, `/espec-inspect-feature-definition`, `/espec-inspect-tech-proposal`.
+   `/espec-archive-clean`, `/espec-inspect-feature-definition`, `/espec-assess`,
+   `/espec-inspect-tech-proposal`, `/espec-review`.
 3. If they do not appear, check that prompt files are enabled in your IDE's or Terminal's Copilot
    settings and that `.github/prompts/` is in the prompt file locations. The Copilot documentation
    for your IDE or Terminal covers prompt file support; the prompt files are plain Markdown and can be
@@ -182,7 +183,7 @@ espec/bin/espec validate
 ```
 
 - Prints "Main specs: none yet" (or your specs) and `0 failures`.
-- `/espec-` shows seven commands in Copilot Chat in agent mode.
+- `/espec-` shows nine commands in Copilot Chat in agent mode.
 - The `espec-validate` workflow ran on the init pull request.
 - `espec/project.md` has no placeholder text left and the Tests line names a command that works.
 

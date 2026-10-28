@@ -1,7 +1,7 @@
 # Commands
 
 Five commands, one per step of the workflow, three read-only commands (a technical assessment and two
-inspections), plus an optional CLI. Canonical names use a colon.
+inspections), a review command that starts the DiffCompass tour, plus an optional CLI. Canonical names use a colon.
 In GitHub Copilot Chat the same command is typed with a dash, because prompt file names cannot
 contain `:`. Rovo and M365 Copilot have no slash commands. There the command is an agent you
 @-mention or a prompt you paste.
@@ -33,6 +33,7 @@ Only phase 1 runs in Rovo and M365 Copilot. Phases 2 to 4 need the repository an
 | `/espec:inspect-feature-definition` | before 2 | Developer, QA, reviewer | Ticket key, URL, pasted definition or change name | Nothing. A report and a ticket comment in the chat |
 | `/espec:assess` | before 2 | Developer, with Product, Design, QA and the owning teams | Ticket key, URL, pasted definition or change name | Nothing. A report and a ticket comment in the chat |
 | `/espec:inspect-tech-proposal` | before 3 | QA, Engineering Manager, Architect | Change name | Nothing. A report and a ticket comment in the chat |
+| `/espec:review` | after 3 | Reviewer | Pull request number or URL, branch or change name | Nothing. Launches the DiffCompass tour |
 
 ## /espec:feature-definition
 
@@ -78,7 +79,7 @@ the approach" as a task.
 | Reads | `AGENTS.md`, `project.md`, `config.yaml` (the `implementation` rules). Then from disk: `feature.md`, `tech-proposal.md`, every file under `specs/`, `tasks.md`. |
 | Writes | Application code and tests. `tasks.md`: `- [ ]` becomes `- [x]` on the exact line, only after the named verification passed. `pull-request.md` at the end: a description a reviewer can read without the code, with a proposal-versus-implementation table, one row per acceptance criterion, verification, rollout and a release note. `.espec.yaml`: `in-progress` after the first check, `implemented` after the last. |
 | Pauses when | The gate fails: `.espec.yaml` is not `proposed` or `in-progress`, `tech-proposal.md` or `tasks.md` is missing, or the status line of `tech-proposal.md` is not Approved. A blocking Question for Product is still open. A task is unclear or contradicts another. The task needs work the proposal or specs do not describe. It is tempted to narrow, defer or simplify specified behaviour. Implementation reveals a design problem. A test fails for a reason outside the task. |
-| Output | Progress as `N/M tasks complete` with the next pending tasks. On completion: `pull-request.md` printed with `gh pr create --body-file espec/changes/<change-name>/pull-request.md`, tasks done this session, anything deferred with the reason, and "All tasks complete. Review, then run `/espec:archive <change-name>`." With `review.tool: diffcompass` in `config.yaml`, the DiffCompass commands to review the branch or the pull request. |
+| Output | Progress as `N/M tasks complete` with the next pending tasks. On completion: `pull-request.md` printed with `gh pr create --body-file espec/changes/<change-name>/pull-request.md`, tasks done this session, anything deferred with the reason, and "All tasks complete. Review, then run `/espec:archive <change-name>`." With `review.tool: diffcompass` in `config.yaml`, `/espec:review <change-name>` for the reviewer. |
 
 It never edits `espec/specs/`. A behaviour change found during implementation goes into the change's
 delta specs as a proposed tech proposal update, which the user confirms.
@@ -158,6 +159,22 @@ accepts it in the ticket.
 
 All three are read-only. Fixes go through `/espec:feature-definition`, `/espec:tech-proposal` or the
 ticket. Worked example reports: [examples/inspections/](../examples/inspections/).
+
+## /espec:review
+
+| | |
+|---|---|
+| GitHub Copilot | `/espec-review [target]` |
+| Prompt file | [template/.github/prompts/espec-review.prompt.md](../template/.github/prompts/espec-review.prompt.md) |
+| Who runs it | The reviewer of the implementation pull request. The author, to preview the tour before asking for review. |
+| Input | A pull request number or URL, a branch, or a change name. Empty input uses the current branch, and its open pull request when there is one. |
+| Reads | `AGENTS.md`, `config.yaml` (`review.tool`, `review.base`), `.diffcompass.json`, and for the change the diff touches: `.espec.yaml`, `tasks.md` and `pull-request.md`. |
+| Writes | Nothing. Runs `diffcompass pr <number> --open` for a pull request, or `diffcompass --base <review.base> --open` for a branch. |
+| Pauses when | `review.tool` is `none`: points to the manual review. `diffcompass doctor` fails: points to the install instructions. A change name matches more than one branch or pull request: asks which. |
+| Output | The command it ran, the change folder, warnings (status not `implemented`, unchecked tasks, `pull-request.md` missing a section or different from the pull request body), and what to check in the first pass. |
+
+It never approves, comments on or edits the pull request. The decision stays with the reviewer, in
+the pull request.
 
 ## The espec CLI (optional)
 

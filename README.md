@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="./VERSION"><img alt="Version: v1.0.5" src="https://img.shields.io/badge/version-v1.0.5-orange.svg?style=flat-square"></a>
+  <a href="./VERSION"><img alt="Version: v1.0.6" src="https://img.shields.io/badge/version-v1.0.6-orange.svg?style=flat-square"></a>
   <a href="./LICENSE.md"><img alt="License: Sustainable Use 1.0" src="https://img.shields.io/badge/License-Sustainable%20Use%201.0-blue.svg?style=flat-square"></a>
   <img alt="GitHub Copilot" src="https://img.shields.io/badge/Developers-GitHub%20Copilot-24292f?style=flat-square">
   <img alt="Rovo" src="https://img.shields.io/badge/Product-Rovo-0052cc?style=flat-square">
@@ -129,8 +129,8 @@ questions for product that go back on the ticket.
 **Phase 3** generates the code from the tech proposal and specs, one task at a time, and never
 narrows scope silently. It ends with a pull request description a reviewer can read without opening
 the code: what was built, where it differs from the proposal and why, and how it was verified. The
-reviewer then walks the diff with [DiffCompass](https://github.com/Mindera/diffcompass), which reads
-the change folder and flags code that drifts from the proposal.
+reviewer then runs `/espec:review`, which walks the diff with
+[DiffCompass](https://github.com/Mindera/diffcompass): it reads the change folder and flags code that drifts from the proposal.
 
 **Phase 4** folds the change into the main specs. `archive-clean` goes further: it searches the specs
 for anything the code no longer does, proposes keep, update or purge with evidence, and applies what
@@ -229,7 +229,7 @@ your-repo/
 ├── .diffcompass.json                      # Code review tour settings: read the change folder first
 ├── .github/
 │   ├── copilot-instructions.md            # Repo-wide rules for Copilot
-│   ├── prompts/espec-*.prompt.md          # The five commands, the assessment and the two inspect reviews
+│   ├── prompts/espec-*.prompt.md          # The five commands, the assessment, two inspections and review
 │   ├── instructions/espec.instructions.md # Format rules applied to espec/**
 │   ├── workflows/espec-validate.yml       # CI: validates changes and specs on pull requests
 │   └── ISSUE_TEMPLATE/feature-definition.md
@@ -260,7 +260,7 @@ your-repo/
 Issues and pull requests are welcome. Keep the README simple and the prompts shorter than the
 documents they produce.
 
-The current version is **v1.0.5**, kept in [`VERSION`](VERSION). Every change bumps the last number
+The current version is **v1.0.6**, kept in [`VERSION`](VERSION). Every change bumps the last number
 (`vX.Y.Z` → `vX.Y.Z+1`); see [`AGENTS.md`](AGENTS.md) for the rules every contributor and every AI
 assistant follows.
 

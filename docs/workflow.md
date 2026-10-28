@@ -140,7 +140,7 @@ folder. Record the place in `espec/project.md` under Ticketing. Nothing outside
 | Outputs | Code and tests. `tasks.md` with a task checked off only after its verification passed. `pull-request.md`: the pull request description, readable without the code, with a proposal-versus-implementation table. `.espec.yaml` moves to `in-progress` after the first check and `implemented` after the last. |
 | Exit criteria | **All tasks complete**: every checkbox in `tasks.md` is `[x]`, including the QA verification group. |
 | Hand-off | The pull request, whose description is `pull-request.md`. It links to the ticket, and its Release note section becomes the ticket comment at archive. |
-| Code review | The reviewer reads `pull-request.md`, then walks the diff with [DiffCompass](https://github.com/Mindera/diffcompass): `diffcompass pr <number> --open`. `.diffcompass.json` points its agent at the change folder, so the tour follows **How to review** and flags drift from the tech proposal and the delta specs. |
+| Code review | The reviewer reads `pull-request.md`, then runs `/espec:review <number>` to walk the diff with [DiffCompass](https://github.com/Mindera/diffcompass). `.diffcompass.json` points its agent at the change folder, so the tour follows **How to review** and flags drift from the tech proposal and the delta specs. |
 
 The AI pauses when a task is unclear, needs work the specs do not describe, or would reduce specified
 behaviour. It never narrows scope silently. A design problem found here becomes a tech proposal

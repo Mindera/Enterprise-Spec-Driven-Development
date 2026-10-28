@@ -104,7 +104,7 @@ Then it sets `status: implemented`, prints the file, and prints the command to u
 gh pr create --body-file espec/changes/bill-142-invoice-csv-export/pull-request.md
 ```
 
-With `review.tool: diffcompass`, it also prints the DiffCompass commands for the reviewer. Run
+With `review.tool: diffcompass`, it also prints `/espec:review <change-name>` for the reviewer, which starts the DiffCompass tour. Run
 `espec/bin/espec validate` before you open the pull request; it checks that `pull-request.md` has
 every section once the status is `implemented`.
 

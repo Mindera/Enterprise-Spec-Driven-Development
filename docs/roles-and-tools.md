@@ -91,7 +91,7 @@ Never:
 |---|---|---|
 | 1 | Reads the ticket and the assessment comment. Flags a definition that is really several features. When the assessment outcome is Further discovery required, agrees with product which blockers are resolved and which are cut from scope before the tech proposal starts. | The ticket |
 | 2 | Runs `/espec-inspect-tech-proposal`, then reviews the tech proposal: each `D-n` lists real alternatives, each `FT-n` has a verdict, the traceability table is complete, non-functional requirements and rollout are covered. Sets the status line to **Approved**. | The pull request that adds the change folder |
-| 3 | Decides on pauses that change the design. A design change is a tech proposal update, reviewed again. Reviews the pull request starting from its description: the proposal-versus-implementation table says where to look. Walks the diff with `diffcompass pr <number> --open`, which follows **How to review** and flags drift from the proposal. | The pull request, [DiffCompass](#diffcompass-reviewers-developers) |
+| 3 | Decides on pauses that change the design. A design change is a tech proposal update, reviewed again. Reviews the pull request starting from its description: the proposal-versus-implementation table says where to look. Walks the diff with `/espec-review <number>`, the DiffCompass tour, which follows **How to review** and flags drift from the proposal. | The pull request, [DiffCompass](#diffcompass-reviewers-developers) |
 | 4 | Confirms archive-clean verdicts. Owns the requirements that have no owner. | `/espec-archive-clean` report, `cleanup.md` |
 
 Never:
@@ -173,6 +173,7 @@ leaves line feedback. It works with Codex, Claude Code, Gemini CLI and GitHub Co
 3. `review.tool: diffcompass` in `espec/config.yaml`, the template default, makes
    `/espec-implementation` print the review commands when it finishes. Set it to `none` to turn
    that off.
-4. Review a pull request with `diffcompass pr <number> --open`, or a branch before it has one with
-   `diffcompass --base origin/main --open`. The tour helps the review; approval still happens in the
+4. Review with `/espec-review`: give it a pull request number, a branch or a change name. It checks
+   `pull-request.md` and runs `diffcompass pr <number> --open`, or `diffcompass --base origin/main --open`
+   for a branch before it has a pull request. The commands also work on their own. The tour helps the review; approval still happens in the
    pull request.
