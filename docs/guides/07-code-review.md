@@ -7,7 +7,7 @@ happens in the pull request.
 
 | | |
 |---|---|
-| Tool | The pull request, whose body is `pull-request.md`. [DiffCompass](https://github.com/Mindera/diffcompass) for the diff: `diffcompass pr <number> --open`. |
+| Tool | The pull request, whose body is `pull-request.md`. `/espec:review`, which starts a [DiffCompass](https://github.com/Mindera/diffcompass) tour of the diff. |
 | Who | The reviewer named for the repository, usually the Engineering Manager or Architect. A second developer for large changes. |
 | Input | The pull request with `pull-request.md` as its body, CI green including `espec-validate`, every task checked |
 | Output | Approval, or change requests. A merged change at `implemented`. |
@@ -42,13 +42,15 @@ that does not say what was built.
 
 ### Second pass: the diff, in the order given
 
-With DiffCompass:
+With DiffCompass, in Copilot Chat:
 
-```bash
-diffcompass pr 1234 --open
+```text
+/espec-review 1234
 ```
 
-The tour opens in a local browser. `.diffcompass.json` tells its agent to read the change folder
+It checks that `pull-request.md` is complete and matches the pull request body, then runs
+`diffcompass pr 1234 --open`; you can also run that command yourself. The tour opens in a local
+browser. `.diffcompass.json` tells its agent to read the change folder
 before explaining code, to order the tour by **How to review**, and to flag: code that differs from
 the tech proposal or the delta specs without a row in Proposal versus implementation, behaviour no
 acceptance criterion or scenario describes, acceptance criteria whose named test is missing from the

@@ -29,10 +29,13 @@ comment for the ticket.
 | `/espec:assess` | The feature definition against the code, the tests and the main specs: what exists today, dependencies on other teams, alternatives for product, criteria that cannot be met as written, spikes | Developers, with Product, Design, QA and the owning teams answering what it raises | After the definition is Ready for tech proposal, before a tech proposal starts |
 | `/espec:inspect-tech-proposal` | `tech-proposal.md`, `specs/` and `tasks.md` against `feature.md` and the live ticket | QA, Engineering Managers, Architects | Before a tech proposal is approved |
 
+`/espec:review` starts the code review of an implemented change: it checks `pull-request.md` and
+launches the DiffCompass tour of the pull request or branch. It writes nothing either.
+
 GitHub Copilot prompt files cannot contain `:` in their name, so in Copilot Chat the commands are typed
 with a dash: `/espec-feature-definition`, `/espec-tech-proposal`, `/espec-implementation`,
 `/espec-archive`, `/espec-archive-clean`, `/espec-inspect-feature-definition`, `/espec-assess`,
-`/espec-inspect-tech-proposal`. The colon form is the canonical name used in documentation.
+`/espec-inspect-tech-proposal`, `/espec-review`. The colon form is the canonical name used in documentation.
 
 ## Directory layout
 
@@ -385,8 +388,8 @@ Rules:
 
 When `review.tool` in `config.yaml` is `diffcompass`, the reviewer walks the diff with
 [DiffCompass](https://github.com/Mindera/diffcompass): `diffcompass pr <number> --open` for a pull
-request, `diffcompass --base <review.base> --open` for a branch. `.diffcompass.json` at the repository
-root tells its agent to read the change folder first, follow **How to review**, and flag code that
+request, `diffcompass --base <review.base> --open` for a branch. `/espec:review` resolves the target,
+checks `pull-request.md` and runs the right one. `.diffcompass.json` at the repository root tells its agent to read the change folder first, follow **How to review**, and flag code that
 differs from the tech proposal or the delta specs without a row in **Proposal versus implementation**.
 The tour helps the reviewer; it does not replace approval in the pull request.
 

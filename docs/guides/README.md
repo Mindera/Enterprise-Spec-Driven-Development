@@ -27,7 +27,7 @@ for the role matrix. The guides are the walkthroughs. When a guide and
 | 4 | [Tech proposal](04-tech-proposal.md) | `/espec:tech-proposal` | Developer, QA for the test strategy | `tech-proposal.md`, delta specs and `tasks.md` in a pull request |
 | 5 | [Inspect the tech proposal](05-inspect-tech-proposal.md) | `/espec:inspect-tech-proposal` | QA, Engineering Manager or Architect | Approve, and the proposal's status line set to Approved |
 | 6 | [Implementation](06-implementation.md) | `/espec:implementation` | Developer, QA for the verification group | Code and tests, every task checked, `pull-request.md` |
-| 7 | [Code review](07-code-review.md) | The pull request, with DiffCompass | Reviewer | Pull request approved and merged |
+| 7 | [Code review](07-code-review.md) | `/espec:review`, then the pull request | Reviewer | Pull request approved and merged |
 | 8 | [Archive](08-archive.md) | `/espec:archive` | Developer | Main specs updated, change archived, release note on the ticket |
 | 9 | [Archive clean](09-archive-clean.md) | `/espec:archive-clean` | Developer, a reviewer confirms | `cleanup.md` and the confirmed edits to the main specs |
 

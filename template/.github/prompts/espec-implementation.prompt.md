@@ -63,9 +63,10 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
 9. **On completion**, set `status: implemented` in `.espec.yaml` and report: tasks completed this
    session, overall progress, anything deferred with the reason, and
    "All tasks complete. Review, then run `/espec:archive <change-name>`."
-   When `review.tool` in `config.yaml` is `diffcompass`, add the review commands: before the pull
-   request exists, `diffcompass --base <review.base> --open`; after it, `diffcompass pr <number> --open`.
-   Do not launch them yourself unless the user asks for a walkthrough.
+   When `review.tool` in `config.yaml` is `diffcompass`, add the review command for the reviewer:
+   `/espec:review <change-name>`, which runs `diffcompass pr <number> --open` once the pull request
+   exists and `diffcompass --base <review.base> --open` before. Do not launch the tour yourself unless
+   the user asks for a walkthrough.
 
 ## Guardrails
 
