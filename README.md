@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="./VERSION"><img alt="Version: v1.0.2" src="https://img.shields.io/badge/version-v1.0.2-orange.svg?style=flat-square"></a>
+  <a href="./VERSION"><img alt="Version: v1.0.3" src="https://img.shields.io/badge/version-v1.0.3-orange.svg?style=flat-square"></a>
   <a href="./LICENSE"><img alt="License: GPL-3.0" src="https://img.shields.io/badge/License-GPL--3.0-blue.svg?style=flat-square"></a>
   <img alt="GitHub Copilot" src="https://img.shields.io/badge/Developers-GitHub%20Copilot-24292f?style=flat-square">
   <img alt="Rovo" src="https://img.shields.io/badge/Product-Rovo-0052cc?style=flat-square">
@@ -64,6 +64,16 @@ Copilot:          Readiness 9/9 ✅. No how outside the forced notes. Every UC a
                   Advisory: can a running export be cancelled? What if access is revoked
                   Advisory: add advisory info on tech (Spike needed? APIs?)
                   mid-export? Comment ready to post on BILL-142.
+
+Dev:              /espec-assess BILL-142
+Copilot:          Read 13 ACs and 7 constraints against main. Exists today: filters, entity
+                  access, saved views, a job queue, an EU bucket, pre-signed URLs, an audit
+                  log. Nothing writes CSV. FT-1 (nightly batch, 02:00 UTC) cannot meet the
+                  10-second outcome: keep it and rephrase AC-1, or override it with exports
+                  on the same Ops dashboard. 4 dependencies to confirm: platform, finance
+                  ops, audit owner, release manager. 1 spike: 50,000-row stream in close week.
+                  Outcome: Further discovery required (1 blocking, 4 advisory).
+                  Comment ready to post on BILL-142.
 
 Team              Refinement with Team for alignment/awareness of Tickets
 
@@ -125,12 +135,17 @@ the change folder and flags code that drifts from the proposal.
 for anything the code no longer does, proposes keep, update or purge with evidence, and applies what
 you confirm.
 
-Two read-only reviews sit between the phases. `/espec:inspect-feature-definition` checks a ticket
+Three read-only commands sit between the phases. `/espec:inspect-feature-definition` checks a ticket
 for missing information before engineering starts: hows outside the forced notes, use cases and edge
 cases with no acceptance criterion, edge cases nobody thought of, criteria that cannot be tested.
-`/espec:inspect-tech-proposal` checks a proposal against its ticket before approval: every product id
-traced to a scenario, a task and a QA line, every forced note answered, every constraint with a home,
-no blocking question open. Both end with a verdict and a comment ready to paste on the ticket.
+`/espec:assess` reads the ticket against the code before the tech proposal: what exists today, with
+file paths, which specs the feature touches, dependencies on other teams listed as unconfirmed with an
+owner to ask, alternatives with their consequences for product, criteria that cannot be met as
+written, and the spikes worth running. It ends with Ready for tech proposal or Further discovery
+required. `/espec:inspect-tech-proposal` checks a proposal against its ticket before approval: every
+product id traced to a scenario, a task and a QA line, every forced note answered, every constraint
+with a home, no blocking question open. All three end with a verdict and a comment ready to paste on
+the ticket.
 
 In GitHub Copilot the commands are typed with a dash (`/espec-tech-proposal`), because prompt file
 names cannot contain a colon. In Rovo and M365 Copilot, phase 1 is an agent you @-mention.
@@ -145,12 +160,14 @@ flowchart LR
   end
   FD -->|ticket| T[(Jira / GitHub issue)]
   subgraph eng [Engineering · GitHub Copilot]
-    T -->|/espec:tech-proposal| TP[Tech proposal + specs + tasks]
+    T -->|/espec:assess| AS[Technical assessment]
+    AS -->|/espec:tech-proposal| TP[Tech proposal + specs + tasks]
     TP -->|/espec:implementation| CODE[Code and tests]
     CODE -->|/espec:archive| SPECS[(espec/specs)]
     SPECS -.->|read by next proposal| TP
     SPECS -->|/espec:archive-clean| SPECS
   end
+  AS -.->|assessment comment| T
   TP -.->|questions for product| T
   CODE -.->|release note| T
 ```
@@ -211,7 +228,7 @@ your-repo/
 ├── .diffcompass.json                      # Code review tour settings: read the change folder first
 ├── .github/
 │   ├── copilot-instructions.md            # Repo-wide rules for Copilot
-│   ├── prompts/espec-*.prompt.md          # The five commands and the two inspect reviews
+│   ├── prompts/espec-*.prompt.md          # The five commands, the assessment and the two inspect reviews
 │   ├── instructions/espec.instructions.md # Format rules applied to espec/**
 │   ├── workflows/espec-validate.yml       # CI: validates changes and specs on pull requests
 │   └── ISSUE_TEMPLATE/feature-definition.md
@@ -241,7 +258,7 @@ your-repo/
 Issues and pull requests are welcome. Keep the README simple and the prompts shorter than the
 documents they produce.
 
-The current version is **v1.0.2**, kept in [`VERSION`](VERSION). Every change bumps the last number
+The current version is **v1.0.3**, kept in [`VERSION`](VERSION). Every change bumps the last number
 (`vX.Y.Z` → `vX.Y.Z+1`); see [`AGENTS.md`](AGENTS.md) for the rules every contributor and every AI
 assistant follows.
 

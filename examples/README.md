@@ -21,58 +21,72 @@ Follow the phases in order.
    [`.espec.yaml`](changes/bill-142-invoice-csv-export/.espec.yaml) links the folder to the ticket and tracks
    its status.
 
-2. **Phase 2, tech proposal.**
+2. **Phase 1, technical assessment.**
+   [`inspections/assess.md`](inspections/assess.md) is what a developer produced with `/espec:assess`
+   before writing anything: for every acceptance criterion and constraint, what the code already did and
+   where, the main spec the feature touches, four dependencies on other teams listed as unconfirmed with
+   an owner to ask, the two ways to resolve `FT-1` with what product gains and gives up under each, one
+   spike, and the outcome. It decides nothing; the tech proposal does.
+
+3. **Phase 2, tech proposal.**
    [`tech-proposal.md`](changes/bill-142-invoice-csv-export/tech-proposal.md) is what engineering produced
    with `/espec:tech-proposal`: the observed code context, the approach, a sequence diagram, the API and data
    model, three decisions with the alternatives that lost, and the review of `FT-1` (overridden, with the
    reason and how the underlying need is still met). The **Traceability** table is the heart of it: every
    `UC`, `EC` and `AC` maps to spec scenarios and task numbers.
 
-3. **Phase 2, delta specs.**
+4. **Phase 2, delta specs.**
    [`specs/invoice-export/spec.md`](changes/bill-142-invoice-csv-export/specs/invoice-export/spec.md) adds a
    new capability, so it carries a `## Purpose` and only `ADDED` requirements.
    [`specs/invoice-list/spec.md`](changes/bill-142-invoice-csv-export/specs/invoice-list/spec.md) changes an
    existing capability: it carries one `MODIFIED` requirement, the full block, nothing else.
 
-4. **Phase 2 and 3, tasks.**
+5. **Phase 2 and 3, tasks.**
    [`tasks.md`](changes/bill-142-invoice-csv-export/tasks.md) was written in the tech proposal and checked off
    during `/espec:implementation`. Each task names its verification and the `AC`/`EC` it satisfies, each group
    lands its own tests, and the final **QA verification** group holds one line per acceptance criterion with
    the result QA recorded.
 
-5. **Phase 3, pull request description.**
+6. **Phase 3, pull request description.**
    [`pull-request.md`](changes/bill-142-invoice-csv-export/pull-request.md) is what `/espec:implementation`
    wrote when the last task was checked: the pull request body. Read it without opening any code: the summary,
    the **Proposal versus implementation** table (most rows "As proposed", three small differences with their
    reasons), one row per acceptance criterion with the file to open first and the test that proves it, the
    review order, the verification results, the rollout as built, and the release note that archive reuses.
 
-6. **Phase 4, archive.**
+7. **Phase 4, archive.**
    [`specs/invoice-export/spec.md`](specs/invoice-export/spec.md) and
    [`specs/invoice-list/spec.md`](specs/invoice-list/spec.md) show the main specs under `espec/specs/` after
    `/espec:archive` folded the deltas in: the new capability created from the delta's purpose and added
    requirements, and the existing capability with its modified requirement replaced in place.
 
-7. **Phase 4, archive clean.**
+8. **Phase 4, archive clean.**
    [`archive-clean/cleanup.md`](archive-clean/cleanup.md) is a sample report from `/espec:archive-clean` run
    later over four capabilities, showing a Keep, an Update with the corrected text, a Purge with evidence, and
    the applied actions appended after confirmation.
 
 ## Inspections
 
-[`inspections/feature-definition.md`](inspections/feature-definition.md) and
+[`inspections/feature-definition.md`](inspections/feature-definition.md),
+[`inspections/assess.md`](inspections/assess.md) and
 [`inspections/tech-proposal.md`](inspections/tech-proposal.md) are the reports of
-`/espec:inspect-feature-definition` and `/espec:inspect-tech-proposal` run over this change. They show
-what a reviewer gets: the checklist and tables, the numbered findings marked Blocking or Advisory, the
-verdict, and the comment to paste on the ticket.
+`/espec:inspect-feature-definition`, `/espec:assess` and `/espec:inspect-tech-proposal` run over this
+change, in that order. They show what a reviewer gets: the checklist and tables, the numbered findings
+marked Blocking or Advisory, the verdict or outcome, and the comment to paste on the ticket.
 
-Both reports are honest snapshots, taken before approval. The feature definition came back **Ready for
-tech proposal** with five advisory findings, which product chose to leave as they were. The tech proposal
-came back **Not yet** with two blocking findings: the list of exports only showed the last 24 hours, so the
-Expired state that the design and the spec promise could never appear, and the Q4 2026 code freeze from
-the Constraints had no home in the proposal. The `tech-proposal.md` in this folder is the version after
-both were fixed (a 48-hour list window, and a Timing bullet under Rollout), which is why its status line
-says Approved. The report still quotes the text it inspected, so you can see what the command caught.
+All three reports are honest snapshots, taken before approval. The feature definition came back **Ready
+for tech proposal** with five advisory findings, which product chose to leave as they were. The technical
+assessment came back **Further discovery required** with one blocking finding: the forced note `FT-1`
+asks for the nightly batch, which runs once at 02:00 UTC and cannot meet the 10-second outcome in AC-1.
+Product chose the same day to let engineering override it as long as exports show on the same Ops
+dashboard, which is the agreement the tech proposal's forced-note review records. The assessment also
+listed four dependencies to confirm with other teams, one of them the Q4 2026 release train. The tech
+proposal came back **Not yet** with two blocking findings: the list of exports only showed the last 24
+hours, so the Expired state that the design and the spec promise could never appear, and the Q4 2026 code
+freeze from the Constraints, which the assessment had flagged, still had no home in the proposal. The
+`tech-proposal.md` in this folder is the version after both were fixed (a 48-hour list window, and a
+Timing bullet under Rollout), which is why its status line says Approved. Each report still quotes the
+text it inspected, so you can see what the command caught.
 
 ## Where in time the snapshot is taken
 
@@ -104,6 +118,7 @@ examples/
 │   └── invoice-list/spec.md
 ├── inspections/
 │   ├── feature-definition.md             # /espec:inspect-feature-definition report
+│   ├── assess.md                         # /espec:assess report
 │   └── tech-proposal.md                  # /espec:inspect-tech-proposal report
 └── archive-clean/
     └── cleanup.md                        # sample /espec:archive-clean report

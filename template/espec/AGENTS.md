@@ -20,17 +20,18 @@ written in a fixed format that any AI assistant can read and any human can revie
 | 3 | Implementation | `/espec:implementation` | Developers, QA | GitHub Copilot | Code and tests, tasks checked off, `pull-request.md` |
 | 4 | Archive | `/espec:archive`, `/espec:archive-clean` | Developers | GitHub Copilot | Main specs updated, change archived |
 
-Two read-only review commands sit between the phases. They write nothing: they print a report and a
+Three read-only commands sit between the phases. They write nothing: they print a report and a
 comment for the ticket.
 
 | Command | Checks | Who | When |
 |---------|--------|-----|------|
 | `/espec:inspect-feature-definition` | A ticket, a pasted definition or `feature.md` against the feature definition rules | Developers, QA, reviewers. Product runs the same checks through the review prompt in the product pack | Before a tech proposal starts |
+| `/espec:assess` | The feature definition against the code, the tests and the main specs: what exists today, dependencies on other teams, alternatives for product, criteria that cannot be met as written, spikes | Developers, with Product, Design, QA and the owning teams answering what it raises | After the definition is Ready for tech proposal, before a tech proposal starts |
 | `/espec:inspect-tech-proposal` | `tech-proposal.md`, `specs/` and `tasks.md` against `feature.md` and the live ticket | QA, Engineering Managers, Architects | Before a tech proposal is approved |
 
 GitHub Copilot prompt files cannot contain `:` in their name, so in Copilot Chat the commands are typed
 with a dash: `/espec-feature-definition`, `/espec-tech-proposal`, `/espec-implementation`,
-`/espec-archive`, `/espec-archive-clean`, `/espec-inspect-feature-definition`,
+`/espec-archive`, `/espec-archive-clean`, `/espec-inspect-feature-definition`, `/espec-assess`,
 `/espec-inspect-tech-proposal`. The colon form is the canonical name used in documentation.
 
 ## Directory layout
@@ -391,10 +392,11 @@ The tour helps the reviewer; it does not replace approval in the pull request.
 
 ## Inspection report formats
 
-Inspect commands print a report in the chat and never edit anything. On request they save it to
-`espec/changes/<change-name>/inspections/YYYY-MM-DD-<command>.md`. A finding is **Blocking** when it
-would change scope or observable behaviour, leaves a product id without a scenario, task or test, or
-leaves a question open that product must answer. Everything else is **Advisory**.
+Inspect commands and the technical assessment print a report in the chat and never edit anything. On
+request they save it to `espec/changes/<change-name>/inspections/YYYY-MM-DD-<command>.md`. A finding is
+**Blocking** when it would change scope or observable behaviour, leaves a product id without a
+scenario, task or test, or leaves a question open that product must answer. Everything else is
+**Advisory**.
 
 ### Feature definition inspection
 
@@ -440,6 +442,60 @@ leaves a question open that product must answer. Everything else is **Advisory**
 
 The verdict is **Ready for tech proposal** only with zero blocking findings. A ❌ in the checklist and
 a how outside the forced notes are always blocking.
+
+### Technical assessment report
+
+```markdown
+# Technical assessment · <title> (<ticket>)
+
+**Source:** <ticket key, fetched YYYY-MM-DD | pasted text | espec/changes/<change-name>/feature.md> · **Repository:** <branch or commit read, YYYY-MM-DD> · **Outcome:** Ready for tech proposal | Further discovery required (<n> blocking, <m> advisory)
+
+## What exists today
+<!-- One row per AC-n and per item under Constraints. Evidence is a file path. "Nothing found" is a valid value. -->
+| Id | Exists today | Missing or must change | Evidence |
+|----|--------------|------------------------|----------|
+| AC-1 | <what the code already does> | <what does not exist yet> | src/... |
+
+## Capabilities touched
+| Capability | Spec | Requirements | Touch |
+|------------|------|--------------|-------|
+| invoice-list | espec/specs/invoice-list/spec.md | List actions | Modified |
+
+## Dependencies outside the repository
+<!-- Services, contracts, infrastructure, dashboards, release slots, approvals this repository does not control. -->
+| Dependency | Needed for | Status | Owner to ask |
+|------------|------------|--------|--------------|
+| <what> | AC-n, <constraint> | Unconfirmed | <team or person> |
+
+## Alternatives for product
+<!-- Each option and its consequence. No choice is made here. "None" when the definition leaves no room. -->
+| Alternative | Instead of | What product gains | What product gives up |
+|-------------|------------|--------------------|-----------------------|
+
+## Criteria that cannot be met as written
+<!-- Each with an outcome rephrasing product can accept, or the scope decision it needs. "None" when clean. -->
+| Id | Why not | Outcome rephrasing |
+|----|---------|--------------------|
+
+## Spikes
+<!-- Only questions that reading the code cannot answer. "None" is a valid value. -->
+| Spike | Proves | Criteria waiting on it |
+|-------|--------|------------------------|
+
+## Findings
+| # | Severity | Finding | Where | Suggested fix |
+|---|----------|---------|-------|---------------|
+
+## Comment for the ticket
+<!-- Pasteable: the outcome, blocking findings as decisions for product or confirmations to obtain, advisory ones as assumptions that stay visible. -->
+```
+
+The outcome is **Ready for tech proposal** only with zero blocking findings. A criterion that cannot
+be met as written and has no agreed rephrasing, a forced technical note that conflicts with an outcome
+in the definition, and a spike a credible proposal cannot be written without are always blocking. An
+unconfirmed dependency is blocking when scope depends on the answer and advisory when only the how
+does; either way it stays listed with its owner until confirmed. The report makes no design decision
+and turns no alternative into a requirement: the ticket description stays the agreed scope.
 
 ### Tech proposal inspection
 
@@ -553,8 +609,10 @@ The goal is a `espec/specs/` folder that describes only what the system does tod
   or you are tempted to narrow, defer or simplify specified behaviour, stop and surface it. Never
   silently reduce scope. Only check a task when its behaviour is fully implemented and verified.
 - Phase 4 never deletes a spec without evidence and confirmation.
-- Inspect commands are read-only. They never edit the ticket, `feature.md`, the proposal, specs, tasks
-  or code, and they save a report only when asked.
+- Inspect commands and the technical assessment are read-only. They never edit the ticket,
+  `feature.md`, the proposal, specs, tasks or code, and they save a report only when asked. The
+  assessment names what exists and what the options are; it decides nothing, and code evidence never
+  confirms another team's commitment.
 - Always read `project.md` and `config.yaml` for project context and rules before writing. Apply them;
   do not paste them into artifacts.
 - Re-read artifacts from disk before building on them. Humans edit them between steps.
