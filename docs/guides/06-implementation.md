@@ -108,6 +108,19 @@ With `review.tool: diffcompass`, it also prints `/espec:review <change-name>` fo
 `espec/bin/espec validate` before you open the pull request; it checks that `pull-request.md` has
 every section once the status is `implemented`.
 
+### The coverage report
+
+Every session ends with a coverage report, whether every task is checked or you stopped early. One
+row per acceptance criterion: the file, the test and whether it passed in this session, the `Q.n`
+line and whether it is checked, and a status of Delivered, Partial or Not delivered. One row per item
+of the proposal: As proposed, Differs with a reason, or Differs without one. A match figure, such as
+`11 of 13 acceptance criteria delivered (85%)`, and a short judgement. The report is computed from
+the files and the test runs, not from memory: a criterion whose test did not run in the session is
+Partial however finished the code looks. Before printing, the command closes what it can (a
+difference without a row in `pull-request.md` gets its row, a test that did not run runs now) and
+lists what remains with the reason. Read the Partial rows before you commit; each one is either a
+test to run or a task that is not really done.
+
 ## What good looks like
 
 - Every task checked, and each check happened after its verification ran, not before.
@@ -118,6 +131,8 @@ every section once the status is `implemented`.
 - `pull-request.md` has no "see code" and no "self-explanatory". A reviewer could decide where to
   look first from the Behaviour delivered table alone.
 - The Verification section names commands and results, and the QA table names environments.
+- The coverage report says Delivered on every acceptance criterion and gives a reason for every
+  proposal item that differs. A Partial at the end of the change is a finding for you, not a note.
 
 See the worked example
 [pull-request.md](../../examples/changes/bill-142-invoice-csv-export/pull-request.md).

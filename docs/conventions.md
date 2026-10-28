@@ -263,6 +263,25 @@ another team's commitment. The exact formats are in `AGENTS.md`; filled-in repor
 example, including a **Further discovery required** with one blocking finding and a **Not yet** with
 two, are in [examples/inspections/](../examples/inspections/).
 
+## Coverage reports
+
+The two generating commands of phases 2 and 3 end with a self-check of their own output, printed in
+the chat before the usage line and saved only on request under
+`espec/changes/<change-name>/inspections/`.
+
+| Command | Compares | Per row | Match figure |
+|---|---|---|---|
+| `/espec:tech-proposal` | `tech-proposal.md`, `specs/` and `tasks.md` against `feature.md` | Every `UC-n`, `EC-n` and `AC-n`: Covered, Partial or Missing, with the scenario, tasks and `Q.n` found on disk. Every constraint, success metric, design item and `FT-n`: Addressed or No home | `<n> of <m> product ids covered (<p>%)` |
+| `/espec:implementation` | The code, the tests, `tasks.md` and `pull-request.md` against `tech-proposal.md`, `specs/` and `feature.md` | Every `AC-n`: Delivered, Partial or Not delivered, with the file, the test and whether it passed this session, and the `Q.n` and whether it is checked. Every proposal item: As proposed, Differs with a reason, or Differs without one | `<n> of <m> acceptance criteria delivered (<p>%)` |
+
+The report counts what the files show, not what the command meant to write. Before printing, the
+command closes the gaps it can (a missing scenario, task or `Q.n`, a constraint with no home, a
+difference without a row in `pull-request.md`) and lists what remains with the reason: a Question for
+Product, an unchecked task, a test that did not run. The figure never reads 100% while one of those is
+open. The report is a claim: `/espec:inspect-tech-proposal` and the code review verify it. Formats
+are in `AGENTS.md`; filled-in reports over the worked example are in
+[examples/coverage/](../examples/coverage/).
+
 ## Change naming
 
 | Situation | Pattern | Example |

@@ -40,7 +40,7 @@ the ticket (or asks for a paste), reviews it, writes `feature.md` and `.espec.ya
 change name (`bill-142-invoice-csv-export`). With a change name that already exists, it updates the
 proposal in place.
 
-It then works through eight steps and announces each. Where to pay attention:
+It then works through nine steps and announces each. Where to pay attention:
 
 1. **Resolve and check readiness.** It prints the checklist again. If something is ❌, decide now
    whether to continue.
@@ -70,7 +70,13 @@ It then works through eight steps and announces each. Where to pay attention:
    group has one `Q.n` per acceptance criterion plus the non-functional checks. No task says
    "explore" or "decide": that work happens now.
 6. **Update `.espec.yaml`** to `proposed` with the engineering and QA owners.
-7. **Report.** Files written, Questions for Product ready to paste, and the next command.
+7. **Assess coverage.** It re-reads what it wrote and prints a coverage report: one row per `UC-n`,
+   `EC-n` and `AC-n` with the scenario, tasks and `Q.n` it found on disk and a status of Covered,
+   Partial or Missing; one row per constraint, metric, design item and forced note with where the
+   proposal addresses it; a match figure such as `13 of 13 product ids covered (100%)`; and a short
+   judgement. Read the Partial and Missing rows first. A gap it could close, it closed before
+   printing; what is left is a Question for Product or a decision for you.
+8. **Report.** Files written, Questions for Product ready to paste, and the next command.
 
 Iterate by talking to it: "D-2 restates the choice as its reason; give the real trade-off",
 "task 2.5 produces the file, so it covers AC-1 too". Re-running the command with the change name
@@ -107,6 +113,8 @@ proposals (named in `project.md`) and QA. The pull request touches `espec/`, so 
 - QA has read the test strategy and could start writing the test plan.
 - `tasks.md` could be handed to a developer who has not read the chat.
 - Nothing outside `espec/changes/<change-name>/` changed. No application code.
+- The coverage report says Covered on every row, or says exactly why not. A row it marks Covered
+  names a scenario and a task you can open.
 
 See the worked example
 [tech-proposal.md](../../examples/changes/bill-142-invoice-csv-export/tech-proposal.md) and
@@ -130,3 +138,4 @@ the reviewer. Approval is the reviewer setting the status line in `tech-proposal
 | Tasks are too big to finish in a session | Groups instead of tasks | Split until each has one verification |
 | The QA group has fewer `Q.n` lines than acceptance criteria | Skipped | One `Q.n` per `AC-n`, in order, then exploratory and non-functional lines |
 | `validate` fails on `feature.md` placeholders | The import kept a template line | Fix `feature.md` to match the ticket exactly |
+| The coverage report says 100% but the inspection finds gaps | The self-check trusted its own table instead of the files | "Re-read specs/ and tasks.md from disk and recompute the coverage report." The inspection wins |

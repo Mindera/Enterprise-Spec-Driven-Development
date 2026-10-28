@@ -21,6 +21,8 @@ question is open. It ends with a verdict and a comment for the ticket.
   `.espec.yaml`, `feature.md`, `tech-proposal.md`, every file under `specs/` and `tasks.md` from disk.
 - `espec/bin/espec validate <change-name>` passes. The inspection checks meaning; the validator
   checks form. Run the cheap one first.
+- The coverage report that `/espec-tech-proposal` printed is the author's claim. This inspection
+  checks the same ids against the files without trusting it.
 
 ## Run it
 

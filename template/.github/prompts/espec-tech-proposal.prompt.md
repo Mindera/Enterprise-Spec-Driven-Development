@@ -58,7 +58,14 @@ Input: `${input:source:Change name, ticket key or URL, or a pasted feature defin
 
 7. **Update `.espec.yaml`**: `status: proposed`, engineering owner, and a `qa` owner when known.
 
-8. **Report.** List the files written, the open Questions for Product (ready to paste), and stop with:
+8. **Assess coverage.** Re-read `feature.md`, `tech-proposal.md`, every file under `specs/` and
+   `tasks.md` from disk. For every `UC-n`, `EC-n` and `AC-n`, find the scenario, the tasks and the
+   `Q.n` line under the names you used; for every constraint, success metric, design item and `FT-n`,
+   find where the proposal addresses it. Close the gaps you can now: write the missing scenario, task
+   or `Q.n` line, give a homeless constraint a home. What you cannot close becomes a Question for
+   Product. Then print the report in the **Tech proposal coverage** format of AGENTS.md.
+
+9. **Report.** List the files written, the open Questions for Product (ready to paste), and stop with:
    "Review the tech proposal. When approved, run `/espec:implementation <change-name>`."
 
 ## Guardrails
@@ -69,4 +76,6 @@ Input: `${input:source:Change name, ticket key or URL, or a pasted feature defin
 - Never leave "explore the codebase" or "decide the approach" as tasks. Do that now.
 - Do not restate the why. Link to `feature.md`.
 - Read existing main specs in full before writing a delta against them.
+- Compute the coverage report from the files, not from what you meant to write. A Partial you cannot
+  close now stays a Partial; the inspection and the reviewer check the same claims.
 - End the reply with the usage line from the **Usage report** section of AGENTS.md.

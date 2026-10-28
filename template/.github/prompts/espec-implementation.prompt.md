@@ -60,7 +60,15 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
    understand the change without opening the code. Print the file, and the command to use it:
    `gh pr create --body-file espec/changes/<change-name>/pull-request.md`.
 
-9. **On completion**, set `status: implemented` in `.espec.yaml` and report: tasks completed this
+9. **Assess coverage.** Re-read `feature.md`, `tech-proposal.md`, every file under `specs/`,
+   `tasks.md` and `pull-request.md` from disk. For every `AC-n`: the file, the test and whether it
+   passed in this session, the `Q.n` line and whether it is checked. For every item in Proposal versus
+   implementation: as proposed, differs with a reason, or differs without one. Close the gaps you can:
+   a difference without a row gets its row, a test that did not run runs now. Print the report in the
+   **Implementation coverage** format of AGENTS.md. Print it also when the user stops early, with the
+   open tasks counted as not delivered.
+
+10. **On completion**, set `status: implemented` in `.espec.yaml` and report: tasks completed this
    session, overall progress, anything deferred with the reason, and
    "All tasks complete. Review, then run `/espec:archive <change-name>`."
    When `review.tool` in `config.yaml` is `diffcompass`, add the review command for the reviewer:
@@ -74,6 +82,8 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
 - Never silently reduce scope. Never check a task that is partially done.
 - Keep changes scoped to the task. Refactors outside the task are a new task, proposed to the user.
 - Keep `tasks.md` as the single progress record. Update it immediately after each task.
+- Compute the coverage report from the files and the test runs of this session, not from memory. An
+  acceptance criterion whose test did not run is Partial, whatever the code looks like.
 - `pull-request.md` never says "see code" or "self-explanatory". Every row names a file, a test or a
   result. A difference from the tech proposal that changes observable behaviour also updates the
   change's delta specs, which you propose and the user confirms.

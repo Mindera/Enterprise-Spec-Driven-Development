@@ -615,6 +615,89 @@ The goal is a `espec/specs/` folder that describes only what the system does tod
    Purging the last requirement of a capability deletes its folder.
 7. Append the applied actions to the same `cleanup.md`. The report is the audit trail.
 
+## Coverage report
+
+`/espec:tech-proposal` and `/espec:implementation` end their reply with a **coverage report**: how much
+of the feature definition the proposal covers, and how much of the proposal and the feature definition
+the implementation delivers. It is a self-check the command computes from the files it just wrote,
+re-read from disk, so the developer sees the gaps before a reviewer does. It is not an approval:
+`/espec:inspect-tech-proposal` and the code review verify the same claims independently.
+
+Rules:
+
+- Count from the files, not from intent. An id is **Covered** or **Delivered** only when every piece the
+  row names exists under that name and, for the implementation, the test ran and passed in this
+  session. Otherwise it is **Partial** (say what is missing) or **Missing** / **Not delivered**.
+- Close what you can before printing. A missing scenario, task or `Q.n` line is written now; a
+  criterion that cannot be traced becomes a Question for Product; a constraint with no home gets one;
+  a difference from the proposal without a row in `pull-request.md` gets its row. The report lists
+  what remains and why.
+- The match figure never reads 100% while a blocking Question for Product is open, a task is
+  unchecked or a difference from the proposal has no reason.
+- The report goes in the chat, before the usage line. On request, save it to
+  `espec/changes/<change-name>/inspections/YYYY-MM-DD-<command>-coverage.md`. Never paste it into
+  the artifacts, the ticket or the pull request: `pull-request.md` already carries the Behaviour
+  delivered table.
+
+### Tech proposal coverage
+
+```markdown
+## Coverage: tech proposal versus feature definition
+
+**Change:** `espec/changes/<change-name>/` · **Match:** <n> of <m> product ids covered (<p>%), <k> partial, <j> missing · Constraints, metrics, design and forced notes: <a> of <b> addressed
+
+| Id | Scenario | Tasks | QA line | Status | Gap |
+|----|----------|-------|---------|--------|-----|
+| UC-1, AC-1 | invoice-export › Export current filter › Successful export | 2.1, 3.1 | Q.1 | Covered | |
+| EC-6, AC-9 | | | | Missing | Question for Product 2: which time zone the dates follow |
+
+| Constraint, metric, design item or FT-n | Addressed in | Status |
+|-----------------------------------------|--------------|--------|
+| Constraint: data residency | Non-functional requirements; task 5.4 | Addressed |
+| FT-1 | Forced technical notes review: Overridden | Addressed |
+
+**Judgement:** <two or three sentences: what the proposal captures faithfully, where it interprets the definition and a reviewer should look first, what waits on product.>
+```
+
+- Product ids are every `UC-n`, `EC-n` and `AC-n` in `feature.md`. **Covered**: a scenario under
+  `specs/` (or `skip_specs: true` with the reason), at least one task and a `Q.n` line exist, and the
+  scenario's THEN states the observable result the criterion asks for. **Partial**: one of those is
+  missing, or the scenario narrows the criterion. **Missing**: none exists.
+- The second table has one row per item under Constraints, Success metrics and Experience and design,
+  and one per `FT-n`. **Addressed** names the section or task; otherwise **No home**.
+- `p` is `n` divided by `m`, rounded to a whole number.
+
+### Implementation coverage
+
+```markdown
+## Coverage: implementation versus tech proposal and feature definition
+
+**Change:** `espec/changes/<change-name>/` · **Tasks:** <done>/<total> · **Match:** <n> of <m> acceptance criteria delivered (<p>%), <k> partial, <j> not delivered · Proposal: <a> items as proposed, <b> differ with a reason, <c> differ without a reason or not implemented
+
+| AC | Scenario | Where it lives | Test | Q.n | Status | Gap |
+|----|----------|----------------|------|-----|--------|-----|
+| AC-1 | invoice-export › Export current filter › Successful export | src/.../ExportController.java | ExportControllerTest, passed | Q.1 checked | Delivered | |
+| AC-11 | invoice-export › Export retention › Download after 24 hours | src/.../CleanupJob.java | CleanupJobTest, passed | Q.11 unchecked | Partial | QA line not run yet |
+
+| Proposal item | Status | Note |
+|---------------|--------|------|
+| D-1 Async export job | As proposed | |
+| POST /api/v1/invoices/exports | Differs, reason in pull-request.md | Retry-After 60 instead of 30 |
+| FT-1 | As proposed (Overridden) | |
+
+**Judgement:** <two or three sentences: what the code delivers as specified, where it differs and whether the delta specs follow, what is not done and why.>
+```
+
+- One row per `AC-n` in `feature.md`. **Delivered**: the code at the path exists, the named test
+  exists and passed in this session, the `Q.n` line is checked, and the behaviour matches the
+  scenario's THEN. **Partial**: implemented but a test or `Q.n` is missing or unchecked, or part of
+  the scenario is not met; say which. **Not delivered**: its tasks are unchecked.
+- One row per decision (`D-n`), endpoint, data model element, rollout step and `FT-n` in the
+  proposal, the same items as **Proposal versus implementation** in `pull-request.md`. A difference
+  without a reason, or one that changes observable behaviour without a delta spec update, is a gap.
+- Print it whenever the session ends: after the pull request description, and also when the user
+  stops early, with the open tasks counted as not delivered.
+
 ## Usage report
 
 Every `/espec:*` command ends its reply with one line that tells the developer what the run cost, so

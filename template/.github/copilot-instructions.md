@@ -29,5 +29,8 @@ the feature definition and the tech proposal), `/espec-inspect-tech-proposal`. C
 - Never edit `espec/specs/` directly. Main specs change only through archive and archive-clean.
 - Never reduce the scope of a task silently. Surface it and ask.
 - Scenarios in specs use `#### Scenario:` with four hashes and GIVEN / WHEN / THEN / AND bullets.
+- End `/espec-tech-proposal` and `/espec-implementation` with the coverage report defined in
+  `espec/AGENTS.md` (Coverage report), computed from the files on disk: every product id Covered,
+  Partial or Missing, every acceptance criterion Delivered, Partial or Not delivered.
 - End every espec command with the usage line defined in `espec/AGENTS.md` (Usage report): the
   credits, premium requests or tokens the run used when the tool shows them, never an estimate.
