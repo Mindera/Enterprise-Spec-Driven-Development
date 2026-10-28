@@ -72,3 +72,4 @@ Input: `${input:source:Ticket key or URL, a pasted feature definition, or a chan
 - Quote; do not paraphrase. A finding names the `AC-n`, the constraint or the `FT-n` and the words
   that triggered it, and every claim about the code cites a path.
 - One outcome. Ready for tech proposal only with zero blocking findings.
+- End the reply with the usage line from the **Usage report** section of AGENTS.md.
