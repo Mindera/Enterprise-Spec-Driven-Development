@@ -95,10 +95,10 @@ everyone gets the commands on their next pull.
 2. Open Copilot Chat, switch to **Agent** mode, and type `/espec-`. The seven commands appear:
    `/espec-feature-definition`, `/espec-tech-proposal`, `/espec-implementation`, `/espec-archive`,
    `/espec-archive-clean`, `/espec-inspect-feature-definition`, `/espec-inspect-tech-proposal`.
-3. If they do not appear in VS Code, check that prompt files are enabled (setting `chat.promptFiles`)
-   and that `.github/prompts/` is in the prompt file locations. In other IDEs, check the Copilot
-   plugin's documentation for prompt file support; the prompt files are plain Markdown and can be
-   pasted into the chat when the IDE cannot load them.
+3. If they do not appear, check that prompt files are enabled in your IDE's or Terminal's Copilot
+   settings and that `.github/prompts/` is in the prompt file locations. The Copilot documentation
+   for your IDE or Terminal covers prompt file support; the prompt files are plain Markdown and can be
+   pasted into the chat when they cannot be loaded.
 4. Run `/espec-inspect-feature-definition` on the worked example to see a command end to end: paste
    the contents of
    [examples/changes/bill-142-invoice-csv-export/feature.md](../../examples/changes/bill-142-invoice-csv-export/feature.md).
@@ -112,12 +112,12 @@ Without a connection, every command that takes a ticket key asks you to paste th
 one, `/espec-tech-proposal BILL-142` fetches it, and the inspect commands compare the live ticket with
 `feature.md`.
 
-- **Jira:** the Atlassian Remote MCP Server, enabled by an Atlassian admin and added to the IDE's
-  MCP configuration (in VS Code, `.vscode/mcp.json`). Each developer signs in once.
+- **Jira:** the Atlassian Remote MCP Server, enabled by an Atlassian admin and added to the MCP
+  configuration of your IDE or Terminal. Each developer signs in once.
 - **GitHub Issues:** the GitHub MCP server, or the `gh` CLI signed in on the machine. The prompts
   accept either.
 
-Commit `.vscode/mcp.json` only if your organisation allows it; the server URL is not a secret, the
+Commit the MCP configuration file only if your organisation allows it; the server URL is not a secret, the
 sign-in is per user. Check the current server URLs in the Atlassian and GitHub documentation; they
 change more often than this toolkit.
 
