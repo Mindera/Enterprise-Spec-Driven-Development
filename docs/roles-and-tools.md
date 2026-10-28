@@ -9,7 +9,7 @@ how to set each tool up. The underlying rules are in
 
 | Phase | Product Manager | Designer | Developer | QA | Eng Manager / Architect |
 |---|---|---|---|---|---|
-| 1 Feature definition | Writes | Fills Experience and design | Optional, in-repo | Reviews edge cases and ACs | Reads |
+| 1 Feature definition | Writes | Fills Experience and design | Runs the technical assessment | Reviews edge cases and ACs | Reads the assessment |
 | 2 Tech proposal | Answers Questions for Product | Answers design questions | Writes | Writes the test strategy | Reviews and approves |
 | 3 Implementation | Available for questions | Reviews built screens | Implements, checks tasks | Runs QA verification | Decides on design pauses |
 | 4 Archive | Reads the release note, closes the ticket | | Runs archive and archive-clean | Confirms the note matches what was verified | Confirms clean verdicts |
@@ -52,8 +52,8 @@ Never:
 
 | Phase | Does | Tool |
 |---|---|---|
-| 1 | Optional. Runs the feature definition in-repo when the work has no product owner, or imports a ticket. Pastes the result into a ticket so product can own it. | `/espec-feature-definition` |
-| 2 | Runs the tech proposal. Explores the code before writing. Writes `tech-proposal.md`, the delta specs and `tasks.md`. Runs `/espec-inspect-feature-definition` on the ticket before starting. Pastes Questions for Product as a ticket comment. Opens the pull request that adds the change folder. | `/espec-tech-proposal`, an Atlassian or GitHub MCP server to fetch the ticket |
+| 1 | Runs `/espec-inspect-feature-definition` on the ticket, then `/espec-assess`: what the code already does for each acceptance criterion and constraint, which specs the feature touches, dependencies on other teams (unconfirmed until their owner confirms), alternatives with their consequences for product, criteria that cannot be met as written, spikes. Pastes the assessment as a ticket comment and takes the findings to product, the owning teams or a spike. Optional: runs the feature definition in-repo when the work has no product owner, or imports a ticket, and pastes the result into a ticket so product can own it. | `/espec-inspect-feature-definition`, `/espec-assess`, `/espec-feature-definition` |
+| 2 | Starts when the assessment outcome is Ready for tech proposal. Runs the tech proposal. Explores the code before writing. Writes `tech-proposal.md`, the delta specs and `tasks.md`. Pastes Questions for Product as a ticket comment. Opens the pull request that adds the change folder. | `/espec-tech-proposal`, an Atlassian or GitHub MCP server to fetch the ticket |
 | 3 | Runs the implementation task by task. Lets the AI pause and decides on each pause. Keeps `tasks.md` as the progress record. Opens the pull request with `pull-request.md` as its body, so reviewers read what was built and how it differs from the proposal without opening the code first. | `/espec-implementation` |
 | 4 | Runs archive after the review. Posts the release note. Runs archive-clean on the agreed rhythm and brings the report to the reviewer. | `/espec-archive`, `/espec-archive-clean`, `bin/espec validate` |
 
@@ -64,6 +64,10 @@ Never:
 - Implements a ticket that has no approved tech proposal. A ticket that starts with the feature
   definition marker gets a tech proposal first.
 - Writes application code during the tech proposal phase.
+- Treats code evidence as another team's commitment. A dependency outside the repository stays
+  unconfirmed until its owner confirms it.
+- Turns an alternative from the assessment into a requirement. The ticket description is the scope
+  until product changes it.
 - Checks a task that is partially done, or narrows a task to make it pass.
 - Updates a ticket or posts a comment through a tool without being asked.
 
@@ -85,7 +89,7 @@ Never:
 
 | Phase | Does | Tool |
 |---|---|---|
-| 1 | Reads. Flags a definition that is really several features. | The ticket |
+| 1 | Reads the ticket and the assessment comment. Flags a definition that is really several features. When the assessment outcome is Further discovery required, agrees with product which blockers are resolved and which are cut from scope before the tech proposal starts. | The ticket |
 | 2 | Runs `/espec-inspect-tech-proposal`, then reviews the tech proposal: each `D-n` lists real alternatives, each `FT-n` has a verdict, the traceability table is complete, non-functional requirements and rollout are covered. Sets the status line to **Approved**. | The pull request that adds the change folder |
 | 3 | Decides on pauses that change the design. A design change is a tech proposal update, reviewed again. Reviews the pull request starting from its description: the proposal-versus-implementation table says where to look. Walks the diff with `diffcompass pr <number> --open`, which follows **How to review** and flags drift from the proposal. | The pull request, [DiffCompass](#diffcompass-reviewers-developers) |
 | 4 | Confirms archive-clean verdicts. Owns the requirements that have no owner. | `/espec-archive-clean` report, `cleanup.md` |

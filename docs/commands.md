@@ -1,6 +1,7 @@
 # Commands
 
-Five commands, one per step of the workflow, two read-only inspect commands, plus an optional CLI. Canonical names use a colon.
+Five commands, one per step of the workflow, three read-only commands (a technical assessment and two
+inspections), plus an optional CLI. Canonical names use a colon.
 In GitHub Copilot Chat the same command is typed with a dash, because prompt file names cannot
 contain `:`. Rovo and M365 Copilot have no slash commands. There the command is an agent you
 @-mention or a prompt you paste.
@@ -30,6 +31,7 @@ Only phase 1 runs in Rovo and M365 Copilot. Phases 2 to 4 need the repository an
 | `/espec:archive` | 4 | Developer | Change name | `espec/specs/`, the archived folder, a release note |
 | `/espec:archive-clean` | 4 | Developer | Optional capability name | `cleanup.md`, then confirmed edits to `espec/specs/` |
 | `/espec:inspect-feature-definition` | before 2 | Developer, QA, reviewer | Ticket key, URL, pasted definition or change name | Nothing. A report and a ticket comment in the chat |
+| `/espec:assess` | before 2 | Developer, with Product, Design, QA and the owning teams | Ticket key, URL, pasted definition or change name | Nothing. A report and a ticket comment in the chat |
 | `/espec:inspect-tech-proposal` | before 3 | QA, Engineering Manager, Architect | Change name | Nothing. A report and a ticket comment in the chat |
 
 ## /espec:feature-definition
@@ -124,6 +126,23 @@ a note asking for an owner, never Purge.
 | Checks | The readiness checklist, hows outside the forced notes, `UC`/`EC` coverage by `AC`, absent edge cases from the standard list, acceptance criteria that cannot be observed or measured. |
 | Output | The Feature definition inspection report: checklist, product boundary, coverage, edge cases to consider, testability, numbered findings marked Blocking or Advisory, the verdict (Ready for tech proposal, or Draft) and a comment to paste on the ticket. |
 
+## /espec:assess
+
+| | |
+|---|---|
+| GitHub Copilot | `/espec-assess <source>` |
+| Prompt file | [template/.github/prompts/espec-assess.prompt.md](../template/.github/prompts/espec-assess.prompt.md) |
+| Who runs it | A developer, after the feature definition inspection and before the tech proposal. Product, Design, QA and the owning teams answer what it raises. |
+| Input | A ticket key or URL (fetched when a tool can reach it, otherwise pasted), a pasted definition, or a change name whose `feature.md` is read from disk. |
+| Reads | `AGENTS.md`, `project.md`, `config.yaml`, the definition, the ticket when reachable, every main spec under `espec/specs/` the feature could touch, and the code and tests behind each acceptance criterion and constraint. |
+| Writes | Nothing. On request, saves the report to `espec/changes/<change-name>/inspections/YYYY-MM-DD-assess.md`. |
+| Checks | For each `AC-n` and constraint, what exists in the code and tests, with paths; which capabilities in `espec/specs/` the feature touches; dependencies outside the repository, listed as unconfirmed with an owner to ask; alternatives with their consequences for product; criteria that cannot be met as written, with an outcome rephrasing; spikes with what each proves. |
+| Output | The Technical assessment report: the tables, numbered findings marked Blocking or Advisory, the outcome (Ready for tech proposal, or Further discovery required) and a comment to paste on the ticket. |
+
+It makes no design decision: the choice and its reasons belong to the tech proposal. Code evidence
+never confirms another team's commitment, and an alternative is not a requirement until product
+accepts it in the ticket.
+
 ## /espec:inspect-tech-proposal
 
 | | |
@@ -137,8 +156,8 @@ a note asking for an owner, never Purge.
 | Checks | Ticket versus `feature.md`; every `UC`, `EC` and `AC` traced to a scenario, tasks and a `Q.n` line, verified against the files rather than the table; every `FT-n` accepted or overridden with a reason; every decision with alternatives; every constraint and metric with a home; specs complete and well formed; test strategy and QA group complete; open questions. |
 | Output | The Tech proposal inspection report: the comparison, the tables, numbered findings marked Blocking or Advisory, the verdict (Approve, or Not yet) and a comment to paste on the ticket. |
 
-Both inspect commands are read-only. Fixes go through `/espec:feature-definition`,
-`/espec:tech-proposal` or the ticket. Worked example reports: [examples/inspections/](../examples/inspections/).
+All three are read-only. Fixes go through `/espec:feature-definition`, `/espec:tech-proposal` or the
+ticket. Worked example reports: [examples/inspections/](../examples/inspections/).
 
 ## The espec CLI (optional)
 

@@ -32,7 +32,11 @@ you state a solution they ask you to rephrase it as an outcome, and if you insis
 2. When the readiness check is all ✅, paste the result into the ticket and set the status line to
    **Ready for tech proposal**.
 3. Ask a Designer to run the Design Notes agent on the ticket and paste the experience section back.
-4. Engineering picks the ticket up with `/espec:tech-proposal`. Their questions come back as a ticket
+4. A developer assesses the ticket against the code with `/espec:assess` and posts the result as a
+   ticket comment: what exists today, what depends on other teams, alternatives with their
+   consequences, anything that cannot be met as written. Decide on what it raises; the ticket
+   description stays the agreed scope until you change it.
+5. Engineering picks the ticket up with `/espec:tech-proposal`. Their questions come back as a ticket
    comment. Answer them in the ticket; they re-import the definition.
 
 ---

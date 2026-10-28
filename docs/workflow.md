@@ -22,24 +22,29 @@ flowchart TB
   subgraph Ticket["Ticket · Jira or GitHub Issue"]
     direction TB
     TK["Description = feature definition<br/>Status: Ready for tech proposal"]
+    TA["Comment: Technical assessment"]
     TQ["Comment: Questions for Product"]
     TR["Comment: Release note"]
   end
 
   subgraph Eng["Engineering · GitHub Copilot"]
     direction TB
+    AS["Phase 1, developer assessment: /espec:assess<br/>what exists, dependencies, alternatives, spikes"]
     TP["Phase 2: Tech Proposal<br/>tech-proposal.md, delta specs, tasks.md"]
     IM["Phase 3: Implementation<br/>code and tests, tasks checked off"]
     AR["Phase 4: Archive<br/>deltas folded into main specs"]
     MS[("espec/specs/<br/>the system as it is today")]
     AC["archive-clean<br/>keep / update / purge with evidence"]
-    TP --> IM --> AR
+    AS --> TP --> IM --> AR
     AR -->|"RENAMED, REMOVED,<br/>MODIFIED, ADDED"| MS
     MS -->|"read before writing deltas"| TP
     MS <--> AC
   end
 
   DS -->|"paste as description"| TK
+  TK -->|"assess against the code"| AS
+  AS -.->|"Ready, or Further discovery required"| TA
+  TA -.->|"scope decisions, confirmations"| PM
   TK -->|"import as feature.md"| TP
   TP -.->|"blocking questions"| TQ
   TQ -.->|"answers, description updated"| PM
@@ -57,51 +62,55 @@ Three things to notice:
 
 ## Phase 1: AI Assisted Feature Definition
 
+Product owns this phase. It has two steps: product writes the feature definition, then a developer
+assesses it against the repository before the tech proposal starts.
 
-### Product preparation: outside this workflow
+### Product writes the feature definition
 
-The Product Owner and Designer develop the ticket using their usual tools, optionally supported by their own AI assistants. They establish the business **why**, desired **what**, available designs, use cases, acceptance criteria and known uncertainties.
+| | |
+|---|---|
+| Command | `/espec:feature-definition` |
+| Who | The Product Manager writes. The Designer fills the Experience and design section. QA reviews edge cases and acceptance criteria. |
+| Tool | Rovo or M365 Copilot, with the agents in [product-ai/](../product-ai/README.md). GitHub Copilot in-repo when a developer starts a feature: `/espec-feature-definition`. |
+| Inputs | The idea, the research, the available designs, the business why, known uncertainties. |
+| Outputs | The ticket description in the feature definition format, with the readiness checklist all ✅ and the status line set to Ready for tech proposal. In-repo, also `espec/changes/<change-name>/feature.md`. |
+| Exit criteria | **Ready for tech proposal** on the ticket: Why, What, at least one UC, edge cases, out of scope and acceptance criteria are present, every UC and EC maps to an AC, open questions are answered or accepted as deferred, and no how sits outside the forced notes. `/espec:inspect-feature-definition` returns Ready for tech proposal. |
+| Hand-off | The ticket. Product hands it to engineering when it is sufficiently specified for technical assessment, or when they cannot progress further without engineering input, for example because the desired behaviour depends on capabilities or constraints they cannot assess. |
 
-This preparation is outside the ESpec workflow.
+This hand-off means **ready for technical investigation**, not necessarily ready for estimation or
+implementation. The Product Owner is not expected to establish technical feasibility or identify every
+dependency beforehand. That is what the assessment is for.
 
-The PO hands the ticket to engineering when either:
+### Developer assessment: `/espec:assess`
 
+| | |
+|---|---|
+| Command | `/espec:assess` |
+| Who | A developer leads the investigation, involving Product, Design, QA and other teams as needed. |
+| Tool | GitHub Copilot, with access to the repository: `/espec-assess <ticket key, URL or change name>`. |
+| Inputs | The ticket, available designs and research, known questions, the code and its tests, the main specs in `espec/specs/`, API contracts, `espec/project.md` and `espec/config.yaml`. |
+| Activity | Investigate feasibility with Copilot: what the code already does for each acceptance criterion and constraint, with file paths; which capabilities in `espec/specs/` the feature touches; dependencies outside the repository, listed as unconfirmed with an owner to ask; alternatives with their consequences for product; criteria that cannot be met as written, with an outcome rephrasing; spikes where reading the code cannot answer a question. Seek clarification or confirmation from the appropriate people. |
+| Outputs | The Technical assessment report, printed in the chat and pasted as a developer-authored comment on the ticket: findings, evidence, alternatives and trade-offs, questions, dependencies, and links to any spikes or related work. On request, saved to `espec/changes/<change-name>/inspections/YYYY-MM-DD-assess.md`. The PO updates the ticket description after scope decisions are agreed. |
+| Completion outcome | Either **Ready for tech proposal**, or **Further discovery required**, with the outstanding questions, dependencies or spikes recorded and their next actions identified. |
+| Hand-off | Findings return to Product/Design for clarification or scope decisions, to external teams for confirmation, or to a spike for further investigation. Once sufficiently resolved, the ticket proceeds to the tech proposal phase. |
 
+The developer and Copilot investigate together rather than merely checking whether the ticket contains
+every required heading (that check is `/espec:inspect-feature-definition`). They distinguish what the
+system already supports from what requires additional requests, service changes or other work. Where
+meaningful alternatives exist, they explain the consequences so Product can make informed scope
+decisions.
 
-- It is sufficiently specified for technical assessment.
+Code evidence does not, by itself, confirm another team's capability or delivery commitment. Those
+dependencies require confirmation from the relevant owners.
 
-- They cannot progress further without engineering input, for example because the desired behaviour depends on capabilities or constraints they cannot assess.
+The assessment comment preserves the investigation and its rationale. **The PO-maintained ticket
+description remains the agreed delivery scope**; alternatives and recommendations do not become
+requirements unless explicitly accepted.
 
-
-This hand-off means **ready for technical investigation**, not necessarily ready for estimation or implementation. The PO is not expected to establish technical feasibility or identify every dependency beforehand.
-
-
-### Developer assessment: inside this workflow
-
-
-|  |  |
-| --- | --- |
-| **Command** | `/espec:feature-definition` |
-| **Who** | A developer leads the investigation, involving Product, Design, QA and other teams as needed. |
-| **Tool** | GitHub Copilot, with access to the repository: `/espec-feature-definition`. |
-| **Inputs** | The existing ticket, available designs and research, known questions, relevant code, existing specs and API contracts. |
-| **Activity** | Investigate feasibility with Copilot; identify existing capabilities, alternatives, missing requirements, external dependencies and uncertainties. Seek clarification or confirmation from the appropriate people and create spikes where further investigation is necessary. |
-| **Outputs** | A developer-authored assessment comment on the ticket, including findings, evidence, alternatives and trade-offs, questions, dependencies, and links to any spikes or related work. The PO updates the ticket description after scope decisions are agreed. |
-| **Completion outcome** | Either **Ready for tech proposal**, or **Further discovery required**, with the outstanding questions, dependencies or spikes recorded and their next actions identified. |
-| **Hand-off** | Findings return to Product/Design for clarification or scope decisions, to external teams for confirmation, or to a spike for further investigation. Once sufficiently resolved, the ticket proceeds to the tech proposal phase. |
-
-
-The developer and Copilot investigate together rather than merely checking whether the ticket contains every required heading. They distinguish what the system already supports from what requires additional requests, service changes or other work. Where meaningful alternatives exist, they explain the consequences so Product can make informed scope decisions.
-
-
-Code evidence does not, by itself, confirm another team’s capability or delivery commitment. Those dependencies require confirmation from the relevant owners.
-
-
-The assessment comment preserves the investigation and its rationale. **The PO-maintained ticket description remains the agreed delivery scope**; alternatives and recommendations do not become requirements unless explicitly accepted.
-
-
-**Proposed readiness rule:** proceed to the tech proposal when the agreed scope and available technical evidence are sufficient to develop a credible proposal. Material feasibility blockers must be resolved or removed from scope through an explicit decision; remaining non-blocking assumptions must stay visible.
-
+**Proposed readiness rule:** proceed to the tech proposal when the agreed scope and available technical
+evidence are sufficient to develop a credible proposal. Material feasibility blockers must be resolved
+or removed from scope through an explicit decision; remaining non-blocking assumptions must stay
+visible.
 
 ## Phase 2: Tech Proposal
 
@@ -158,6 +167,7 @@ and a confirmed verdict. See [conventions.md](conventions.md#archive-merge-order
 | Feature definition | Description. Product edits here. | `espec/changes/<change-name>/feature.md`, an identical copy |
 | Design notes | **Experience and design** section of the description | Same section of `feature.md` |
 | Forced technical notes | `## Forced technical notes` in the description | Same section of `feature.md`, reviewed in `tech-proposal.md` |
+| Technical assessment | Comment from engineering, with the outcome | Printed by `/espec:assess`. On request, `espec/changes/<change-name>/inspections/YYYY-MM-DD-assess.md` |
 | Questions for Product | Comment from engineering | `## Questions for Product` in `tech-proposal.md` |
 | Answers from product | Comment, then the description is updated | `feature.md` updated to match |
 | Tech proposal | Optional link to the pull request | `tech-proposal.md` |
@@ -186,14 +196,16 @@ The phases do not change. The hand-off does.
    [template/.github/copilot-instructions.md](../template/.github/copilot-instructions.md) tells
    GitHub Copilot that an issue with this marker is a feature definition and must not be
    implemented directly.
-4. A developer runs `/espec-tech-proposal <issue URL>` in Copilot Chat, or the issue is assigned to
-   the Copilot coding agent. Either way the first output is a pull request that adds
-   `espec/changes/<change-name>/` with the tech proposal, delta specs and tasks. Nothing else
-   changes in that PR.
-5. Questions for Product go in an issue comment. The reviewer approves the tech proposal PR.
-6. Implementation follows as a second pull request: a developer runs `/espec-implementation`, or
+4. A developer runs `/espec-assess <issue URL>` in Copilot Chat and posts the assessment as an
+   issue comment. Product decides on what it raises; the issue body stays the agreed scope.
+5. When the outcome is Ready for tech proposal, a developer runs `/espec-tech-proposal <issue URL>`
+   in Copilot Chat, or the issue is assigned to the Copilot coding agent. Either way the first output
+   is a pull request that adds `espec/changes/<change-name>/` with the tech proposal, delta specs and
+   tasks. Nothing else changes in that PR.
+6. Questions for Product go in an issue comment. The reviewer approves the tech proposal PR.
+7. Implementation follows as a second pull request: a developer runs `/espec-implementation`, or
    the coding agent is assigned again now that an approved change exists in the repo.
-7. Archive runs after the merge. The release note is the closing comment on the issue.
+8. Archive runs after the merge. The release note is the closing comment on the issue.
 
 The change name uses the issue number as its key, for example `gh-142-invoice-csv-export`, and
 `.espec.yaml` stores the issue URL under `ticket`.
