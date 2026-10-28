@@ -615,6 +615,23 @@ The goal is a `espec/specs/` folder that describes only what the system does tod
    Purging the last requirement of a capability deletes its folder.
 7. Append the applied actions to the same `cleanup.md`. The report is the audit trail.
 
+## Usage report
+
+Every `/espec:*` command ends its reply with one line that tells the developer what the run cost, so
+teams can see where their AI credits go:
+
+```text
+Usage: <amount> <unit> (<tool>)
+```
+
+- Report a figure only when the tool shows it to you, in the unit the tool uses: credits, premium
+  requests, tokens or cost. For example `Usage: 3 premium requests (GitHub Copilot)`.
+- When the tool does not show usage to the agent, write `Usage: not available to the agent` and name
+  where the developer can see it, for example the premium requests view in GitHub Copilot settings or
+  `/cost` in Claude Code.
+- Never estimate or invent a figure. A guess shown as a number misleads budget decisions.
+- The line goes in the chat only, never in an artifact, a ticket comment or a pull request.
+
 ## Guardrails for AI assistants
 
 - Phase 1 writes product language only. Push back on how. Record forced hows under `FT-n`.

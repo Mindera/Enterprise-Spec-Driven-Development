@@ -57,3 +57,4 @@ Input: `${input:scope:Capability name to limit the run, or leave empty for all s
 - Never rewrite a requirement's meaning under Update; fix what the evidence shows is wrong.
 - Never touch `espec/changes/<active-change>/` folders.
 - The report is the audit trail. Do not apply anything that is not in it.
+- End the reply with the usage line from the **Usage report** section of AGENTS.md.

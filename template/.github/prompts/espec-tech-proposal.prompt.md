@@ -69,3 +69,4 @@ Input: `${input:source:Change name, ticket key or URL, or a pasted feature defin
 - Never leave "explore the codebase" or "decide the approach" as tasks. Do that now.
 - Do not restate the why. Link to `feature.md`.
 - Read existing main specs in full before writing a delta against them.
+- End the reply with the usage line from the **Usage report** section of AGENTS.md.

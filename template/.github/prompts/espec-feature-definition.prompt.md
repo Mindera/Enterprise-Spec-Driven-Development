@@ -91,3 +91,4 @@ The definition is **Ready for tech proposal** only when every item passes. Set t
 - Do not invent use cases, metrics or constraints. Ask, or mark them as open questions.
 - Keep the ticket and `feature.md` identical. When they differ, show the difference and ask which wins.
 - Do not paste `project.md` or `config.yaml` content into the document.
+- End the reply with the usage line from the **Usage report** section of AGENTS.md.

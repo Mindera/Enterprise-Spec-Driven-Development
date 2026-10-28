@@ -64,3 +64,4 @@ Input: `${input:change:Change name under espec/changes/ (leave empty to pick fro
 - Do not re-decide the design. A decision you would have made differently is advisory at most, unless
   it breaks a constraint from `feature.md`.
 - One verdict. Approve only with zero blocking findings.
+- End the reply with the usage line from the **Usage report** section of AGENTS.md.

@@ -79,3 +79,4 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
   change's delta specs, which you propose and the user confirms.
 - Do not edit `espec/specs/` in this phase. Behaviour changes go in the change's delta specs, and
   that is a tech proposal update, which you propose and the user confirms.
+- End the reply with the usage line from the **Usage report** section of AGENTS.md.

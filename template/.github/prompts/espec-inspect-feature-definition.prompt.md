@@ -48,3 +48,4 @@ Input: `${input:source:Ticket key or URL, a pasted feature definition, or a chan
 - Quote; do not paraphrase. A finding names the section and the words that triggered it.
 - Do not invent product facts. A missing use case is a question for product, not a guess.
 - One verdict. Ready for tech proposal only with zero blocking findings.
+- End the reply with the usage line from the **Usage report** section of AGENTS.md.

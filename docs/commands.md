@@ -35,6 +35,11 @@ Only phase 1 runs in Rovo and M365 Copilot. Phases 2 to 4 need the repository an
 | `/espec:inspect-tech-proposal` | before 3 | QA, Engineering Manager, Architect | Change name | Nothing. A report and a ticket comment in the chat |
 | `/espec:review` | after 3 | Reviewer | Pull request number or URL, branch or change name | Nothing. Launches the DiffCompass tour |
 
+Every command ends with a usage line, such as `Usage: 3 premium requests (GitHub Copilot)`, so
+developers see what each run cost. When the tool does not show usage to the agent, the line says so
+and points to where the developer can check it. The agent never estimates the figure. See
+[Usage report](../template/espec/AGENTS.md#usage-report).
+
 ## /espec:feature-definition
 
 | | |
