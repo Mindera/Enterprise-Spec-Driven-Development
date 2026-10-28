@@ -22,6 +22,10 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
      release note and in `.espec.yaml` under `archived_with_open_tasks: <reason>`.
    - Missing `tech-proposal.md` or (without `skip_specs: true`) missing `specs/`: warn and ask.
    - Missing `pull-request.md`: warn; the release note is then written from scratch in step 7.
+   - The user says the change will not ship, or `.espec.yaml` already says `status: cancelled`: ask
+     for the reason, set `status: cancelled`, `cancelled: YYYY-MM-DD` and `cancelled_reason: <reason>`,
+     skip steps 3 to 5, move the folder as in step 6, and write the ticket note in step 7 as what was
+     cancelled and why. The deltas of a cancelled change are never applied.
 
 3. **Plan the spec sync.** For every `specs/<capability>/spec.md` in the change:
    - Locate `espec/specs/<capability>/spec.md`.
@@ -46,7 +50,8 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
 
 6. **Move the change.** Target is `espec/changes/archive/YYYY-MM-DD-<change-name>/` using today's
    date, unless the name already starts with a date. Refuse to overwrite an existing folder. Set
-   `status: archived` and `archived: YYYY-MM-DD` in `.espec.yaml` before moving.
+   `status: archived` and `archived: YYYY-MM-DD` in `.espec.yaml` before moving. A cancelled change
+   keeps `status: cancelled` and gets no `archived` date.
 
 7. **Release note.** Start from the `## Release note` section of `pull-request.md` when the file
    exists, and update it for anything that changed since. Otherwise write a short note for the
@@ -61,7 +66,7 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
 
 **Change:** <change-name>
 **Archived to:** espec/changes/archive/<YYYY-MM-DD-change-name>/
-**Specs:** ✓ synced (<capabilities>) | no delta specs | sync skipped
+**Specs:** ✓ synced (<capabilities>) | no delta specs | sync skipped | not applied (cancelled)
 **Tasks:** 12/12 complete | archived with 2 open tasks: <reason>
 ```
 
@@ -71,3 +76,5 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
 - Never delete a requirement the delta does not list under REMOVED or RENAMED.
 - Never invent a current version for a MODIFIED requirement that has no main spec.
 - Keep `.espec.yaml` with the folder; it is the audit record.
+- A cancelled change keeps every file; nothing in it is deleted and nothing from it reaches
+  `espec/specs/`.

@@ -11,7 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 FORBIDDEN = [r"openspec", r"\bopsx\b"]
-SKIP_DIRS = {".git", "node_modules"}
+SKIP_DIRS = {".git", ".claude", "node_modules"}  # .claude holds local tool state such as worktrees
 FENCE = re.compile(r"```.*?```", re.S)
 LINK = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")
 

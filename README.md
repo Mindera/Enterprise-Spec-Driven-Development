@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="./VERSION"><img alt="Version: v1.0.2" src="https://img.shields.io/badge/version-v1.0.2-orange.svg?style=flat-square"></a>
+  <a href="./VERSION"><img alt="Version: v1.0.3" src="https://img.shields.io/badge/version-v1.0.3-orange.svg?style=flat-square"></a>
   <a href="./LICENSE"><img alt="License: GPL-3.0" src="https://img.shields.io/badge/License-GPL--3.0-blue.svg?style=flat-square"></a>
   <img alt="GitHub Copilot" src="https://img.shields.io/badge/Developers-GitHub%20Copilot-24292f?style=flat-square">
   <img alt="Rovo" src="https://img.shields.io/badge/Product-Rovo-0052cc?style=flat-square">
@@ -62,8 +62,9 @@ Dev:              /espec-inspect-feature-definition BILL-142
 Copilot:          Readiness 9/9 ✅. No how outside the forced notes. Every UC and EC has an AC.
                   Verdict: Ready for tech proposal (0 blocking, 2 advisory).
                   Advisory: can a running export be cancelled? What if access is revoked
+                  mid-export?
                   Advisory: add advisory info on tech (Spike needed? APIs?)
-                  mid-export? Comment ready to post on BILL-142.
+                  Comment ready to post on BILL-142.
 
 Team              Refinement with Team for alignment/awareness of Tickets
 
@@ -229,6 +230,7 @@ your-repo/
 
 ## Docs
 
+- [Step-by-step guides](docs/guides/README.md) · setup for engineering and product, then one walkthrough per step
 - [Workflow](docs/workflow.md) · the end-to-end flow and hand-offs
 - [Commands](docs/commands.md) · every command, input and output
 - [Conventions](docs/conventions.md) · formats, delta operations, archive rules
@@ -241,7 +243,7 @@ your-repo/
 Issues and pull requests are welcome. Keep the README simple and the prompts shorter than the
 documents they produce.
 
-The current version is **v1.0.2**, kept in [`VERSION`](VERSION). Every change bumps the last number
+The current version is **v1.0.3**, kept in [`VERSION`](VERSION). Every change bumps the last number
 (`vX.Y.Z` → `vX.Y.Z+1`); see [`AGENTS.md`](AGENTS.md) for the rules every contributor and every AI
 assistant follows.
 

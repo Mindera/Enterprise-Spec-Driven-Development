@@ -17,10 +17,13 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
    when exactly one folder under `espec/changes/` (excluding `archive/`) is not archived, and ask when
    it is ambiguous. Announce "Using change: <name>" and how to override.
 
-2. **Check the gate.** `.espec.yaml` must say `proposed` or `in-progress`, and `tech-proposal.md`
-   and `tasks.md` must exist. A change that only has `feature.md` is not ready: point to
-   `/espec:tech-proposal` and stop. A blocking **Question for Product** that is still open in
-   `tech-proposal.md` is a pause: show it and ask whether product has answered it.
+2. **Check the gate.** `.espec.yaml` must say `proposed` or `in-progress`, `tech-proposal.md` and
+   `tasks.md` must exist, and the status line of `tech-proposal.md` must read **Approved**. A change
+   that only has `feature.md` is not ready: point to `/espec:tech-proposal` and stop. A proposal whose
+   status line is Draft or In review is not ready either: say so, point to
+   `/espec:inspect-tech-proposal` and the reviewer named in `project.md`, and stop. A blocking
+   **Question for Product** that is still open in `tech-proposal.md` is a pause: show it and ask
+   whether product has answered it.
 
 3. **Read the context from disk**: `feature.md`, `tech-proposal.md`, every file under `specs/`, and
    `tasks.md`. Do not rely on what you remember from earlier in the conversation.

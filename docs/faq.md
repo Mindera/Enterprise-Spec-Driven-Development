@@ -40,6 +40,15 @@ still useful when you want the plan reviewed. Archive moves the folder without t
 specs. Do not invent a requirement to fill a folder. If the refactor does change observable
 behaviour, it is not a pure refactor: write the delta.
 
+## What if a change is abandoned?
+
+Run `/espec-archive <change-name>` and say it will not ship. It asks for the reason, sets
+`status: cancelled` with the date and reason in `.espec.yaml`, moves the folder under
+`espec/changes/archive/` without applying its delta specs, and writes a note for the ticket. The folder
+stays as a record. A cancelled change never counts as evidence in archive-clean, and it no longer
+protects requirements through its traceability table. Deleting the folder instead loses the record of
+why the work stopped.
+
 ## One feature, several repositories?
 
 One change per repository, same ticket key, same `feature.md` in each. Each repository writes its own
@@ -77,7 +86,7 @@ for pruning too.
 
 It is not parsed. `### Scenario:` looks like a requirement heading to the tools, and the real
 requirement above it appears to have no scenario, which fails validation and blocks archive. Use
-`#### Scenario:` with exactly four `#`. `espec/bin/espec validate` catches this, in CI too,, and so does the review
+`#### Scenario:` with exactly four `#`. `espec/bin/espec validate` catches this, in CI too, and so does the review
 step of the tech proposal.
 
 ## Does this need a CLI?

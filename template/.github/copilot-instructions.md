@@ -19,7 +19,9 @@ Commands in Copilot Chat: `/espec-feature-definition`, `/espec-tech-proposal`,
 
 - An issue or ticket whose body starts with `<!-- espec:feature-definition v1 -->` is a feature
   definition. Do not implement it directly. Produce a tech proposal first, as a pull request that adds
-  `espec/changes/<change-name>/`, and wait for approval.
+  `espec/changes/<change-name>/`, and wait for approval. Prompt files are not loaded for you
+  automatically: open and follow `.github/prompts/espec-tech-proposal.prompt.md` step by step to write
+  the proposal, and `.github/prompts/espec-implementation.prompt.md` once its status line says Approved.
 - Do not change behaviour that is not described in an approved change under `espec/changes/`.
   When a request needs a behaviour change, say so and point to `/espec-tech-proposal`.
 - Never edit `espec/specs/` directly. Main specs change only through archive and archive-clean.

@@ -255,6 +255,32 @@ function Get-Placeholders([string[]]$Lines) {
   return $out
 }
 
+# As Get-Placeholders, but fenced blocks and inline code are skipped.
+function Get-PlaceholdersOutsideCode([string[]]$Lines) {
+  $out = @(); $fence = $false
+  for ($i = 0; $i -lt $Lines.Count; $i++) {
+    $l = $Lines[$i]
+    if ($l -cmatch '^\s*```') { $fence = -not $fence; continue }
+    if ($fence) { continue }
+    $stripped = $l -replace '`[^`]*`', ''
+    if ($stripped -cmatch '<[A-Za-z][A-Za-z0-9 -]*>' -and $stripped -cnotmatch '^\s*<!--') { $out += "line $($i + 1): $l" }
+  }
+  return $out
+}
+# UC-n, EC-n and AC-n headings of a feature.md, each once, in order.
+function Get-FeatureIds([string[]]$Lines) {
+  return @($Lines | ForEach-Object { if ($_ -cmatch '^### ([UEA]C-[0-9]+)') { $Matches[1] } } | Select-Object -Unique)
+}
+# FT-n notes of a feature.md, each once.
+function Get-ForcedIds([string[]]$Lines) {
+  return @($Lines | ForEach-Object { if ($_ -cmatch '^- \*\*(FT-[0-9]+):\*\*') { $Matches[1] } } | Select-Object -Unique)
+}
+# Draft, In review or Approved from the status line, empty when absent.
+function Get-ProposalStatus([string[]]$Lines) {
+  foreach ($l in $Lines) { if ($l -cmatch '\*\*Status:\*\* *(Draft|In review|Approved)') { return $Matches[1] } }
+  return ''
+}
+
 function Test-Feature([string]$Change) {
   $f = Join-Path $Change 'feature.md'
   if (-not (Test-Path -LiteralPath $f)) { Add-Fail 'feature.md missing'; return }
@@ -282,6 +308,52 @@ function Test-Feature([string]$Change) {
   $left = @(Get-Placeholders $lines)
   if ($left.Count -eq 0) { Add-Pass 'feature.md: no template placeholders left' }
   else { foreach ($p in $left) { Add-Fail "feature.md: placeholder: $p" } }
+}
+
+function Test-TechProposal([string]$Change) {
+  $f = Join-Path $Change 'tech-proposal.md'
+  $meta = Join-Path $Change '.espec.yaml'
+  $status = ''
+  if (Test-Path -LiteralPath $meta) { $status = Get-YamlValue $meta 'status' }
+  if (@('defined', 'cancelled') -ccontains $status) { Write-Output "  - tech-proposal.md not checked (status $status)"; return }
+  if (-not (Test-Path -LiteralPath $f)) {
+    if (@('proposed', 'in-progress', 'implemented', 'archived') -ccontains $status) { Add-Fail "tech-proposal.md: missing (required once status is $status)" }
+    else { Write-Output '  - no tech-proposal.md yet (written by the tech proposal)' }
+    return
+  }
+  $lines = @(Get-Lines $f)
+  $missing = @()
+  foreach ($h in @('## Context', '## Approach', '## Architecture', '## APIs and contracts', '## Data model and migrations', '## Technology decisions', '## Traceability', '## Non-functional requirements', '## Rollout and migration', '## Test strategy', '## Risks and trade-offs', '## Questions for Product', '## Open engineering questions')) {
+    if (@($lines | Where-Object { $_.TrimEnd() -ceq $h }).Count -eq 0) { $missing += $h }
+  }
+  if ($missing.Count -eq 0) { Add-Pass 'tech-proposal.md: all sections present' }
+  else { Add-Fail ('tech-proposal.md: missing section(s): ' + ($missing -join ', ')) }
+  $st = Get-ProposalStatus $lines
+  if ($st) { Add-Pass "tech-proposal.md: status line is '$st'" }
+  else { Add-Fail 'tech-proposal.md: status line must be one of Draft, In review, Approved' }
+  if (@('in-progress', 'implemented', 'archived') -ccontains $status) {
+    if ($st -ceq 'Approved') { Add-Pass 'tech-proposal.md: Approved before implementation' }
+    else { Add-Fail "tech-proposal.md: status line must be Approved once .espec.yaml status is $status" }
+  }
+  $feature = Join-Path $Change 'feature.md'
+  if (Test-Path -LiteralPath $feature) {
+    $flines = @(Get-Lines $feature)
+    $trace = @(Get-Section $lines '## Traceability') -join "`n"
+    $ids = @(Get-FeatureIds $flines); $before = $script:Fails
+    foreach ($id in $ids) {
+      if ($trace -cnotmatch ('(^|[^A-Za-z0-9])' + $id + '([^0-9]|$)')) { Add-Fail "tech-proposal.md: $id from feature.md is not in the Traceability table" }
+    }
+    if ($ids.Count -gt 0 -and $script:Fails -eq $before) { Add-Pass 'tech-proposal.md: every UC, EC and AC is in the Traceability table' }
+    $review = @(Get-Section $lines '## Forced technical notes review') -join "`n"
+    $fts = @(Get-ForcedIds $flines); $before = $script:Fails
+    foreach ($ft in $fts) {
+      if ($review -cnotmatch ('(^|[^A-Za-z0-9])' + $ft + '([^0-9]|$)')) { Add-Fail "tech-proposal.md: $ft has no row in Forced technical notes review" }
+    }
+    if ($fts.Count -gt 0 -and $script:Fails -eq $before) { Add-Pass 'tech-proposal.md: every FT-n has a verdict in the review' }
+  }
+  $left = @(Get-PlaceholdersOutsideCode $lines)
+  if ($left.Count -eq 0) { Add-Pass 'tech-proposal.md: no template placeholders left' }
+  else { foreach ($p in $left) { Add-Fail "tech-proposal.md: placeholder: $p" } }
 }
 
 # Structural checks shared by delta specs (Mode delta) and main specs (Mode main).
@@ -342,8 +414,8 @@ function Test-Meta([string]$Change) {
   $f = Join-Path $Change '.espec.yaml'
   if (-not (Test-Path -LiteralPath $f)) { Add-Fail '.espec.yaml missing'; return }
   $status = Get-YamlValue $f 'status'
-  if (@('defined', 'proposed', 'in-progress', 'implemented', 'archived') -ccontains $status) { Add-Pass ".espec.yaml: status is '$status'" }
-  else { Add-Fail ".espec.yaml: status '$status' must be one of defined, proposed, in-progress, implemented, archived" }
+  if (@('defined', 'proposed', 'in-progress', 'implemented', 'archived', 'cancelled') -ccontains $status) { Add-Pass ".espec.yaml: status is '$status'" }
+  else { Add-Fail ".espec.yaml: status '$status' must be one of defined, proposed, in-progress, implemented, archived, cancelled" }
 }
 
 function Test-PullRequest([string]$Change) {
@@ -371,6 +443,7 @@ function Test-Change([string]$Change) {
   Test-Meta $Change
   Test-PullRequest $Change
   Test-Feature $Change
+  Test-TechProposal $Change
   $base = (Resolve-Path -LiteralPath $Change).Path
   $specDir = Join-Path $Change 'specs'
   $specs = @()

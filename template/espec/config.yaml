@@ -14,6 +14,7 @@ review:
   # Code review tool for implementation pull requests. diffcompass | none
   # DiffCompass (https://github.com/Mindera/diffcompass) gives the reviewer a guided, agent-led tour of
   # the diff in a local browser. Its espec-aware settings live in .diffcompass.json at the repo root.
+  # With none, /espec:implementation prints no review commands.
   tool: diffcompass
   base: origin/main             # Branch the tour compares against before the pull request exists
 

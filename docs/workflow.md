@@ -6,7 +6,8 @@ is a ticket written in a fixed format that any assistant can read and any human 
 
 The formats and rules live in [template/espec/AGENTS.md](../template/espec/AGENTS.md). This page
 explains how the phases connect across roles and tools. For the commands see
-[commands.md](commands.md). For the formats see [conventions.md](conventions.md).
+[commands.md](commands.md). For the formats see [conventions.md](conventions.md). For a walkthrough of
+each step, with setup and common problems, see [guides/README.md](guides/README.md).
 
 ## The flow
 
