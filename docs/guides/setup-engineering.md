@@ -20,10 +20,12 @@ Copilot commands, the formats and the validation, with nothing installed on thei
 | `espec/changes/` | Work in flight, one folder per change | The commands |
 | `espec/templates/` | Blank files the commands start from | The toolkit |
 | `espec/bin/` | The validator and helpers, no toolkit needed | The toolkit |
-| `.github/prompts/espec-*.prompt.md` | The seven Copilot commands | The toolkit |
+| `espec/LICENSE.md` | The toolkit's licence, which must travel with its files | The toolkit. `espec update` refreshes it. |
+| `espec/.toolkit-version` | The toolkit version the repository runs; `espec/bin/espec version` prints it | The toolkit. `espec update` refreshes it. |
+| `.github/prompts/espec-*.prompt.md` | The nine Copilot commands | The toolkit |
 | `.github/instructions/espec.instructions.md` | Format rules applied whenever Copilot edits `espec/**` | The toolkit |
 | `.github/copilot-instructions.md` | Repository-wide rules, including for the Copilot coding agent | You, after init. Never overwritten. |
-| `.github/workflows/espec-validate.yml` | CI: validation on pull requests that touch `espec/` | The toolkit |
+| `.github/workflows/espec-validate.yml` | CI: validation on pull requests that touch `espec/`, and main specs changed only by archive | The toolkit |
 | `.github/ISSUE_TEMPLATE/feature-definition.md` | New issue skeleton for GitHub Issues projects | You |
 | `.diffcompass.json` | Code review tour settings for DiffCompass | You, after init |
 
@@ -89,7 +91,33 @@ The pull request touches `espec/`, so `espec-validate` runs. With no changes and
 reports "Main specs: none yet" and passes. Merge it. Prompt files are read from the repository, so
 everyone gets the commands on their next pull.
 
-## Step 5: check the commands in Copilot Chat
+## Step 5: protect approval and the main specs
+
+The status line **Approved** in `tech-proposal.md` is what the implementation command checks, and
+anyone can type it. Two GitHub settings make it mean what it says. Ask a repository admin.
+
+1. **CODEOWNERS.** Add these lines to the repository's CODEOWNERS file, with your teams. GitHub reads
+   the first of `.github/CODEOWNERS`, `CODEOWNERS` and `docs/CODEOWNERS` it finds, so extend the one
+   you have rather than adding a second; `init` does not create one for that reason.
+
+```text
+# espec: who approves tech proposals, and who reviews main spec changes and the conventions
+/espec/changes/**/tech-proposal.md   @your-org/tech-leads
+/espec/specs/                        @your-org/tech-leads
+/espec/AGENTS.md                     @your-org/tech-leads
+/.github/prompts/espec-*.prompt.md   @your-org/tech-leads
+```
+
+2. **Branch protection** (or a ruleset) on the default branch: require a pull request, require review
+   from Code Owners, and require the `espec validate` check. Without "Require review from Code Owners"
+   the CODEOWNERS file only suggests reviewers.
+
+The `espec validate` check also fails a pull request that changes `espec/specs/` without archiving a
+change in it, so a hand edit to the main specs cannot pass review unnoticed.
+
+Write the approvers' names in `espec/project.md` under Ticketing too, so the commands can name them.
+
+## Step 6: check the commands in Copilot Chat
 
 1. Pull `main` and restart the IDE.
 2. Open Copilot Chat, switch to **Agent** mode, and type `/espec-`. The nine commands appear:
@@ -107,7 +135,7 @@ everyone gets the commands on their next pull.
 The prompts run in agent mode because they read files, search the code and, during implementation,
 run tests. In ask mode they can only talk.
 
-## Step 6: let Copilot reach the ticket system (optional, recommended)
+## Step 7: let Copilot reach the ticket system (optional, recommended)
 
 Without a connection, every command that takes a ticket key asks you to paste the description. With
 one, `/espec-tech-proposal BILL-142` fetches it, and the inspect commands compare the live ticket with
@@ -122,7 +150,7 @@ Commit the MCP configuration file only if your organisation allows it; the serve
 sign-in is per user. Check the current server URLs in the Atlassian and GitHub documentation; they
 change more often than this toolkit.
 
-## Step 7: the Copilot coding agent (GitHub Issues projects)
+## Step 8: the Copilot coding agent (GitHub Issues projects)
 
 When issues are assigned to the Copilot coding agent, it reads
 [`.github/copilot-instructions.md`](../../template/.github/copilot-instructions.md). The rule there
@@ -133,7 +161,7 @@ tells it to open and follow `.github/prompts/espec-tech-proposal.prompt.md` for 
 init and `update` never touches it, so a repository initialised with an older toolkit adds those lines
 by hand.
 
-## Step 8: DiffCompass (optional)
+## Step 9: DiffCompass (optional)
 
 [DiffCompass](https://github.com/Mindera/diffcompass) gives reviewers a guided tour of the diff.
 Install it per the README, check with `diffcompass doctor`, and keep `review.tool: diffcompass`.
@@ -142,28 +170,40 @@ folder first and to flag drift from the tech proposal. Add project rules under
 `analysis.instructions`. Without DiffCompass, set `review.tool: none` and follow
 [the code review guide](07-code-review.md) by hand.
 
-## Step 9: tell product
+## Step 10: tell product
 
 Send the product and design leads to [the product setup guide](setup-product.md). Their agents and
 your repository share one format; neither side needs the other's tool.
 
 ## Updating later
 
-New toolkit releases change the prompts, `AGENTS.md`, the templates and the validator. From a fresh
-checkout of the toolkit:
+New toolkit releases change the prompts, `AGENTS.md`, the templates and the validator. Every version
+is tagged `vX.Y.Z` and described in the [changelog](../../CHANGELOG.md); entries marked **Action**
+need something done in your repository. Check which version you run, then move to a tagged one:
 
 ```bash
-git -C ~/espec pull
+espec/bin/espec version
+```
+
+```bash
+git -C ~/espec fetch --tags && git -C ~/espec checkout v1.0.9
+```
+
+```bash
 ~/espec/bin/espec update /path/to/your/repo
 ```
 
-`update` refreshes the managed files only and reports each one as created, updated or unchanged. It
-never touches `copilot-instructions.md`, `project.md`, `config.yaml`, `specs/` or `changes/`. Commit
-the result as its own pull request so the team can see which prompts changed. The toolkit version is
-the single line in its [`VERSION`](../../VERSION) file; note it in the commit message.
+`update` refreshes the managed files only, reports each one as created, updated or unchanged, and
+prints the version it moves from and to, which `espec/.toolkit-version` records. It never touches
+`copilot-instructions.md`, `CODEOWNERS`, `project.md`, `config.yaml`, `specs/` or `changes/`. Commit
+the result as its own pull request, with the version in the title, so the team can see which prompts
+changed. Pin a tag rather than following `main`, so every repository you support runs a version you
+can name.
 
 Customisations do not go into `AGENTS.md` or the prompt files, because `update` overwrites them. They
-go into `config.yaml` (rules and context), `project.md`, and `copilot-instructions.md`.
+go into `config.yaml` (rules and context), `project.md`, and `copilot-instructions.md`. A team that
+does change a toolkit file must mark it as modified, as the [licence](../../LICENSE.md) requires, and
+re-apply the change after every update.
 
 ## Rolling it out to a team
 
@@ -173,7 +213,8 @@ go into `config.yaml` (rules and context), `project.md`, and `copilot-instructio
    the feature definition, the tech proposal, the inspection reports, the pull request description.
 3. Make `/espec-inspect-feature-definition` the first thing a developer runs on any ticket. It costs
    a minute and sets the expectation on both sides.
-4. Name who approves tech proposals and who confirms archive-clean verdicts. Put it in `project.md`.
+4. Name who approves tech proposals and who confirms archive-clean verdicts. Put it in `project.md`
+   and in CODEOWNERS ([step 5](#step-5-protect-approval-and-the-main-specs)).
 5. Keep `project.md` alive. Every "the AI did not know that X" is a line for the traps section.
 
 ## Verify the setup
@@ -186,6 +227,9 @@ espec/bin/espec validate
 - `/espec-` shows nine commands in Copilot Chat in agent mode.
 - The `espec-validate` workflow ran on the init pull request.
 - `espec/project.md` has no placeholder text left and the Tests line names a command that works.
+- `espec/bin/espec version` prints the toolkit version you installed.
+- CODEOWNERS covers `tech-proposal.md` and `espec/specs/`, and the default branch requires code owner
+  review.
 
 ## Common problems
 

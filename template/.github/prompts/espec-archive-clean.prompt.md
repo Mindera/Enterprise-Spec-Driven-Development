@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: agent
 description: "espec phase 4 · Archive clean: find outdated, duplicated or orphaned specs, propose keep / update / purge with evidence, and apply what the user confirms."
 ---
 

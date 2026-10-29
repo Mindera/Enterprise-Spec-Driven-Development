@@ -94,6 +94,6 @@ description change rather than reading the diff yourself.
 |---|---|---|
 | Ready from the agent, Draft from the inspection | The agent's readiness check is its own opinion of its own text; the inspection is stricter and quotes | Trust the inspection. Send the findings back |
 | The inspection proposes edge cases that do not apply | It walks a generic list | Ignore them. Do not ask product about edge cases you can rule out yourself; say so in the comment |
-| "Ticket not reachable" every time | No MCP server, or not signed in | Paste the description, or set up the connection ([engineering setup, step 6](setup-engineering.md#step-6-let-copilot-reach-the-ticket-system-optional-recommended)) |
+| "Ticket not reachable" every time | No MCP server, or not signed in | Paste the description, or set up the connection ([engineering setup, step 7](setup-engineering.md#step-7-let-copilot-reach-the-ticket-system-optional-recommended)) |
 | The report is long and product stops reading | Every advisory went into the comment | Edit the comment before posting: blocking items first, the three advisories that matter, the rest as "also worth a look" |
 | Product edited the ticket after the inspection | Normal | Re-run. Compare verdicts, not texts |

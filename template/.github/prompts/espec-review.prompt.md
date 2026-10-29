@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: agent
 description: "espec review · Start a DiffCompass tour of an implementation pull request or branch, primed with its change folder. Read-only; launches the tour and prints what to check first."
 ---
 

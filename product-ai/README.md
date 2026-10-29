@@ -36,8 +36,11 @@ you state a solution they ask you to rephrase it as an outcome, and if you insis
    ticket comment: what exists today, what depends on other teams, alternatives with their
    consequences, anything that cannot be met as written. Decide on what it raises; the ticket
    description stays the agreed scope until you change it.
-5. Engineering picks the ticket up with `/espec:tech-proposal`. Their questions come back as a ticket
-   comment. Answer them in the ticket; they re-import the definition.
+   When the outcome is **Further discovery required**, answer what is yours, update the description,
+   and engineering re-assesses; the new comment says what was resolved.
+5. Once the assessment outcome is **Ready for tech proposal**, engineering picks the ticket up with
+   `/espec:tech-proposal`. Their questions come back as a ticket comment. Answer them in the ticket;
+   they re-import the definition.
 
 ---
 

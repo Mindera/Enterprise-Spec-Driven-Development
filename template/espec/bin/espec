@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # espec: helper CLI for Enterprise Spec Driven Development (spec-driven development) projects.
-# Dependency free: bash 3.2+ and the POSIX tools grep, sed, awk, find, cp, mkdir, date.
+# Dependency free: bash 3.2+, the POSIX tools grep, sed, awk, find, cp, mkdir, date, and sha256sum or
+# shasum for the delta base stamps.
 set -euo pipefail
 
 MARKER='<!-- espec:feature-definition v1 -->'
@@ -29,11 +30,17 @@ espec: spec-driven development helper (Enterprise Spec Driven Development)
 Usage: espec <command> [arguments]
 
   init [dir]                 Copy the espec template into a repository (never overwrites existing files)
-  update [dir]               Refresh the managed files: prompts, instructions, workflow, AGENTS.md, templates, espec/bin
+  update [dir]               Refresh the managed files: prompts, instructions, workflow, AGENTS.md, templates, espec/bin,
+                             espec/LICENSE.md and espec/.toolkit-version
                              (init and update run from the toolkit checkout; the other commands work from espec/bin in a project)
-  new <name> [options] [dir] Start a change under espec/changes/<name> (options: --ticket KEY, --title "Title")
+  new <name> [options] [dir] Start a change under espec/changes/<name>
+                             (options: --ticket KEY, --title "Title", --kind feature|bug)
   list [dir]                 Show active changes with status, ticket and task progress
   validate [name] [dir]      Check one change, or every active change, plus the main specs
+  stamp <name> [--rebase] [dir]
+                             Record in each MODIFIED and REMOVED requirement of a change the version of the main
+                             spec it was written against. --rebase re-records requirements whose main spec changed.
+  version [dir]              Show the toolkit version a project was set up or last updated with
   help                       Show this help
 
 [dir] defaults to the current directory. An espec/ folder marks an initialised project.
@@ -77,6 +84,7 @@ cmd_init() {
       echo "  created           $rel"
     fi
   done
+  record_toolkit "$dir"
   cat <<EOF
 
 Next steps:
@@ -84,8 +92,22 @@ Next steps:
   2. Commit the new files. The workflow in .github/workflows/espec-validate.yml runs
      espec/bin/espec validate on pull requests that touch espec/.
   3. Restart your IDE so GitHub Copilot picks up the prompt files in .github/prompts.
-  4. Point product managers to the product-ai pack (Rovo and M365 Copilot) in $TOOLKIT_ROOT/product-ai
+  4. Name the tech proposal approvers in CODEOWNERS and require code owner review on the default
+     branch: docs/guides/setup-engineering.md, step 5, in the toolkit.
+  5. Point product managers to the product-ai pack (Rovo and M365 Copilot) in $TOOLKIT_ROOT/product-ai
 EOF
+}
+
+# record_toolkit DIR: copy the toolkit licence and version into DIR/espec. The licence travels with
+# every copy of the toolkit's files; the version tells the team which prompts they are running.
+record_toolkit() {
+  local dir="$1" src dest rel
+  for rel in LICENSE.md:espec/LICENSE.md VERSION:espec/.toolkit-version; do
+    src="$TOOLKIT_ROOT/${rel%%:*}"; dest="$dir/${rel#*:}"
+    if [ ! -e "$dest" ]; then cp "$src" "$dest"; echo "  created    ${rel#*:}"
+    elif cmp -s "$src" "$dest"; then echo "  unchanged  ${rel#*:}"
+    else cp "$src" "$dest"; echo "  updated    ${rel#*:}"; fi
+  done
 }
 
 # Files that update may overwrite, relative to the project root.
@@ -105,7 +127,9 @@ cmd_update() {
   local dir="${1:-.}" rel
   need_template update
   need_project "$dir"
-  echo "Updating managed espec files in $dir"
+  local from="unknown"
+  [ ! -f "$dir/espec/.toolkit-version" ] || from="v$(tr -d '\r\n' < "$dir/espec/.toolkit-version")"
+  echo "Updating managed espec files in $dir ($from -> v$(tr -d '\r\n' < "$TOOLKIT_ROOT/VERSION"))"
   managed_files | while IFS= read -r rel; do
     if [ ! -e "$dir/$rel" ]; then
       mkdir -p "$(dirname "$dir/$rel")"
@@ -118,24 +142,39 @@ cmd_update() {
       echo "  updated    $rel"
     fi
   done
-  echo "Done. copilot-instructions.md, project.md, config.yaml, specs/ and changes/ were not touched."
+  record_toolkit "$dir"
+  echo "Done. copilot-instructions.md, CODEOWNERS, project.md, config.yaml, specs/ and changes/ were not touched."
+}
+
+cmd_version() {
+  local dir="${1:-.}"
+  if [ -f "$dir/espec/.toolkit-version" ]; then
+    echo "espec v$(tr -d '\r\n' < "$dir/espec/.toolkit-version") ($dir)"
+  elif [ "$(basename "$TEMPLATE_DIR")" = template ] && [ -f "$TOOLKIT_ROOT/VERSION" ]; then
+    echo "espec v$(tr -d '\r\n' < "$TOOLKIT_ROOT/VERSION") (toolkit at $TOOLKIT_ROOT)"
+  else
+    echo "espec: version not recorded in $dir. Run espec update from the toolkit to record it."
+  fi
 }
 
 # ---------------------------------------------------------------- new / list
 
 cmd_new() {
-  local name="" ticket="" title="" dir="." today change tpl line f
+  local name="" ticket="" title="" kind="" dir="." today change tpl line f
   while [ $# -gt 0 ]; do
     case "$1" in
       --ticket) [ $# -ge 2 ] || die "--ticket needs a value"; ticket="$2"; shift 2 ;;
       --title)  [ $# -ge 2 ] || die "--title needs a value"; title="$2"; shift 2 ;;
+      --kind)   [ $# -ge 2 ] || die "--kind needs a value"; kind="$2"; shift 2 ;;
+      --kind=*) kind="${1#--kind=}"; shift ;;
       --ticket=*) ticket="${1#--ticket=}"; shift ;;
       --title=*)  title="${1#--title=}"; shift ;;
       -*) die "unknown option: $1" ;;
       *) if [ -z "$name" ]; then name="$1"; else dir="$1"; fi; shift ;;
     esac
   done
-  [ -n "$name" ] || die 'usage: espec new <change-name> [--ticket KEY] [--title "Title"] [dir]'
+  [ -n "$name" ] || die 'usage: espec new <change-name> [--ticket KEY] [--title "Title"] [--kind feature|bug] [dir]'
+  case "$kind" in ""|feature|bug) ;; *) die "--kind must be feature or bug: $kind" ;; esac
   echo "$name" | grep -Eq '^[a-z0-9]+(-[a-z0-9]+)*$' \
     || die "change name must be kebab-case (lowercase letters, digits, dashes): $name"
   need_project "$dir"
@@ -143,16 +182,19 @@ cmd_new() {
   for f in feature.md tech-proposal.md tasks.md espec.yaml; do
     [ -f "$tpl/$f" ] || die "$tpl/$f is missing. Run: espec update $dir"
   done
+  [ "$kind" != bug ] || [ -f "$tpl/bug.md" ] || die "$tpl/bug.md is missing. Run: espec update $dir"
   change="$dir/espec/changes/$name"
   [ ! -e "$change" ] || die "$change already exists"
 
   today=$(date +%Y-%m-%d)
   mkdir -p "$change/specs"
   for f in feature.md tech-proposal.md tasks.md; do cp "$tpl/$f" "$change/$f"; done
+  [ "$kind" != bug ] || cp "$tpl/bug.md" "$change/feature.md"
   while IFS= read -r line || [ -n "$line" ]; do
     case "$line" in
       ticket:*)  [ -z "$ticket" ] || line="ticket: $ticket" ;;
       title:*)   [ -z "$title" ] || line="title: $title" ;;
+      kind:*)    [ -z "$kind" ] || line="kind: $kind" ;;
       created:*) line="created: $today" ;;
     esac
     printf '%s\n' "$line"
@@ -161,8 +203,13 @@ cmd_new() {
   echo "Created $change"
   echo "  feature.md  tech-proposal.md  tasks.md  specs/  .espec.yaml"
   echo
-  echo "Next: in Copilot Chat run  /espec-feature-definition $name"
-  echo "      or paste the feature definition from the ticket into feature.md and set status: defined"
+  if [ "$kind" = bug ]; then
+    echo "Next: fill in feature.md from the bug report (expected versus actual, steps to reproduce),"
+    echo "      set status: defined, then run /espec-tech-proposal $name in Copilot Chat"
+  else
+    echo "Next: in Copilot Chat run  /espec-feature-definition $name"
+    echo "      or paste the feature definition from the ticket into feature.md and set status: defined"
+  fi
 }
 
 cmd_list() {
@@ -226,17 +273,23 @@ forced_ids() { sed -n 's/^- \*\*\(FT-[0-9][0-9]*\):\*\*.*/\1/p' "$1" | awk '!s[$
 proposal_status() { grep -oE '\*\*Status:\*\* *(Draft|In review|Approved)' "$1" | head -n 1 | sed 's/.*\*\* *//'; }
 
 validate_feature() {
-  local f="$1/feature.md" h id ac left
+  local f="$1/feature.md" h id ac left ids
   if [ ! -f "$f" ]; then bad "feature.md missing"; return 0; fi
   expect "feature.md: starts with the marker $MARKER" marker_ok "$f"
-  for h in "## Why" "## What" "## Use cases" "## Edge cases" "## Out of scope" "## Acceptance criteria"; do
+  # A bug carries steps to reproduce instead of use cases and edge cases.
+  if [ "$(yaml_value "$1/.espec.yaml" kind)" = bug ]; then
+    set -- "## Why" "## What" "## Steps to reproduce" "## Out of scope" "## Acceptance criteria"; ids="AC"
+  else
+    set -- "## Why" "## What" "## Use cases" "## Edge cases" "## Out of scope" "## Acceptance criteria"; ids="UC EC AC"
+  fi
+  for h in "$@"; do
     if grep -q "^$h[[:space:]]*$" "$f"; then
       expect "feature.md: '$h' present and not empty" section_has_content "$f" "$h"
     else
       bad "feature.md: '$h' missing"
     fi
   done
-  for h in UC EC AC; do expect "feature.md: at least one ### $h-n" grep -q "^### $h-[0-9]" "$f"; done
+  for h in $ids; do expect "feature.md: at least one ### $h-n" grep -q "^### $h-[0-9]" "$f"; done
   ac=$(section "$f" "## Acceptance criteria")
   for id in $(sed -n 's/^### \([UE]C-[0-9][0-9]*\).*/\1/p' "$f" | sort -u); do
     printf '%s\n' "$ac" | grep -Eq "(^|[^A-Za-z0-9])$id([^0-9]|$)" \
@@ -260,9 +313,14 @@ validate_tech_proposal() {
     esac
     return 0
   fi
-  for h in "## Context" "## Approach" "## Architecture" "## APIs and contracts" "## Data model and migrations" \
+  if [ "$(yaml_value "$c/.espec.yaml" kind)" = bug ]; then
+    set -- "## Context" "## Approach" "## Traceability" "## Test strategy" "## Questions for Product"
+  else
+    set -- "## Context" "## Approach" "## Architecture" "## APIs and contracts" "## Data model and migrations" \
            "## Technology decisions" "## Traceability" "## Non-functional requirements" "## Rollout and migration" \
-           "## Test strategy" "## Risks and trade-offs" "## Questions for Product" "## Open engineering questions"; do
+           "## Test strategy" "## Risks and trade-offs" "## Questions for Product" "## Open engineering questions"
+  fi
+  for h in "$@"; do
     grep -q "^$h[[:space:]]*$" "$f" || missing="$missing '$h'"
   done
   if [ -z "$missing" ]; then ok "tech-proposal.md: all sections present"; else bad "tech-proposal.md: missing section(s):$missing"; fi
@@ -307,6 +365,7 @@ function flush() {
 }
 { sub(/\r$/, "") }
 /<[A-Za-z][A-Za-z0-9 -]*>/ && !/^[ \t]*<!--/ { print "template placeholder left on line " NR ": " $0 }
+mode == "main" && /<!-- espec:base / { print "delta base stamp left in a main spec on line " NR " (archive drops it)" }
 /^## / {
   flush(); sec = $0; sub(/[ \t]+$/, "", sec)
   if (mode == "delta") {
@@ -362,6 +421,10 @@ validate_meta() {
     defined|proposed|in-progress|implemented|archived|cancelled) ok ".espec.yaml: status is '$status'" ;;
     *) bad ".espec.yaml: status '$status' must be one of defined, proposed, in-progress, implemented, archived, cancelled" ;;
   esac
+  case "$(yaml_value "$f" kind)" in
+    ""|feature|bug) ;;
+    *) bad ".espec.yaml: kind '$(yaml_value "$f" kind)' must be feature or bug" ;;
+  esac
 }
 
 validate_pull_request() {
@@ -380,8 +443,156 @@ validate_pull_request() {
   fi
 }
 
+# ---------------------------------------------------------------- delta bases
+# A MODIFIED or REMOVED requirement copies the main spec as it was when the tech proposal was written.
+# The delta records that version as a stamp under the heading, <!-- espec:base <hash> -->, so that a
+# second change archived first, which edits the same requirement, is caught before its edit is lost.
+
+# hash_stdin: the first 12 hex characters of the SHA-256 of standard input.
+hash_stdin() {
+  if command -v sha256sum >/dev/null 2>&1; then sha256sum | cut -c1-12
+  elif command -v shasum >/dev/null 2>&1; then shasum -a 256 | cut -c1-12
+  else echo "error: sha256sum or shasum is needed for delta base stamps" >&2; echo nohash; fi
+}
+
+# req_block FILE NAME: the requirement block, heading included, normalised: no carriage returns, no
+# trailing blanks, no stamp lines, no trailing empty lines. Empty when the requirement is absent.
+BLOCK_AWK='
+{ sub(/\r$/, ""); sub(/[ \t]+$/, "") }
+/^# |^## |^### / { if (on) exit }
+/^### Requirement:/ { n = $0; sub(/^### Requirement:[ \t]*/, "", n); if (n == name) on = 1 }
+on && !/^[ \t]*<!-- espec:base [0-9a-f]+ -->$/ { buf[++k] = $0; if ($0 != "") last = k }
+END { for (i = 1; i <= last; i++) print buf[i] }'
+req_block() { [ -f "$1" ] || return 0; awk -v name="$2" "$BLOCK_AWK" "$1"; }
+block_hash() { printf '%s\n' "$1" | hash_stdin; }
+
+# delta_entries FILE: "SECTION|NAME|STAMP" per ADDED, MODIFIED or REMOVED requirement of a delta,
+# and "RENAMED|FROM|TO" per rename.
+DELTA_AWK='
+function flush() { if (cur != "" && (sec == "ADDED" || sec == "MODIFIED" || sec == "REMOVED")) print sec "|" cur "|" stamp; cur = "" }
+{ sub(/\r$/, ""); sub(/[ \t]+$/, "") }
+/^## / { flush(); sec = $0; sub(/^## /, "", sec); sub(/ Requirements$/, "", sec); next }
+/^### Requirement:/ { flush(); cur = $0; sub(/^### Requirement:[ \t]*/, "", cur); stamp = ""; next }
+/^### / { flush(); next }
+cur != "" && /^[ \t]*<!-- espec:base [0-9a-f]+ -->$/ { stamp = $0; sub(/^[ \t]*<!-- espec:base /, "", stamp); sub(/ -->$/, "", stamp) }
+sec == "RENAMED" && /^- FROM:/ { from = $0; sub(/^- FROM:[ \t]*`?### Requirement:[ \t]*/, "", from); sub(/[ \t]*`$/, "", from) }
+sec == "RENAMED" && /^- TO:/ { to = $0; sub(/^- TO:[ \t]*`?### Requirement:[ \t]*/, "", to); sub(/[ \t]*`$/, "", to); if (from != "") print "RENAMED|" from "|" to; from = "" }
+END { flush() }'
+
+# base_target MAIN NAME ENTRIES: the main spec requirement a MODIFIED or REMOVED entry applies to:
+# NAME itself, or the FROM of a rename to NAME that the main spec still holds. Empty when neither.
+base_target() {
+  local from
+  if [ -n "$(req_block "$1" "$2")" ]; then echo "$2"; return 0; fi
+  from=$(printf '%s\n' "$3" | awk -F'|' -v t="$2" '$1 == "RENAMED" && $3 == t { print $2; exit }')
+  if [ -n "$from" ] && [ -n "$(req_block "$1" "$from")" ]; then echo "$from"; fi
+}
+
+# validate_delta_base CHANGE SPEC DIR: the delta still applies to the main spec as it is today.
+validate_delta_base() {
+  local c="$1" spec="$2" dir="$3" cap main label entries sec name stamp target mblock h before
+  cap=${spec#$c/specs/}; cap=${cap%/spec.md}
+  main="$dir/espec/specs/$cap/spec.md"; label="${spec#$c/}"
+  entries=$(awk "$DELTA_AWK" "$spec")
+  [ -n "$entries" ] || return 0
+  before=$FAILS
+  while IFS='|' read -r sec name stamp; do
+    [ -n "$sec" ] || continue
+    if [ ! -f "$main" ] && [ "$sec" != ADDED ]; then
+      bad "$label: $sec '$name' but espec/specs/$cap/spec.md does not exist (conflict)"; continue
+    fi
+    case "$sec" in
+      RENAMED)
+        [ -n "$(req_block "$main" "$name")" ] || [ -n "$(req_block "$main" "$stamp")" ] \
+          || bad "$label: RENAMED FROM '$name' is not in the main spec (conflict)" ;;
+      ADDED)
+        mblock=$(req_block "$main" "$name")
+        [ -z "$mblock" ] || [ "$mblock" = "$(req_block "$spec" "$name")" ] \
+          || bad "$label: ADDED '$name' already exists in the main spec with different content (conflict)" ;;
+      MODIFIED|REMOVED)
+        target=$(base_target "$main" "$name" "$entries")
+        if [ -z "$target" ]; then
+          if [ "$sec" = REMOVED ]; then bad "$label: REMOVED '$name' is not in the main spec (conflict, or already removed)"
+          else bad "$label: MODIFIED '$name' is not in the main spec (conflict)"; fi
+          continue
+        fi
+        mblock=$(req_block "$main" "$target")
+        # Already applied: the main spec holds exactly the delta's text.
+        if [ "$sec" = MODIFIED ] && [ "$target" = "$name" ] && [ "$mblock" = "$(req_block "$spec" "$name")" ]; then continue; fi
+        h=$(block_hash "$mblock")
+        if [ -z "$stamp" ]; then
+          bad "$label: $sec '$name' has no base stamp. Run: espec/bin/espec stamp $(basename "$c")"
+        elif [ "$stamp" != "$h" ]; then
+          bad "$label: $sec '$name' changed in the main spec since the delta was written (base $stamp, now $h). Merge the new text into the delta, then run: espec/bin/espec stamp $(basename "$c") --rebase"
+        fi ;;
+    esac
+  done <<EOF
+$entries
+EOF
+  [ "$FAILS" -ne "$before" ] || ok "$label: applies to the main spec as it is today"
+}
+
+cmd_stamp() {
+  local name="" dir="." rebase=0 c specs spec cap main label entries sec n stamp target h map mapfile refused=0
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --rebase) rebase=1; shift ;;
+      -*) die "unknown option: $1" ;;
+      *) if [ -z "$name" ]; then name="$1"; else dir="$1"; fi; shift ;;
+    esac
+  done
+  [ -n "$name" ] || die "usage: espec stamp <change-name> [--rebase] [dir]"
+  need_project "$dir"
+  c="$dir/espec/changes/$name"
+  [ -d "$c" ] || die "change not found: $c"
+  mapfile=$(mktemp)
+  specs=$([ -d "$c/specs" ] && find "$c/specs" -name spec.md | sort || true)
+  while IFS= read -r spec; do
+    [ -n "$spec" ] || continue
+    cap=${spec#$c/specs/}; cap=${cap%/spec.md}
+    main="$dir/espec/specs/$cap/spec.md"; label="${spec#$c/}"
+    entries=$(awk "$DELTA_AWK" "$spec"); map=""
+    while IFS='|' read -r sec n stamp; do
+      case "$sec" in MODIFIED|REMOVED) ;; *) continue ;; esac
+      target=$(base_target "$main" "$n" "$entries")
+      if [ -z "$target" ]; then echo "  ✖ $label: $sec '$n' is not in espec/specs/$cap/spec.md"; refused=1; continue; fi
+      h=$(block_hash "$(req_block "$main" "$target")")
+      if [ "$stamp" = "$h" ]; then echo "  unchanged  $label: $n"
+      elif [ -z "$stamp" ]; then echo "  stamped    $label: $n ($h)"
+      elif [ "$rebase" -eq 1 ]; then echo "  rebased    $label: $n ($stamp -> $h)"
+      else
+        echo "  ✖ $label: '$n' changed in the main spec since it was stamped ($stamp, now $h)."
+        echo "    Merge the new text into the delta, then run: espec/bin/espec stamp $name --rebase"
+        refused=1; continue
+      fi
+      map="$map$n|$h
+"
+    done <<EOF
+$entries
+EOF
+    [ -n "$map" ] || continue
+    printf '%s' "$map" > "$mapfile"
+    # Write each stamp right under its heading and drop any older stamp in the same block.
+    awk 'FNR == NR { p = index($0, "|"); if (p) h[substr($0, 1, p - 1)] = substr($0, p + 1); next }
+      { t = $0; sub(/\r$/, "", t); sub(/[ \t]+$/, "", t) }
+      t ~ /^## / { sec = t; sub(/^## /, "", sec); sub(/ Requirements$/, "", sec); inblk = 0 }
+      t ~ /^### / { inblk = 0 }
+      inblk && t ~ /^[ \t]*<!-- espec:base [0-9a-f]+ -->$/ { next }
+      { print }
+      t ~ /^### Requirement:/ && (sec == "MODIFIED" || sec == "REMOVED") {
+        n = t; sub(/^### Requirement:[ \t]*/, "", n)
+        if (n in h) { print "<!-- espec:base " h[n] " -->"; inblk = 1 }
+      }' "$mapfile" "$spec" > "$spec.tmp" && mv "$spec.tmp" "$spec"
+  done <<EOF
+$specs
+EOF
+  rm -f "$mapfile"
+  [ "$refused" -eq 0 ] || exit 1
+}
+
 validate_change() {
-  local c="$1" specs spec
+  # $2 is the project directory, whose main specs the deltas apply to.
+  local c="$1" dir="$2" specs spec
   echo "Change: $(basename "$c")"
   validate_meta "$c"
   validate_pull_request "$c"
@@ -394,12 +605,17 @@ validate_change() {
   while IFS= read -r spec; do [ -z "$spec" ] || validate_spec "$spec" delta "${spec#$c/}"; done <<EOF
 $specs
 EOF
+  if [ "$(yaml_value "$c/.espec.yaml" status)" != cancelled ]; then
+    while IFS= read -r spec; do [ -z "$spec" ] || validate_delta_base "$c" "$spec" "$dir"; done <<EOF
+$specs
+EOF
+  fi
   validate_tasks "$c"
 }
 
 validate_main_specs() {
   local dir="$1" specs spec
-  specs=$([ -d "$dir/espec/specs" ] && find "$dir/espec/specs" -mindepth 2 -maxdepth 3 -name spec.md | sort || true)
+  specs=$([ -d "$dir/espec/specs" ] && find "$dir/espec/specs" -mindepth 2 -name spec.md | sort || true)
   if [ -z "$specs" ]; then echo "Main specs: none yet"; return 0; fi
   echo "Main specs:"
   while IFS= read -r spec; do [ -z "$spec" ] || validate_spec "$spec" main "${spec#$dir/}"; done <<EOF
@@ -415,12 +631,12 @@ cmd_validate() {
   need_project "$dir"
   if [ -n "$name" ]; then
     [ -d "$dir/espec/changes/$name" ] || die "change not found: $dir/espec/changes/$name"
-    validate_change "$dir/espec/changes/$name"
+    validate_change "$dir/espec/changes/$name" "$dir"
   else
     for c in "$dir"/espec/changes/*/; do
       [ -d "$c" ] || continue
       [ "$(basename "$c")" != archive ] || continue
-      validate_change "${c%/}"
+      validate_change "${c%/}" "$dir"
     done
   fi
   validate_main_specs "$dir"
@@ -439,6 +655,8 @@ case "$cmd" in
   new)      cmd_new "$@" ;;
   list)     cmd_list "$@" ;;
   validate) cmd_validate "$@" ;;
+  stamp)    cmd_stamp "$@" ;;
+  version|--version) cmd_version "$@" ;;
   help|-h|--help) usage ;;
   *) usage >&2; die "unknown command: $cmd" ;;
 esac

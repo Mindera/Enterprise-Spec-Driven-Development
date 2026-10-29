@@ -40,6 +40,33 @@ still useful when you want the plan reviewed. Archive moves the folder without t
 specs. Do not invent a requirement to fill a folder. If the refactor does change observable
 behaviour, it is not a pure refactor: write the delta.
 
+## What about bug fixes?
+
+Same phases, less paper. Start the change with `espec/bin/espec new <name> --kind bug`: `feature.md`
+comes from the bug template (who is affected, expected versus actual behaviour, steps to reproduce,
+acceptance criteria) and the tech proposal needs only Context with the root cause, Approach,
+Traceability, Test strategy and Questions for Product. The first task reproduces the bug in a failing
+test. When the main specs already describe the correct behaviour, set `skip_specs: true` and name that
+scenario in the Traceability table; the code was wrong, not the spec. When they do not, the intended
+behaviour was never written down: write the delta like any change. See
+[Bug fixes](../template/espec/AGENTS.md#bug-fixes).
+
+## Two changes edit the same requirement at the same time?
+
+Both deltas copy the requirement as it was when each proposal was written, so the second archive
+would overwrite the first one's edit. The base stamp prevents that: `espec stamp` records under each
+MODIFIED and REMOVED heading which version of the main spec the delta was written against, and
+`espec validate` fails the second change's pull request as soon as the first is archived. Merge the
+newer text into the delta, run `espec/bin/espec stamp <change-name> --rebase`, and have the reviewer
+look at the merged requirement. See [Base stamps](conventions.md#base-stamps).
+
+## The design changed during implementation. Is the old approval still valid?
+
+No. When a decision, the scope or observable behaviour changes, the tech proposal goes back to
+**Status: In review**, the implementation command stops, and the reviewer approves again. A short
+follow-up pull request on the proposal is enough. Wording fixes and checked tasks need no
+re-approval.
+
 ## What if a change is abandoned?
 
 Run `/espec-archive <change-name>` and say it will not ship. It asks for the reason, sets
@@ -56,6 +83,20 @@ tech proposal, delta specs and tasks for its part. Questions for Product from ev
 the same ticket. Each change is archived on its own, and each release note names the repository.
 The ticket is closed when the last one ships.
 
+## Can the specs live in a separate repository from the code?
+
+Not as the toolkit is built, and we recommend against it. Every phase after the definition assumes
+`espec/` sits next to the code it describes: the tech proposal reads the code to write Context, the
+implementation edits code and checks tasks in the same commit, the review tour reads the change folder
+from the pull request diff, and archive-clean looks for evidence in the code and tests beside the
+specs. Splitting them means two pull requests per step that must stay in step by hand, and a spec
+repository that can claim behaviour no code in it proves.
+
+When the code really is spread over many repositories, run espec in each one that owns behaviour, as
+in the previous answer, and keep any cross-repository view (a capability map, an architecture page)
+as documentation that links to each repository's `espec/specs/`. Decide this before the rollout:
+moving specs into code repositories later means rebuilding their history.
+
 ## Who approves the tech proposal?
 
 The reviewer the team names, usually the Engineering Manager or Architect, in the pull request that
@@ -63,6 +104,11 @@ adds the change folder (or wherever `espec/project.md` says tech proposals are r
 means setting the status line in `tech-proposal.md` to Approved. Conditions: no blocking Question for
 Product is open, every `FT-n` has a verdict, the traceability table is complete, and QA has accepted
 the test strategy. Product does not approve the how. Product answers the questions.
+
+The status line is text anyone can type. Make it binding in the repository: name the approvers in
+`CODEOWNERS` for `espec/changes/**/tech-proposal.md` and turn on "Require review from Code Owners" for
+the default branch, so the line cannot reach `main` without their review. See
+[Engineering setup](guides/setup-engineering.md#step-5-protect-approval-and-the-main-specs).
 
 ## How does QA use this?
 

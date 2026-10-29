@@ -1,6 +1,7 @@
 ticket: BILL-142
 title: Export invoices as CSV
-status: implemented              # defined | proposed | in-progress | implemented | archived
+kind: feature
+status: implemented              # defined | proposed | in-progress | implemented | archived | cancelled
 created: 2026-10-20
 owners:
   product: Mariana Costa

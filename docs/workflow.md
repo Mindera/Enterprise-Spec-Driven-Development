@@ -60,7 +60,6 @@ Three things to notice:
   or when archive-clean runs and the user confirms its verdicts.
 - The next tech proposal starts by reading the main specs. That loop is what keeps the specs true.
 
-
 ## Phase 1: AI Assisted Feature Definition
 
 Product owns this phase. It has two steps: product writes the feature definition, then a developer
@@ -108,10 +107,11 @@ The assessment comment preserves the investigation and its rationale. **The PO-m
 description remains the agreed delivery scope**; alternatives and recommendations do not become
 requirements unless explicitly accepted.
 
-**Proposed readiness rule:** proceed to the tech proposal when the agreed scope and available technical
+**Readiness rule:** proceed to the tech proposal when the agreed scope and available technical
 evidence are sufficient to develop a credible proposal. Material feasibility blockers must be resolved
 or removed from scope through an explicit decision; remaining non-blocking assumptions must stay
-visible.
+visible. After further discovery, the developer re-runs `/espec:assess`; the new comment supersedes
+the old one and says which blocking findings were resolved and how.
 
 ## Phase 2: Tech Proposal
 
@@ -122,12 +122,20 @@ visible.
 | Tool | GitHub Copilot: `/espec-tech-proposal <ticket key, URL or change name>`. |
 | Inputs | The ticket (fetched through an Atlassian or GitHub MCP server, or pasted), `espec/project.md`, `espec/config.yaml`, the main specs in `espec/specs/`, and the code. |
 | Outputs | `espec/changes/<change-name>/` holding `feature.md` (imported), `tech-proposal.md`, delta specs under `specs/<capability>/spec.md`, `tasks.md`, and `.espec.yaml` with `status: proposed`. In the chat, a coverage report: how much of the feature definition the proposal covers, id by id. |
-| Exit criteria | **Approved**: the reviewer sets the status line in `tech-proposal.md` to Approved. Every `FT-n` is marked Accepted or Overridden. The traceability table covers every UC, EC and AC. No blocking Question for Product is open. `/espec:inspect-tech-proposal` returns Approve. |
+| Exit criteria | **Approved**: the reviewer sets the status line in `tech-proposal.md` to Approved. Every `FT-n` is marked Accepted or Overridden. The traceability table covers every UC, EC and AC. No blocking Question for Product is open. Every MODIFIED and REMOVED requirement carries a base stamp (`espec stamp`). `/espec:inspect-tech-proposal` returns Approve. |
 | Hand-off | **Questions for Product** are pasted as a ticket comment. Product answers in the ticket and updates the description. Engineering re-imports and revises. |
 
 The proposal is reviewed where the project says, usually a pull request that adds the change
-folder. Record the place in `espec/project.md` under Ticketing. Nothing outside
+folder. Record the place in `espec/project.md` under Ticketing, and name the approvers in CODEOWNERS
+so the Approved line cannot reach `main` without them. Nothing outside
 `espec/changes/<change-name>/` changes in this phase.
+
+Approval covers the proposal as approved. A later change to a decision, the scope or observable
+behaviour, in this phase or the next, sets the status line back to **In review** and the reviewer
+approves again.
+
+A bug runs through the same phases with a lighter definition and proposal: see
+[Bug fixes](../template/espec/AGENTS.md#bug-fixes).
 
 ## Phase 3: Implementation
 
@@ -144,7 +152,8 @@ folder. Record the place in `espec/project.md` under Ticketing. Nothing outside
 
 The AI pauses when a task is unclear, needs work the specs do not describe, or would reduce specified
 behaviour. It never narrows scope silently. A design problem found here becomes a tech proposal
-update, not a workaround.
+update, not a workaround: the proposal goes back to In review and implementation waits for the new
+approval.
 
 ## Phase 4: Archive
 
@@ -158,8 +167,13 @@ update, not a workaround.
 | Exit criteria | **Archived**: `.espec.yaml` says `archived`, no delta headings remain in the main specs, every requirement still has a scenario. |
 | Hand-off | The release note is pasted as a ticket comment: what shipped, which specs changed, what was deferred. The ticket is closed. |
 
-Archive stops on any conflict before moving anything. Archive-clean never deletes without evidence
-and a confirmed verdict. See [conventions.md](conventions.md#archive-merge-order-and-conflicts).
+Archive runs after the implementation pull request is merged, either as its own short pull request
+or as the last commit of the implementation pull request (see
+[the guides](guides/README.md#pull-requests-along-the-way)). Archive stops on any conflict before
+moving anything, including a base stamp that shows another change edited the same requirement first.
+Archive-clean never deletes without evidence and a confirmed verdict. In CI, a pull request that
+changes `espec/specs/` without archiving a change fails. See
+[conventions.md](conventions.md#archive-merge-order-and-conflicts).
 
 ## Where things live
 

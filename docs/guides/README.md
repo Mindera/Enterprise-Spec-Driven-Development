@@ -23,7 +23,7 @@ for the role matrix. The guides are the walkthroughs. When a guide and
 |---|---|---|---|---|
 | 1 | [Feature definition](01-feature-definition.md) | `/espec:feature-definition`, an agent in Rovo or M365 Copilot | Product Manager, then Designer | A ticket whose description is marked Ready for tech proposal |
 | 2 | [Inspect the feature definition](02-inspect-feature-definition.md) | `/espec:inspect-feature-definition` | Developer or QA | A verdict and a comment on the ticket |
-| 3 | [Technical assessment](03-technical-assessment.md) | Copilot Chat in the repository; no dedicated command yet | Developer, then the team in refinement | An assessment comment on the ticket and an agreed scope |
+| 3 | [Technical assessment](03-technical-assessment.md) | `/espec:assess` | Developer, then the team in refinement | An assessment comment on the ticket: Ready for tech proposal or Further discovery required |
 | 4 | [Tech proposal](04-tech-proposal.md) | `/espec:tech-proposal` | Developer, QA for the test strategy | `tech-proposal.md`, delta specs and `tasks.md` in a pull request |
 | 5 | [Inspect the tech proposal](05-inspect-tech-proposal.md) | `/espec:inspect-tech-proposal` | QA, Engineering Manager or Architect | Approve, and the proposal's status line set to Approved |
 | 6 | [Implementation](06-implementation.md) | `/espec:implementation` | Developer, QA for the verification group | Code and tests, every task checked, `pull-request.md` |

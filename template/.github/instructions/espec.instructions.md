@@ -13,6 +13,8 @@ applyTo: "espec/**"
   `- **WHEN**`, `- **THEN**`, `- **AND**` bullets. Every requirement has at least one scenario.
 - Delta files use `## ADDED Requirements`, `## MODIFIED Requirements` (full requirement, not a diff),
   `## REMOVED Requirements` (with Reason and Migration) and `## RENAMED Requirements` (FROM / TO).
+- MODIFIED and REMOVED requirements carry `<!-- espec:base <hash> -->` under the heading. Never write
+  or edit it by hand: run `espec/bin/espec stamp <change-name>`. Never copy it into `espec/specs/`.
 - Tasks: `- [ ] N.M description and verify <how>`. Only `[x]` means done.
 - Never edit `espec/specs/` by hand during a change; edit the change's delta instead.
 - Keep `project.md` and `config.yaml` content out of the artifacts; apply it, do not paste it.

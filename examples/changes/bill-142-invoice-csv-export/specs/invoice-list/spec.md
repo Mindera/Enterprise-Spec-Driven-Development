@@ -3,6 +3,7 @@
 ## MODIFIED Requirements
 
 ### Requirement: List actions
+<!-- espec:base 303dfe1afb04 -->
 The system SHALL offer the actions New invoice, Send reminders and Export CSV from the invoice list and SHALL show
 each action only to users who hold the permission it needs.
 

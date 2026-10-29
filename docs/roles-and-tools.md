@@ -55,7 +55,7 @@ Never:
 | 1 | Runs `/espec-inspect-feature-definition` on the ticket, then `/espec-assess`: what the code already does for each acceptance criterion and constraint, which specs the feature touches, dependencies on other teams (unconfirmed until their owner confirms), alternatives with their consequences for product, criteria that cannot be met as written, spikes. Pastes the assessment as a ticket comment and takes the findings to product, the owning teams or a spike. Optional: runs the feature definition in-repo when the work has no product owner, or imports a ticket, and pastes the result into a ticket so product can own it. | `/espec-inspect-feature-definition`, `/espec-assess`, `/espec-feature-definition` |
 | 2 | Starts when the assessment outcome is Ready for tech proposal. Runs the tech proposal. Explores the code before writing. Writes `tech-proposal.md`, the delta specs and `tasks.md`. Pastes Questions for Product as a ticket comment. Opens the pull request that adds the change folder. | `/espec-tech-proposal`, an Atlassian or GitHub MCP server to fetch the ticket |
 | 3 | Runs the implementation task by task. Lets the AI pause and decides on each pause. Keeps `tasks.md` as the progress record. Opens the pull request with `pull-request.md` as its body, so reviewers read what was built and how it differs from the proposal without opening the code first. | `/espec-implementation` |
-| 4 | Runs archive after the review. Posts the release note. Runs archive-clean on the agreed rhythm and brings the report to the reviewer. | `/espec-archive`, `/espec-archive-clean`, `bin/espec validate` |
+| 4 | Runs archive after the implementation pull request is merged. Posts the release note. Runs archive-clean on the agreed rhythm and brings the report to the reviewer. | `/espec-archive`, `/espec-archive-clean`, `bin/espec validate` |
 
 Never:
 
@@ -143,9 +143,11 @@ repository, or the body in
 3. Commit. Prompt files are read from the repository, so the whole team gets the commands on their
    next pull. The `espec-validate` workflow now checks `espec/` on every pull request.
 4. Restart the IDE so the prompt files under `.github/prompts/` are picked up. In Copilot Chat the
-   commands then appear as `/espec-feature-definition`, `/espec-tech-proposal`,
-   `/espec-implementation`, `/espec-archive` and `/espec-archive-clean`. If they do not appear,
-   check that prompt files are enabled in the IDE's Copilot settings.
+   nine commands then appear: `/espec-feature-definition`, `/espec-tech-proposal`,
+   `/espec-implementation`, `/espec-archive`, `/espec-archive-clean`, the read-only
+   `/espec-inspect-feature-definition`, `/espec-assess` and `/espec-inspect-tech-proposal`, and
+   `/espec-review`. If they do not appear, check that prompt files are enabled in the IDE's Copilot
+   settings.
 5. Enable an MCP server when the organisation allows it: the Atlassian MCP server for Jira, or the
    GitHub MCP server for GitHub Issues. With one of them the tech proposal fetches the ticket by key
    or URL. Without one, the developer pastes the ticket description.

@@ -38,7 +38,13 @@ git checkout -b espec/bill-142-proposal
 With a ticket key or URL, the command first runs the Import mode of the feature definition: fetches
 the ticket (or asks for a paste), reviews it, writes `feature.md` and `.espec.yaml`, and derives the
 change name (`bill-142-invoice-csv-export`). With a change name that already exists, it updates the
-proposal in place.
+proposal in place; when that proposal was already Approved, it sets the status line back to
+**In review** first, because the reviewer has to approve the new version.
+
+For a bug, start the change with `espec/bin/espec new <name> --kind bug` and fill `feature.md` from
+the bug report, or give the command the bug ticket and it does that for you. The proposal is shorter
+(Context with the root cause, Approach, Traceability, Test strategy, Questions for Product) and the
+first task reproduces the bug in a failing test. See [Bug fixes](../../template/espec/AGENTS.md#bug-fixes).
 
 It then works through nine steps and announces each. Where to pay attention:
 
@@ -64,7 +70,10 @@ It then works through nine steps and announces each. Where to pay attention:
    main spec, and `MODIFIED` blocks that carry the **whole** requirement, every scenario included.
    Check that capability names match `espec/specs/` and describe durable behaviour
    (`invoice-export`), not the change (`add-csv-export`). A change with no observable behaviour
-   change gets `skip_specs: true` and no `specs/` folder.
+   change gets `skip_specs: true` and no `specs/` folder. It then runs
+   `espec/bin/espec stamp <change-name>`, which writes a base stamp under every `MODIFIED` and
+   `REMOVED` heading: the version of the main spec the delta was written against. When Copilot cannot
+   run commands, run it yourself. See [Base stamps](../conventions.md#base-stamps).
 5. **Write `tasks.md`.** Groups ordered by dependency, each landing its own tests. Every task says
    how it is verified and cites the `AC-n` and `EC-n` it satisfies. The final `## QA verification`
    group has one `Q.n` per acceptance criterion plus the non-functional checks. No task says
@@ -89,7 +98,8 @@ espec/bin/espec validate bill-142-invoice-csv-export
 ```
 
 Catches the mechanical problems before a reviewer does: three-hash scenarios, placeholders left in,
-a `MODIFIED` requirement with no scenario, a task line without a checkbox.
+a `MODIFIED` requirement with no scenario, a task line without a checkbox, a `MODIFIED` heading that
+does not exist in the main spec, a missing base stamp.
 
 ### Questions for Product
 
@@ -138,4 +148,6 @@ the reviewer. Approval is the reviewer setting the status line in `tech-proposal
 | Tasks are too big to finish in a session | Groups instead of tasks | Split until each has one verification |
 | The QA group has fewer `Q.n` lines than acceptance criteria | Skipped | One `Q.n` per `AC-n`, in order, then exploratory and non-functional lines |
 | `validate` fails on `feature.md` placeholders | The import kept a template line | Fix `feature.md` to match the ticket exactly |
+| `validate`: "has no base stamp" | The deltas were written without running stamp | `espec/bin/espec stamp <change-name>` |
+| `validate`: "changed in the main spec since the delta was written" | Another change edited the same requirement and was archived first | Open the main spec, merge its new text into your `MODIFIED` block (keep both edits), then `espec/bin/espec stamp <change-name> --rebase`. Tell the reviewer: the proposal changed |
 | The coverage report says 100% but the inspection finds gaps | The self-check trusted its own table instead of the files | "Re-read specs/ and tasks.md from disk and recompute the coverage report." The inspection wins |

@@ -1,7 +1,9 @@
 name: espec validate
 
 # Checks every active change and every main spec under espec/ against the espec formats:
-# feature definition sections and ids, four-hash scenarios, delta section names, task checkboxes.
+# feature definition sections and ids, four-hash scenarios, delta section names, task checkboxes,
+# and that every delta still applies to the main spec as it is today.
+# Then checks that the main specs change only through /espec:archive and /espec:archive-clean.
 # The validator ships with the project in espec/bin, so this job needs no network access.
 
 on:
@@ -20,6 +22,24 @@ jobs:
     steps:
       - name: Check out the repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
 
       - name: Run espec validate
         run: bash espec/bin/espec validate
+
+      # An archive moves a change folder under espec/changes/archive/, and archive-clean adds its
+      # cleanup.md there, so a pull request that edits espec/specs/ without adding a file under
+      # espec/changes/archive/ is a hand edit.
+      - name: Main specs change only through archive or archive-clean
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if git diff --name-only "$BASE_SHA"...HEAD | grep -q '^espec/specs/' &&
+             ! git diff --name-only --diff-filter=AR "$BASE_SHA"...HEAD | grep -q '^espec/changes/archive/'; then
+            echo "::error::espec/specs/ changed, but no change was archived in this pull request."
+            echo "Main specs change only through /espec:archive and /espec:archive-clean."
+            echo "Put behaviour changes in the change's delta specs: espec/changes/<change-name>/specs/."
+            exit 1
+          fi

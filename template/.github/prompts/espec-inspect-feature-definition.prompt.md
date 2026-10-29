@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: agent
 description: "espec review · Inspect a feature definition: check a ticket or feature.md for missing information, hows, coverage gaps and untestable criteria. Read-only; prints a report and a ticket comment."
 ---
 
