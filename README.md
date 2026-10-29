@@ -6,11 +6,11 @@
 </p>
 
 <p align="center">
-  <strong>Spec-driven development for enterprises where different functions have a different AI access.</strong>
+  <strong>Spec-driven development for enterprises where different functions have different AI access.</strong>
 </p>
 
 <p align="center">
-  <a href="./VERSION"><img alt="Version: v1.0.8" src="https://img.shields.io/badge/version-v1.0.8-orange.svg?style=flat-square"></a>
+  <a href="./VERSION"><img alt="Version: v1.0.9" src="https://img.shields.io/badge/version-v1.0.9-orange.svg?style=flat-square"></a>
   <a href="./LICENSE.md"><img alt="License: Sustainable Use 1.0" src="https://img.shields.io/badge/License-Sustainable%20Use%201.0-blue.svg?style=flat-square"></a>
   <img alt="GitHub Copilot" src="https://img.shields.io/badge/Developers-GitHub%20Copilot-24292f?style=flat-square">
   <img alt="Rovo" src="https://img.shields.io/badge/Product-Rovo-0052cc?style=flat-square">
@@ -63,7 +63,6 @@ Copilot:          Readiness 9/9 ✅. No how outside the forced notes. Every UC a
                   Verdict: Ready for tech proposal (0 blocking, 2 advisory).
                   Advisory: can a running export be cancelled? What if access is revoked
                   mid-export?
-                  Advisory: add advisory info on tech (Spike needed? APIs?)
                   Comment ready to post on BILL-142.
 
 Dev:              /espec-assess BILL-142
@@ -76,7 +75,11 @@ Copilot:          Read 13 ACs and 7 constraints against main. Exists today: filt
                   Outcome: Further discovery required (1 blocking, 4 advisory).
                   Comment ready to post on BILL-142.
 
-Team              Refinement with Team for alignment/awareness of Tickets
+Team:             Refinement. Product accepts overriding FT-1 with exports on the Ops
+                  dashboard; the owners confirm the dependencies; the spike runs.
+Dev:              /espec-assess BILL-142
+Copilot:          Supersedes the earlier assessment: FT-1 decided by product, dependencies
+                  confirmed, spike passed. Outcome: Ready for tech proposal.
 
 Dev:              /espec-tech-proposal BILL-142
 Copilot:          Imported BILL-142 → espec/changes/bill-142-invoice-csv-export/feature.md
@@ -112,19 +115,21 @@ Copilot:          Synced invoice-export (new) and invoice-list (1 modified).
 
 | # | Phase | Command | Who | Output |
 |---|-------|---------|-----|--------|
-| 1 | **AI Assisted Feature Definition** | `/espec:feature-definition` | Product, Design | Ticket: why, what, use cases, edge cases, out of scope, acceptance criteria |
+| 1 | **AI Assisted Feature Definition** | `/espec:feature-definition`, then `/espec:assess` | Product, Design, then a developer | Ticket: why, what, use cases, edge cases, out of scope, acceptance criteria. An assessment comment: Ready for tech proposal or Further discovery required |
 | 2 | **Tech Proposal** | `/espec:tech-proposal` | Developers, QA | `tech-proposal.md`, delta specs, `tasks.md` |
 | 3 | **Implementation** | `/espec:implementation` | Developers, QA | Code and tests, tasks checked off, PR description |
 | 4 | **Archive** | `/espec:archive` · `/espec:archive-clean` | Developers | Main specs updated; outdated specs purged or corrected |
 
-**Phase 1** only knows product. It asks for every use case, every edge case and an explicit out of
-scope. When a *how* slips in, it asks you to rephrase it as an outcome. If you insist, it is recorded
-as a ⚠️ **forced technical note** that engineering must accept or override, with a reason, in the
-tech proposal.
+**Phase 1** starts in product language only. It asks for every use case, every edge case and an
+explicit out of scope. When a *how* slips in, it asks you to rephrase it as an outcome. If you insist,
+it is recorded as a ⚠️ **forced technical note** that engineering must accept or override, with a
+reason, in the tech proposal. It ends with a developer's technical assessment of the ticket against
+the code, so product decides scope with the facts before anyone designs.
 
 **Phase 2** is the deep dive: architecture, APIs, data model, technology decisions with alternatives,
 a traceability table from every product id to a spec scenario and a task, a test strategy for QA, and
-questions for product that go back on the ticket.
+questions for product that go back on the ticket. Bugs take the same path with a lighter definition
+and proposal.
 
 **Phase 3** generates the code from the tech proposal and specs, one task at a time, and never
 narrows scope silently. It ends with a pull request description a reviewer can read without opening
@@ -191,7 +196,9 @@ Windows users run `bin\espec.ps1` with the same arguments.
 
 Your repo also gets its own copy of the validator in `espec/bin` and a GitHub Actions workflow that
 runs it on every pull request touching `espec/`, so format rules are checked without any dependency
-on this toolkit.
+on this toolkit. Then name your tech proposal approvers in CODEOWNERS
+([engineering setup, step 5](docs/guides/setup-engineering.md#step-5-protect-approval-and-the-main-specs)).
+To pin a version, check out its tag (`git -C ~/espec checkout v1.0.9`) before `init` or `update`.
 
 ### Product and design
 
@@ -235,6 +242,7 @@ your-repo/
 │   └── ISSUE_TEMPLATE/feature-definition.md
 └── espec/
     ├── AGENTS.md                          # Conventions for humans and AI
+    ├── LICENSE.md, .toolkit-version       # The toolkit's licence and the version you run
     ├── project.md                         # Your stack, teams, traps
     ├── config.yaml                        # Ticket system, rules, archive settings
     ├── specs/<capability>/spec.md         # The system as it is today
@@ -242,7 +250,7 @@ your-repo/
     │   └── inspections/                   # Saved inspection reports, only on request
     ├── changes/archive/                   # Finished changes and clean-up reports
     ├── templates/                         # Blank files the commands start from
-    └── bin/                               # espec validate · new · list, no toolkit needed
+    └── bin/                               # espec validate · new · list · stamp · version, no toolkit needed
 ```
 
 ## Docs
@@ -254,21 +262,25 @@ your-repo/
 - [Roles and tools](docs/roles-and-tools.md) · setup per role
 - [FAQ](docs/faq.md)
 - [Worked example](examples/) · an invoice export, from ticket to archived spec
+- [Changelog](CHANGELOG.md) · what changed in each version, and what to do when you update
 
-## Contributing
+## Support and contributing
 
-Issues and pull requests are welcome. Keep the README simple and the prompts shorter than the
-documents they produce.
+Questions, bugs and ideas go to [GitHub Issues](https://github.com/Mindera/Enterprise-Spec-Driven-Development/issues).
+Pull requests are welcome. Keep the README simple and the prompts shorter than the documents they
+produce.
 
-The current version is **v1.0.8**, kept in [`VERSION`](VERSION). Every change bumps the last number
-(`vX.Y.Z` → `vX.Y.Z+1`); see [`AGENTS.md`](AGENTS.md) for the rules every contributor and every AI
-assistant follows.
+The current version is **v1.0.9**, kept in [`VERSION`](VERSION). Every change bumps the last number
+(`vX.Y.Z` → `vX.Y.Z+1`) and adds an entry to the [changelog](CHANGELOG.md); every version merged to
+`main` is tagged and released. See [`AGENTS.md`](AGENTS.md) for the rules every contributor and every
+AI assistant follows.
 
 ## License
 
 [Sustainable Use License 1.0](LICENSE.md). Free to use and modify for your own internal business,
 non-commercial or personal purposes, and to share free of charge for non-commercial purposes. You may
-not sell it or offer it as a paid service, and modified copies must say they were modified.
+not sell it or offer it as a paid service, and modified copies must say they were modified. `init`
+copies the licence into every repository it sets up, at `espec/LICENSE.md`.
 
 ---
 

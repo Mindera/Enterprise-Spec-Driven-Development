@@ -2,16 +2,17 @@
 
 Between a definition that is complete and a tech proposal that designs the solution sits a question
 the inspection does not answer: **can we build this, with what we have, and what do we not know
-yet?** A developer investigates with Copilot in the repository, posts an assessment comment on the
-ticket, and the team aligns on scope in refinement before anyone writes a proposal.
+yet?** A developer runs `/espec:assess` in the repository, checks what it found, posts the assessment
+comment on the ticket, and the team aligns on scope in refinement before anyone writes a proposal.
 
 | | |
 |---|---|
-| Command | None yet. Copilot Chat in agent mode, in the repository, with `espec/AGENTS.md`, `espec/project.md`, `espec/specs/` and the ticket as context. |
+| Command | `/espec-assess <ticket key, URL or change name>` in Copilot Chat, agent mode. Read-only: it prints a report and a comment for the ticket. |
 | Who | A developer leads. Product, Design, QA and other teams join as needed. The team closes it in refinement. |
 | Input | The ticket (Ready for tech proposal, or as far as product could take it), designs and research, the main specs, the code |
 | Output | An assessment comment on the ticket. The ticket description updated by product after scope decisions. An outcome: **Ready for tech proposal** or **Further discovery required**. |
-| Time | One to four hours of investigation, a thirty-minute refinement |
+| Time | Minutes for the command, one to four hours checking its evidence and talking to owners, a thirty-minute refinement |
+| Rules | [AGENTS.md, Technical assessment report](../../template/espec/AGENTS.md#technical-assessment-report) |
 
 This step is where product and engineering meet. Product is not expected to have established
 feasibility or found every dependency. Engineering is not expected to design yet. The hand-off to
@@ -28,62 +29,48 @@ this step means **ready for technical investigation**, not ready for estimation 
 
 ## Run it
 
-### Investigate with Copilot
-
-Open Copilot Chat in agent mode and give it the context in one message: the ticket text (or key,
-when it can fetch it), and a request to read `espec/AGENTS.md`, `espec/project.md` and the specs
-under `espec/specs/` first. Then ask the questions the tech proposal will need answered. The ones
-that pay off most:
-
-- Which of the acceptance criteria does the system already satisfy, in part or in full? Cite the
-  code and tests.
-- Which capabilities in `espec/specs/` does this feature touch? Which requirements would change?
-- What does the feature depend on that is outside this repository: another team's service, a
-  vendor, a data source, a permission model? For each, what do we know and what must be confirmed?
-- Where are there two or more credible ways to meet an acceptance criterion with materially
-  different cost or risk? What would each mean for the user?
-- Which acceptance criteria or constraints cannot be met as written, or only at a cost product
-  should know about?
-- What would a spike have to prove before a proposal could be written with confidence?
-
-Keep Copilot on evidence: ask for file paths, test names, configuration keys. Distinguish what it
-observed from what it assumed. Code evidence tells you what this repository does; it does not
-confirm another team's capability or delivery commitment. Those need a conversation with the owners.
-
-Do not let the session drift into a design. The moment you are choosing a queue or sketching a
-table, stop: that is the tech proposal, and it is written against the agreed scope, which you do not
-have yet.
-
-### Write the assessment comment
-
-Post one comment on the ticket. A format that has worked:
-
-```markdown
-## Technical assessment (YYYY-MM-DD, <name>)
-
-**Outcome:** Ready for tech proposal | Further discovery required
-
-### What exists today
-- <acceptance criterion or capability>: <what the system does, with evidence: paths, tests, spec requirement>
-
-### Dependencies to confirm
-- <team or system>: <what we need from them>. Owner: <name>. Status: unconfirmed | confirmed on <date>
-
-### Alternatives with consequences for product
-- <AC-n or constraint>: Option A <what the user gets, cost, risk>. Option B <...>. Recommendation and why.
-
-### Cannot be met as written
-- <AC-n or constraint>: <why>. Proposed change to the definition: <outcome wording>.
-
-### Questions for product
-- <question>. Needed before: proposal | implementation.
-
-### Spikes
-- <what it proves>, <how long>, <who>. Link when created.
+```text
+/espec-assess BILL-142
 ```
 
-Keep it to one screen. Alternatives and recommendations are information for product; they do not
-become requirements unless product accepts them and updates the description.
+It fetches the ticket when Copilot can reach it (otherwise it asks you to paste the description),
+reads `espec/AGENTS.md`, `espec/project.md` and the main specs, then searches the code. The report
+has a fixed shape; see the [worked example](../../examples/inspections/assess.md):
+
+| Section | What it holds |
+|---|---|
+| What exists today | One row per `AC-n` and per constraint: what the code already does, what is missing, with file paths. "Nothing found" is a valid answer |
+| Capabilities touched | The main specs and requirements the feature adds to, changes or only reads |
+| Dependencies outside the repository | Services, contracts, infrastructure, approvals this repository does not control, each **Unconfirmed** with the owner to ask |
+| Alternatives for product | Materially different ways to meet a use case, with what product gains and gives up. No choice is made |
+| Criteria that cannot be met as written | Each with an outcome rephrasing product can accept, or the scope decision it needs |
+| Spikes | Only questions that reading the code cannot answer, with the criteria waiting on them |
+| Findings and outcome | Numbered, Blocking or Advisory. **Ready for tech proposal** only with zero blocking findings; otherwise **Further discovery required** |
+| Comment for the ticket | Ready to paste |
+
+Ask it to save the report with "save it" when you want it in the change folder later
+(`espec/changes/<change-name>/inspections/YYYY-MM-DD-assess.md`).
+
+### Check the evidence
+
+The command is a starting point, not a verdict. Before you post anything:
+
+- Open the paths it cites for the "exists today" claims you will rely on. An existing test is
+  evidence that a behaviour is kept, not that a new one is met.
+- Code evidence tells you what this repository does; it does not confirm another team's capability or
+  delivery commitment. Talk to every owner it lists, or leave the dependency Unconfirmed.
+- Where you know more than the code shows (a migration in flight, a contract being renegotiated), add
+  it to the comment as your own finding.
+
+The assessment decides nothing. The moment you are choosing a queue or sketching a table, stop: that
+is the tech proposal, and it is written against the agreed scope, which you do not have yet.
+
+### Post the comment
+
+Paste the **Comment for the ticket** as a comment from you. Alternatives and recommendations are
+information for product; they do not become requirements unless product accepts them and updates the
+description. Move the ticket to **In technical assessment** while the outcome is open (see
+[Product setup](setup-product.md) for the statuses).
 
 ### Refinement
 
@@ -109,11 +96,23 @@ owned and dated.
 - The ticket description changed if scope changed. If only a comment changed, nothing changed.
 - The developer who writes the proposal (often the same person) can start without a meeting.
 
+### Further discovery required
+
+The ticket moves to **Further discovery required** with every blocking item owned and dated: a
+question for product, a confirmation from another team, a spike. When they land:
+
+1. Product updates the ticket description for any scope decision.
+2. Re-run `/espec-inspect-feature-definition` if the description changed.
+3. Re-run `/espec-assess`. It reads the earlier assessment comment, says which blocking findings are
+   now resolved and by what, and its new comment supersedes the old one. Post it.
+4. When the new outcome is Ready for tech proposal, move the ticket to that status.
+
+The comment thread is the record of how the feature got from "not yet" to "ready".
+
 ## Hand-off
 
 Ready: [the tech proposal](04-tech-proposal.md), which imports the updated description. Further
-discovery: the spikes and confirmations run, the comment is updated when they land, and the
-inspection re-runs if the description changed.
+discovery: the loop above, until the outcome is Ready.
 
 ## Common problems
 
@@ -121,6 +120,7 @@ inspection re-runs if the description changed.
 |---|---|---|
 | The assessment reads like a tech proposal | The investigation turned into design | Cut everything that chooses a solution. Keep what exists, what is unknown, what product must decide |
 | "The code already does X" turns out to be wrong | Copilot assumed | Ask for the path and the test, open them. Record assumptions as assumptions |
+| `/espec-` does not list `assess` | The repository was initialised with a toolkit older than v1.0.3 | Run `espec update` from the toolkit ([Updating later](setup-engineering.md#updating-later)) |
 | A dependency on another team is marked confirmed from the code | Code evidence is not a commitment | Confirm with the owner, in writing, and link it |
 | Refinement re-litigates the why | The assessment was shared without the inspected definition | Send both. The why is settled in the definition; refinement decides scope |
 | Everything is a spike | Fear of committing | A spike proves one thing in a bounded time. If you cannot name what it proves, it is not a spike |

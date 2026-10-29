@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: agent
 description: "espec review · Technical assessment of a feature definition before the tech proposal: what the code already does, which specs are touched, dependencies on other teams, alternatives with their consequences, criteria that cannot be met as written, spikes. Read-only; prints a report and a ticket comment."
 ---
 
@@ -22,6 +22,9 @@ Input: `${input:source:Ticket key or URL, a pasted feature definition, or a chan
    A change name: read `espec/changes/<change-name>/feature.md` from disk, and when the ticket is also
    reachable, fetch it and note any difference under Findings. Pasted text: use it as is. Say which
    source you used, when it was fetched, and which branch or commit of the repository you read.
+   When the ticket already carries an earlier assessment (a re-run after further discovery), read it
+   and say in the comment for the ticket that this assessment supersedes it, and which of its blocking
+   findings are now resolved and by what: an answer, a confirmation or a spike result.
 
 2. **Read the main specs.** Read every spec under `espec/specs/` whose capability the feature could
    touch. List each one under Capabilities touched with the requirement names involved and whether

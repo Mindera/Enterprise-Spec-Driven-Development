@@ -54,7 +54,11 @@ Paste the output of the espec Feature Definition agent over it, keeping the firs
 
 - Product opens the issue from the template and sets the status line to **Ready for tech proposal**
   when the readiness check passes.
-- Engineering runs `/espec-tech-proposal <issue URL>` in GitHub Copilot, which imports the issue body
+- Engineering runs `/espec-assess <issue URL>` and posts the technical assessment as an issue
+  comment. When its outcome is **Further discovery required**, product decides on what it raises and
+  updates the issue body, and engineering re-assesses. Labels such as `further-discovery` make the
+  state visible on the board.
+- When the outcome is **Ready for tech proposal**, engineering runs `/espec-tech-proposal <issue URL>` in GitHub Copilot, which imports the issue body
   as `feature.md` and opens a pull request with the tech proposal. Questions for Product go back as
   an issue comment.
 - When the repository uses the Copilot coding agent, assigning the issue to Copilot produces the tech

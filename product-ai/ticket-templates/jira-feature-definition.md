@@ -58,7 +58,10 @@ starts from it.
 | Status | Meaning | Who moves it |
 |--------|---------|--------------|
 | Draft | Definition in progress | Product |
-| Ready for tech proposal | Readiness check passed | Product |
+| Ready for tech proposal | Readiness check passed; engineering can investigate | Product |
+| In technical assessment | A developer is assessing the ticket against the code (`/espec:assess`) | Engineering |
+| Further discovery required | The assessment comment lists decisions, confirmations or spikes, each with an owner. Product answers and updates the description; engineering re-assesses | Engineering |
+| Assessed, ready for tech proposal | The assessment outcome is Ready and the description holds the agreed scope | Engineering |
 | Tech proposal in review | Engineering posted the tech proposal pull request and any Questions for Product as a comment | Engineering |
 | In progress | Implementation started | Engineering |
 | Done | Archived; release note posted as a comment | Engineering |

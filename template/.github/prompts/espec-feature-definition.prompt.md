@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: agent
 description: "espec phase 1 · AI Assisted Feature Definition: write, import or review a feature definition (what and why, never how) and store it as feature.md."
 ---
 

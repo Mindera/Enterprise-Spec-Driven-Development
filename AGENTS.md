@@ -23,10 +23,17 @@ same commit or pull request:
    for it; when they do, Z resets to `0`.
 2. Update the version badge and the "current version" line in [`README.md`](README.md) to the same
    `vX.Y.Z`.
+3. Add a `## vX.Y.Z (YYYY-MM-DD)` entry at the top of [`CHANGELOG.md`](CHANGELOG.md) saying what changed
+   for the people who run the toolkit. Mark anything a project must do after `espec update` with
+   **Action**.
 
-Bump once per pull request, not once per commit. CI enforces both rules
-(`scripts/ci/check-version.py`): the README must match `VERSION`, and a pull request that changes any
-file must raise `VERSION` above the base branch.
+Bump once per pull request, not once per commit. CI enforces all three rules
+(`scripts/ci/check-version.py`): the README must match `VERSION`, the changelog must have an entry for
+it, and a pull request that changes any file must raise `VERSION` above the base branch. Changes reach
+`main` only through pull requests; the check cannot see a direct push.
+
+When a new version reaches `main`, the release workflow (`.github/workflows/release.yml`) tags it
+`vX.Y.Z` and publishes its changelog entry as the release notes. Projects pin these tags.
 
 ## House rules
 
@@ -37,9 +44,13 @@ file must raise `VERSION` above the base branch.
 
 ```bash
 python3 scripts/ci/check-docs.py
-python3 scripts/ci/check-version.py
+python3 scripts/ci/check-version.py origin/main
 bash scripts/ci/smoke-bash.sh
+pwsh scripts/ci/smoke-pwsh.ps1
 ```
+
+- The bash and PowerShell CLIs behave the same. A change to one is made to the other in the same pull
+  request, and both smoke tests cover it.
 
 ## License
 

@@ -39,7 +39,10 @@ Follow the phases in order.
    [`specs/invoice-export/spec.md`](changes/bill-142-invoice-csv-export/specs/invoice-export/spec.md) adds a
    new capability, so it carries a `## Purpose` and only `ADDED` requirements.
    [`specs/invoice-list/spec.md`](changes/bill-142-invoice-csv-export/specs/invoice-list/spec.md) changes an
-   existing capability: it carries one `MODIFIED` requirement, the full block, nothing else.
+   existing capability: it carries one `MODIFIED` requirement, the full block, and the base stamp
+   `<!-- espec:base ... -->` that `espec stamp` wrote under its heading: the hash of the requirement as it
+   stood in [`specs-before/invoice-list/spec.md`](specs-before/invoice-list/spec.md) when the proposal was
+   written.
 
 5. **Phase 2 and 3, tasks.**
    [`tasks.md`](changes/bill-142-invoice-csv-export/tasks.md) was written in the tech proposal and checked off
@@ -114,7 +117,9 @@ The change folder is shown **as it looks after implementation and before archive
 `espec/changes/archive/2026-10-24-bill-142-invoice-csv-export/`.
 
 `examples/specs/` shows `espec/specs/` **after archive**. The requirement blocks there are identical to the ones
-in the delta files; only the title and the section headings differ.
+in the delta files, without the base stamp; only the title and the section headings differ.
+`examples/specs-before/` shows the `invoice-list` main spec **before the change**, the version the delta was
+written and stamped against. The CI smoke test validates the change against both.
 
 ## Layout
 
@@ -134,6 +139,8 @@ examples/
 ├── specs/                                # espec/specs/ after /espec:archive
 │   ├── invoice-export/spec.md
 │   └── invoice-list/spec.md
+├── specs-before/                         # espec/specs/ before the change
+│   └── invoice-list/spec.md
 ├── inspections/
 │   ├── feature-definition.md             # /espec:inspect-feature-definition report
 │   ├── assess.md                         # /espec:assess report
@@ -152,7 +159,8 @@ examples/
   `4.3`, and the line `Q.5` in QA verification.
 - The feature definition contains no endpoint, table, job or library. The tech proposal contains all of them.
 - The MODIFIED block in the `invoice-list` delta is the whole requirement, including the scenarios that did not
-  change. That is what lets the archive step replace it safely.
+  change. That is what lets the archive step replace it safely. Its base stamp is what would stop the archive
+  if another change had edited `List actions` in the meantime.
 - The pull request description is where proposal meets reality. Every difference from the tech proposal is
   on one table with its reason, so reviewers do not have to diff the code against the design in their heads.
 - Product's forced note was not ignored and not silently followed. It was reviewed, overridden with a reason,

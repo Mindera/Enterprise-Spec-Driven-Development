@@ -7,6 +7,7 @@
   .\espec.ps1 init
   .\espec.ps1 new add-invoice-csv-export --ticket PROJ-123 --title "Export invoices as CSV"
   .\espec.ps1 validate
+  .\espec.ps1 stamp add-invoice-csv-export
 #>
 [CmdletBinding()]
 param(
@@ -14,6 +15,8 @@ param(
   [Parameter(Position = 1, ValueFromRemainingArguments = $true)] [string[]] $Rest = @(),
   [string] $Ticket = '',
   [string] $Title = '',
+  [string] $Kind = '',
+  [switch] $Rebase,
   [Alias('h')] [switch] $Help
 )
 Set-StrictMode -Version Latest
@@ -37,11 +40,17 @@ espec: spec-driven development helper (Enterprise Spec Driven Development)
 Usage: espec.ps1 <command> [arguments]
 
   init [dir]                 Copy the espec template into a repository (never overwrites existing files)
-  update [dir]               Refresh the managed files: prompts, instructions, workflow, AGENTS.md, templates, espec/bin
+  update [dir]               Refresh the managed files: prompts, instructions, workflow, AGENTS.md, templates, espec/bin,
+                             espec/LICENSE.md and espec/.toolkit-version
                              (init and update run from the toolkit checkout; the other commands work from espec/bin in a project)
-  new <name> [options] [dir] Start a change under espec/changes/<name> (options: --ticket KEY, --title "Title")
+  new <name> [options] [dir] Start a change under espec/changes/<name>
+                             (options: --ticket KEY, --title "Title", --kind feature|bug)
   list [dir]                 Show active changes with status, ticket and task progress
   validate [name] [dir]      Check one change, or every active change, plus the main specs
+  stamp <name> [--rebase] [dir]
+                             Record in each MODIFIED and REMOVED requirement of a change the version of the main
+                             spec it was written against. --rebase re-records requirements whose main spec changed.
+  version [dir]              Show the toolkit version a project was set up or last updated with
   help                       Show this help
 
 [dir] defaults to the current directory. An espec/ folder marks an initialised project.
@@ -103,6 +112,7 @@ function Invoke-Init([string]$Dir) {
       Write-Output "  created           $rel"
     }
   }
+  Write-ToolkitRecord $Dir
   Write-Output @"
 
 Next steps:
@@ -110,9 +120,24 @@ Next steps:
   2. Commit the new files. The workflow in .github/workflows/espec-validate.yml runs
      espec/bin/espec validate on pull requests that touch espec/.
   3. Restart your IDE so GitHub Copilot picks up the prompt files in .github/prompts.
-  4. Point product managers to the product-ai pack (Rovo and M365 Copilot) in $(Join-Path $ToolkitRoot 'product-ai')
+  4. Name the tech proposal approvers in CODEOWNERS and require code owner review on the default
+     branch: docs/guides/setup-engineering.md, step 5, in the toolkit.
+  5. Point product managers to the product-ai pack (Rovo and M365 Copilot) in $(Join-Path $ToolkitRoot 'product-ai')
 "@
 }
+
+# Copy the toolkit licence and version into <Dir>/espec. The licence travels with every copy of the
+# toolkit's files; the version tells the team which prompts they are running.
+function Write-ToolkitRecord([string]$Dir) {
+  foreach ($pair in @(@('LICENSE.md', 'espec/LICENSE.md'), @('VERSION', 'espec/.toolkit-version'))) {
+    $src = Join-Path $ToolkitRoot $pair[0]
+    $dest = Join-Path $Dir $pair[1]
+    if (-not (Test-Path -LiteralPath $dest)) { Copy-Item -LiteralPath $src -Destination $dest; Write-Output "  created    $($pair[1])" }
+    elseif ((Get-FileHash -LiteralPath $src).Hash -eq (Get-FileHash -LiteralPath $dest).Hash) { Write-Output "  unchanged  $($pair[1])" }
+    else { Copy-Item -LiteralPath $src -Destination $dest -Force; Write-Output "  updated    $($pair[1])" }
+  }
+}
+function Get-VersionText([string]$File) { return ([System.IO.File]::ReadAllText((Resolve-Path -LiteralPath $File).Path)).Trim() }
 
 # Files that update may overwrite, relative to the project root.
 function Get-ManagedFiles {
@@ -130,7 +155,9 @@ function Get-ManagedFiles {
 function Invoke-Update([string]$Dir) {
   Require-Template 'update'
   Require-Project $Dir
-  Write-Output "Updating managed espec files in $Dir"
+  $recorded = Join-Path $Dir 'espec/.toolkit-version'
+  $from = if (Test-Path -LiteralPath $recorded) { 'v' + (Get-VersionText $recorded) } else { 'unknown' }
+  Write-Output "Updating managed espec files in $Dir ($from -> v$(Get-VersionText (Join-Path $ToolkitRoot 'VERSION')))"
   foreach ($rel in @(Get-ManagedFiles)) {
     $src = Join-Path $TemplateDir $rel
     $dest = Join-Path $Dir $rel
@@ -145,30 +172,46 @@ function Invoke-Update([string]$Dir) {
       Write-Output "  updated    $rel"
     }
   }
-  Write-Output 'Done. copilot-instructions.md, project.md, config.yaml, specs/ and changes/ were not touched.'
+  Write-ToolkitRecord $Dir
+  Write-Output 'Done. copilot-instructions.md, CODEOWNERS, project.md, config.yaml, specs/ and changes/ were not touched.'
+}
+
+function Invoke-Version([string]$Dir) {
+  $recorded = Join-Path $Dir 'espec/.toolkit-version'
+  $toolkitVersion = Join-Path $ToolkitRoot 'VERSION'
+  if (Test-Path -LiteralPath $recorded) { Write-Output "espec v$(Get-VersionText $recorded) ($Dir)" }
+  elseif ((Split-Path -Leaf $TemplateDir) -eq 'template' -and (Test-Path -LiteralPath $toolkitVersion)) {
+    Write-Output "espec v$(Get-VersionText $toolkitVersion) (toolkit at $ToolkitRoot)"
+  } else {
+    Write-Output "espec: version not recorded in $Dir. Run espec.ps1 update from the toolkit to record it."
+  }
 }
 
 # ---------------------------------------------------------------- new / list
 
 function Invoke-New([string[]]$Arguments) {
-  $name = ''; $dir = '.'; $ticket = $Ticket; $title = $Title; $i = 0
+  $name = ''; $dir = '.'; $ticket = $Ticket; $title = $Title; $kind = $Kind; $i = 0
   while ($i -lt $Arguments.Count) {
     $a = $Arguments[$i]
     if ($a -eq '--ticket' -and ($i + 1) -lt $Arguments.Count) { $ticket = $Arguments[$i + 1]; $i += 2 }
     elseif ($a -eq '--title' -and ($i + 1) -lt $Arguments.Count) { $title = $Arguments[$i + 1]; $i += 2 }
+    elseif ($a -eq '--kind' -and ($i + 1) -lt $Arguments.Count) { $kind = $Arguments[$i + 1]; $i += 2 }
+    elseif ($a -like '--kind=*') { $kind = $a -replace '^--kind=', ''; $i++ }
     elseif ($a -like '--ticket=*') { $ticket = $a -replace '^--ticket=', ''; $i++ }
     elseif ($a -like '--title=*') { $title = $a -replace '^--title=', ''; $i++ }
     elseif ($a -like '-*') { Fail "unknown option: $a" }
     elseif (-not $name) { $name = $a; $i++ }
     else { $dir = $a; $i++ }
   }
-  if (-not $name) { Fail 'usage: espec.ps1 new <change-name> [--ticket KEY] [--title "Title"] [dir]' }
+  if (-not $name) { Fail 'usage: espec.ps1 new <change-name> [--ticket KEY] [--title "Title"] [--kind feature|bug] [dir]' }
+  if (@('', 'feature', 'bug') -cnotcontains $kind) { Fail "--kind must be feature or bug: $kind" }
   if ($name -cnotmatch '^[a-z0-9]+(-[a-z0-9]+)*$') { Fail "change name must be kebab-case (lowercase letters, digits, dashes): $name" }
   Require-Project $dir
   $tpl = Join-Path $dir 'espec/templates'
   foreach ($f in 'feature.md', 'tech-proposal.md', 'tasks.md', 'espec.yaml') {
     if (-not (Test-Path -LiteralPath (Join-Path $tpl $f))) { Fail "$tpl/$f is missing. Run: espec.ps1 update $dir" }
   }
+  if ($kind -eq 'bug' -and -not (Test-Path -LiteralPath (Join-Path $tpl 'bug.md'))) { Fail "$tpl/bug.md is missing. Run: espec.ps1 update $dir" }
   $change = Join-Path $dir "espec/changes/$name"
   if (Test-Path -LiteralPath $change) { Fail "$change already exists" }
 
@@ -177,9 +220,11 @@ function Invoke-New([string[]]$Arguments) {
   foreach ($f in 'feature.md', 'tech-proposal.md', 'tasks.md') {
     Copy-Item -LiteralPath (Join-Path $tpl $f) -Destination (Join-Path $change $f)
   }
+  if ($kind -eq 'bug') { Copy-Item -LiteralPath (Join-Path $tpl 'bug.md') -Destination (Join-Path $change 'feature.md') -Force }
   $yaml = foreach ($line in @(Get-Lines (Join-Path $tpl 'espec.yaml'))) {
     if ($ticket -and $line -cmatch '^ticket:') { "ticket: $ticket" }
     elseif ($title -and $line -cmatch '^title:') { "title: $title" }
+    elseif ($kind -and $line -cmatch '^kind:') { "kind: $kind" }
     elseif ($line -cmatch '^created:') { "created: $today" }
     else { $line }
   }
@@ -189,8 +234,13 @@ function Invoke-New([string[]]$Arguments) {
   Write-Output "Created $change"
   Write-Output '  feature.md  tech-proposal.md  tasks.md  specs/  .espec.yaml'
   Write-Output ''
-  Write-Output "Next: in Copilot Chat run  /espec-feature-definition $name"
-  Write-Output '      or paste the feature definition from the ticket into feature.md and set status: defined'
+  if ($kind -eq 'bug') {
+    Write-Output 'Next: fill in feature.md from the bug report (expected versus actual, steps to reproduce),'
+    Write-Output "      set status: defined, then run /espec-tech-proposal $name in Copilot Chat"
+  } else {
+    Write-Output "Next: in Copilot Chat run  /espec-feature-definition $name"
+    Write-Output '      or paste the feature definition from the ticket into feature.md and set status: defined'
+  }
 }
 
 function Get-TaskCounts([string]$File) {
@@ -286,14 +336,20 @@ function Test-Feature([string]$Change) {
   if (-not (Test-Path -LiteralPath $f)) { Add-Fail 'feature.md missing'; return }
   $lines = @(Get-Lines $f)
   Assert-Check ($lines[0].TrimEnd() -ceq $Marker) "feature.md: starts with the marker $Marker"
-  foreach ($h in '## Why', '## What', '## Use cases', '## Edge cases', '## Out of scope', '## Acceptance criteria') {
+  # A bug carries steps to reproduce instead of use cases and edge cases.
+  if ((Get-YamlValue (Join-Path $Change '.espec.yaml') 'kind') -ceq 'bug') {
+    $headings = @('## Why', '## What', '## Steps to reproduce', '## Out of scope', '## Acceptance criteria'); $prefixes = @('AC')
+  } else {
+    $headings = @('## Why', '## What', '## Use cases', '## Edge cases', '## Out of scope', '## Acceptance criteria'); $prefixes = @('UC', 'EC', 'AC')
+  }
+  foreach ($h in $headings) {
     if (@($lines | Where-Object { $_.TrimEnd() -ceq $h }).Count -gt 0) {
       Assert-Check (Test-SectionContent @(Get-Section $lines $h)) "feature.md: '$h' present and not empty"
     } else {
       Add-Fail "feature.md: '$h' missing"
     }
   }
-  foreach ($p in 'UC', 'EC', 'AC') {
+  foreach ($p in $prefixes) {
     Assert-Check (@($lines | Where-Object { $_ -cmatch ('^### ' + $p + '-[0-9]') }).Count -gt 0) "feature.md: at least one ### $p-n"
   }
   $ac = @(Get-Section $lines '## Acceptance criteria') -join "`n"
@@ -323,7 +379,12 @@ function Test-TechProposal([string]$Change) {
   }
   $lines = @(Get-Lines $f)
   $missing = @()
-  foreach ($h in @('## Context', '## Approach', '## Architecture', '## APIs and contracts', '## Data model and migrations', '## Technology decisions', '## Traceability', '## Non-functional requirements', '## Rollout and migration', '## Test strategy', '## Risks and trade-offs', '## Questions for Product', '## Open engineering questions')) {
+  if ((Get-YamlValue $meta 'kind') -ceq 'bug') {
+    $headings = @('## Context', '## Approach', '## Traceability', '## Test strategy', '## Questions for Product')
+  } else {
+    $headings = @('## Context', '## Approach', '## Architecture', '## APIs and contracts', '## Data model and migrations', '## Technology decisions', '## Traceability', '## Non-functional requirements', '## Rollout and migration', '## Test strategy', '## Risks and trade-offs', '## Questions for Product', '## Open engineering questions')
+  }
+  foreach ($h in $headings) {
     if (@($lines | Where-Object { $_.TrimEnd() -ceq $h }).Count -eq 0) { $missing += $h }
   }
   if ($missing.Count -eq 0) { Add-Pass 'tech-proposal.md: all sections present' }
@@ -364,6 +425,7 @@ function Test-Spec([string]$File, [string]$Mode, [string]$Label) {
   for ($i = 0; $i -lt $lines.Count; $i++) {
     $l = $lines[$i]
     if ($l -cmatch '<[A-Za-z][A-Za-z0-9 -]*>' -and $l -cnotmatch '^\s*<!--') { $problems += "template placeholder left on line $($i + 1): $l" }
+    if ($Mode -eq 'main' -and $l.Contains('<!-- espec:base ')) { $problems += "delta base stamp left in a main spec on line $($i + 1) (archive drops it)" }
     if ($l -cmatch '^## ') {
       $sec = $l.TrimEnd(); $cur = $null
       if ($Mode -eq 'delta') { if ($allowed -cnotcontains $sec) { $problems += "heading not allowed in a delta spec: $sec" } }
@@ -416,6 +478,8 @@ function Test-Meta([string]$Change) {
   $status = Get-YamlValue $f 'status'
   if (@('defined', 'proposed', 'in-progress', 'implemented', 'archived', 'cancelled') -ccontains $status) { Add-Pass ".espec.yaml: status is '$status'" }
   else { Add-Fail ".espec.yaml: status '$status' must be one of defined, proposed, in-progress, implemented, archived, cancelled" }
+  $kind = Get-YamlValue $f 'kind'
+  if (@('', 'feature', 'bug') -cnotcontains $kind) { Add-Fail ".espec.yaml: kind '$kind' must be feature or bug" }
 }
 
 function Test-PullRequest([string]$Change) {
@@ -438,7 +502,177 @@ function Test-PullRequest([string]$Change) {
   }
 }
 
-function Test-Change([string]$Change) {
+# ---------------------------------------------------------------- delta bases
+# A MODIFIED or REMOVED requirement copies the main spec as it was when the tech proposal was written.
+# The delta records that version as a stamp under the heading, <!-- espec:base <hash> -->, so that a
+# second change archived first, which edits the same requirement, is caught before its edit is lost.
+# The block and hash rules match bin/espec exactly, so both CLIs read the same stamps.
+
+$StampPattern = '^[ \t]*<!-- espec:base ([0-9a-f]+) -->$'
+
+# The requirement block, heading included, normalised: no trailing blanks, no stamp lines, no trailing
+# empty lines, joined with newlines. Empty when the requirement is absent.
+function Get-ReqBlock([string]$File, [string]$Name) {
+  if (-not (Test-Path -LiteralPath $File)) { return '' }
+  $buf = New-Object System.Collections.Generic.List[string]; $on = $false
+  foreach ($raw in @(Get-Lines $File)) {
+    $l = $raw.TrimEnd(' ', "`t")
+    if ($l -cmatch '^(# |## |### )' -and $on) { break }
+    if ($l -cmatch '^### Requirement:(.*)$' -and $Matches[1].Trim(' ', "`t") -ceq $Name) { $on = $true }
+    if ($on -and $l -cnotmatch $StampPattern) { $buf.Add($l) }
+  }
+  while ($buf.Count -gt 0 -and $buf[$buf.Count - 1] -eq '') { $buf.RemoveAt($buf.Count - 1) }
+  return ($buf.ToArray() -join "`n")
+}
+
+# The first 12 hex characters of the SHA-256 of the block plus a final newline.
+function Get-BlockHash([string]$Block) {
+  $sha = [System.Security.Cryptography.SHA256]::Create()
+  $bytes = $sha.ComputeHash((New-Object System.Text.UTF8Encoding $false).GetBytes($Block + "`n"))
+  return (-join ($bytes | ForEach-Object { $_.ToString('x2') })).Substring(0, 12)
+}
+
+# One entry per ADDED, MODIFIED or REMOVED requirement of a delta (Section, Name, Stamp), and one per
+# rename (Section RENAMED, Name is FROM, Stamp is TO).
+function Get-DeltaEntries([string]$File) {
+  $out = @(); $sec = ''; $cur = ''; $stamp = ''; $from = ''
+  foreach ($raw in @(Get-Lines $File)) {
+    $l = $raw.TrimEnd(' ', "`t")
+    if ($l -cmatch '^(## |### )') {
+      if ($cur -and @('ADDED', 'MODIFIED', 'REMOVED') -ccontains $sec) { $out += [pscustomobject]@{ Section = $sec; Name = $cur; Stamp = $stamp } }
+      $cur = ''
+      if ($l -cmatch '^## (.*)$') { $sec = $Matches[1] -creplace ' Requirements$', '' }
+      elseif ($l -cmatch '^### Requirement:(.*)$') { $cur = $Matches[1].Trim(' ', "`t"); $stamp = '' }
+      continue
+    }
+    if ($cur -and $l -cmatch $StampPattern) { $stamp = $Matches[1] }
+    if ($sec -ceq 'RENAMED' -and $l -cmatch '^- FROM:[ \t]*`?### Requirement:[ \t]*(.*?)[ \t]*`?$') { $from = $Matches[1] }
+    elseif ($sec -ceq 'RENAMED' -and $l -cmatch '^- TO:[ \t]*`?### Requirement:[ \t]*(.*?)[ \t]*`?$') {
+      if ($from) { $out += [pscustomobject]@{ Section = 'RENAMED'; Name = $from; Stamp = $Matches[1] } }
+      $from = ''
+    }
+  }
+  if ($cur -and @('ADDED', 'MODIFIED', 'REMOVED') -ccontains $sec) { $out += [pscustomobject]@{ Section = $sec; Name = $cur; Stamp = $stamp } }
+  return $out
+}
+
+# The main spec requirement a MODIFIED or REMOVED entry applies to: the name itself, or the FROM of a
+# rename to it that the main spec still holds. Empty when neither.
+function Get-BaseTarget([string]$Main, [string]$Name, [object[]]$Entries) {
+  if (Get-ReqBlock $Main $Name) { return $Name }
+  foreach ($e in $Entries) {
+    if ($e.Section -ceq 'RENAMED' -and $e.Stamp -ceq $Name -and (Get-ReqBlock $Main $e.Name)) { return $e.Name }
+  }
+  return ''
+}
+
+# The capability path of a delta spec file: <change>/specs/billing/tax/spec.md gives billing/tax.
+# Taken from the file's own path, so short and long forms of the same folder cannot disagree.
+function Get-Capability([string]$Change, [string]$Spec) {
+  $marker = '/' + (Split-Path -Leaf $Change) + '/specs/'
+  $path = $Spec.Replace('\', '/')
+  $i = $path.LastIndexOf($marker, [System.StringComparison]::OrdinalIgnoreCase)
+  return ($path.Substring($i + $marker.Length) -replace '/?spec\.md$', '')
+}
+
+# The delta still applies to the main spec as it is today.
+function Test-DeltaBase([string]$Change, [string]$Spec, [string]$Dir, [string]$Label) {
+  $cap = Get-Capability $Change $Spec
+  $main = Join-Path $Dir "espec/specs/$cap/spec.md"
+  $entries = @(Get-DeltaEntries $Spec)
+  if ($entries.Count -eq 0) { return }
+  $changeName = Split-Path -Leaf $Change
+  $before = $script:Fails
+  foreach ($e in $entries) {
+    $name = $e.Name
+    if (-not (Test-Path -LiteralPath $main) -and $e.Section -cne 'ADDED') {
+      Add-Fail "${Label}: $($e.Section) '$name' but espec/specs/$cap/spec.md does not exist (conflict)"; continue
+    }
+    switch -CaseSensitive ($e.Section) {
+      'RENAMED' {
+        if (-not (Get-ReqBlock $main $name) -and -not (Get-ReqBlock $main $e.Stamp)) { Add-Fail "${Label}: RENAMED FROM '$name' is not in the main spec (conflict)" }
+      }
+      'ADDED' {
+        $mblock = Get-ReqBlock $main $name
+        if ($mblock -and $mblock -cne (Get-ReqBlock $Spec $name)) { Add-Fail "${Label}: ADDED '$name' already exists in the main spec with different content (conflict)" }
+      }
+      default {
+        $target = Get-BaseTarget $main $name $entries
+        if (-not $target) {
+          if ($e.Section -ceq 'REMOVED') { Add-Fail "${Label}: REMOVED '$name' is not in the main spec (conflict, or already removed)" }
+          else { Add-Fail "${Label}: MODIFIED '$name' is not in the main spec (conflict)" }
+          continue
+        }
+        $mblock = Get-ReqBlock $main $target
+        # Already applied: the main spec holds exactly the delta's text.
+        if ($e.Section -ceq 'MODIFIED' -and $target -ceq $name -and $mblock -ceq (Get-ReqBlock $Spec $name)) { continue }
+        $h = Get-BlockHash $mblock
+        if (-not $e.Stamp) { Add-Fail "${Label}: $($e.Section) '$name' has no base stamp. Run: espec/bin/espec.ps1 stamp $changeName" }
+        elseif ($e.Stamp -cne $h) { Add-Fail "${Label}: $($e.Section) '$name' changed in the main spec since the delta was written (base $($e.Stamp), now $h). Merge the new text into the delta, then run: espec/bin/espec.ps1 stamp $changeName --rebase" }
+      }
+    }
+  }
+  if ($script:Fails -eq $before) { Add-Pass "${Label}: applies to the main spec as it is today" }
+}
+
+function Invoke-Stamp([string[]]$Arguments) {
+  $name = ''; $dir = '.'; $rebase = [bool]$Rebase; $refused = $false
+  foreach ($a in $Arguments) {
+    if ($a -eq '--rebase') { $rebase = $true }
+    elseif ($a -like '-*') { Fail "unknown option: $a" }
+    elseif (-not $name) { $name = $a }
+    else { $dir = $a }
+  }
+  if (-not $name) { Fail 'usage: espec.ps1 stamp <change-name> [--rebase] [dir]' }
+  Require-Project $dir
+  $change = Join-Path $dir "espec/changes/$name"
+  if (-not (Test-Path -LiteralPath $change -PathType Container)) { Fail "change not found: $change" }
+  $base = (Resolve-Path -LiteralPath $change).Path
+  $specDir = Join-Path $change 'specs'
+  $specs = @()
+  if (Test-Path -LiteralPath $specDir) { $specs = @(Get-ChildItem -LiteralPath $specDir -Recurse -File -Filter 'spec.md' | Sort-Object FullName) }
+  foreach ($s in $specs) {
+    $label = Get-RelativePath $base $s.FullName
+    $cap = Get-Capability $change $s.FullName
+    $main = Join-Path $dir "espec/specs/$cap/spec.md"
+    $entries = @(Get-DeltaEntries $s.FullName)
+    $map = @{}
+    foreach ($e in $entries) {
+      if (@('MODIFIED', 'REMOVED') -cnotcontains $e.Section) { continue }
+      $n = $e.Name
+      $target = Get-BaseTarget $main $n $entries
+      if (-not $target) { Write-Output "  $Cross ${label}: $($e.Section) '$n' is not in espec/specs/$cap/spec.md"; $refused = $true; continue }
+      $h = Get-BlockHash (Get-ReqBlock $main $target)
+      if ($e.Stamp -ceq $h) { Write-Output "  unchanged  ${label}: $n" }
+      elseif (-not $e.Stamp) { Write-Output "  stamped    ${label}: $n ($h)" }
+      elseif ($rebase) { Write-Output "  rebased    ${label}: $n ($($e.Stamp) -> $h)" }
+      else {
+        Write-Output "  $Cross ${label}: '$n' changed in the main spec since it was stamped ($($e.Stamp), now $h)."
+        Write-Output "    Merge the new text into the delta, then run: espec/bin/espec.ps1 stamp $name --rebase"
+        $refused = $true; continue
+      }
+      $map[$n] = $h
+    }
+    if ($map.Count -eq 0) { continue }
+    # Write each stamp right under its heading and drop any older stamp in the same block.
+    $out = New-Object System.Collections.Generic.List[string]; $sec = ''; $inBlock = $false
+    foreach ($line in @(Get-Lines $s.FullName)) {
+      $t = $line.TrimEnd(' ', "`t")
+      if ($t -cmatch '^## (.*)$') { $sec = $Matches[1] -creplace ' Requirements$', ''; $inBlock = $false }
+      if ($t -cmatch '^### ') { $inBlock = $false }
+      if ($inBlock -and $t -cmatch $StampPattern) { continue }
+      $out.Add($line)
+      if ($t -cmatch '^### Requirement:(.*)$' -and @('MODIFIED', 'REMOVED') -ccontains $sec) {
+        $n = $Matches[1].Trim(' ', "`t")
+        if ($map.ContainsKey($n)) { $out.Add("<!-- espec:base $($map[$n]) -->"); $inBlock = $true }
+      }
+    }
+    [System.IO.File]::WriteAllText($s.FullName, ($out.ToArray() -join "`n"))
+  }
+  if ($refused) { exit 1 }
+}
+
+function Test-Change([string]$Change, [string]$Dir) {
   Write-Output "Change: $(Split-Path -Leaf $Change)"
   Test-Meta $Change
   Test-PullRequest $Change
@@ -452,6 +686,9 @@ function Test-Change([string]$Change) {
     Write-Output '  - no delta specs yet (expected after the tech proposal)'
   }
   foreach ($s in $specs) { Test-Spec $s.FullName 'delta' (Get-RelativePath $base $s.FullName) }
+  if ((Get-YamlValue (Join-Path $Change '.espec.yaml') 'status') -cne 'cancelled') {
+    foreach ($s in $specs) { Test-DeltaBase $Change $s.FullName $Dir (Get-RelativePath $base $s.FullName) }
+  }
   Test-Tasks $Change
 }
 
@@ -461,7 +698,7 @@ function Test-MainSpecs([string]$Dir) {
   if (Test-Path -LiteralPath $root) {
     $base = (Resolve-Path -LiteralPath $root).Path
     $specs = @(Get-ChildItem -LiteralPath $base -Recurse -File -Filter 'spec.md' |
-      Where-Object { $depth = (Get-RelativePath $base $_.FullName).Split('/').Count; $depth -ge 2 -and $depth -le 3 } |
+      Where-Object { (Get-RelativePath $base $_.FullName).Split('/').Count -ge 2 } |
       Sort-Object FullName)
   }
   if ($specs.Count -eq 0) { Write-Output 'Main specs: none yet'; return }
@@ -480,9 +717,9 @@ function Invoke-Validate([string[]]$Arguments) {
   if ($name) {
     $change = Join-Path $dir "espec/changes/$name"
     if (-not (Test-Path -LiteralPath $change -PathType Container)) { Fail "change not found: $change" }
-    Test-Change $change
+    Test-Change $change $dir
   } else {
-    foreach ($c in @(Get-ChangeDirs $dir)) { Test-Change $c.FullName }
+    foreach ($c in @(Get-ChangeDirs $dir)) { Test-Change $c.FullName $dir }
   }
   Test-MainSpecs $dir
   Write-Output ''
@@ -500,6 +737,9 @@ switch ($Command.ToLowerInvariant()) {
   'new'      { Invoke-New $arguments }
   'list'     { Invoke-List (Get-FirstOrDot $arguments) }
   'validate' { Invoke-Validate $arguments }
+  'stamp'    { Invoke-Stamp $arguments }
+  'version'  { Invoke-Version (Get-FirstOrDot $arguments) }
+  '--version' { Invoke-Version (Get-FirstOrDot $arguments) }
   'help'     { Show-Usage }
   '--help'   { Show-Usage }
   default    { Show-Usage; Fail "unknown command: $Command" }

@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: agent
 description: "espec review · Inspect a tech proposal against its ticket: traceability, forced notes, decisions, constraints, specs, test strategy and open questions. Read-only; prints a report and a ticket comment."
 ---
 
@@ -41,8 +41,12 @@ Input: `${input:change:Change name under espec/changes/ (leave empty to pick fro
 
 7. **Check the specs.** Every acceptance criterion maps to at least one scenario. Scenarios use
    `#### Scenario:` and are testable. MODIFIED blocks are whole. Existing capability paths under
-   `espec/specs/` are reused rather than duplicated. New capabilities carry a `## Purpose`. A change
-   with `skip_specs: true` has no `specs/` folder and no behaviour change in its proposal.
+   `espec/specs/` are reused rather than duplicated. New capabilities carry a `## Purpose`. Every
+   MODIFIED and REMOVED requirement carries a base stamp that still matches the main spec: run
+   `espec/bin/espec validate <change-name>` when you can run commands; a stamp failure is blocking,
+   because the delta would overwrite a newer version of the requirement. A change with
+   `skip_specs: true` has no `specs/` folder and no behaviour change in its proposal, or is a bug
+   (`kind: bug`) whose Traceability names the main spec scenarios that already describe the fix.
 
 8. **Check the test strategy and tasks.** Every `EC-n` has a test at a named level. The
    `## QA verification` group has one `Q.n` per `AC-n`. Non-functional checks exist for the constraints.

@@ -73,7 +73,14 @@ that is in the example folder, which is why its status line says Approved.
    traceability table is complete, QA accepted the test strategy, no blocking Question for Product
    is open. Product does not approve the how; product answers the questions.
 5. **Merge.** `.espec.yaml` stays at `proposed`; that status now means approved, because the file is
-   on `main` with the Approved status line.
+   on `main` with the Approved status line. With CODEOWNERS and code owner review turned on
+   ([engineering setup, step 5](setup-engineering.md#step-5-protect-approval-and-the-main-specs)),
+   the line cannot reach `main` without the named approvers.
+
+Approval covers the proposal as approved. When a decision, the scope or observable behaviour changes
+later, in this pull request or during implementation, the status line goes back to **In review**,
+the implementation command stops, and the reviewer approves the new version. Wording fixes and
+checked tasks need no re-approval.
 
 ### Saving the report
 

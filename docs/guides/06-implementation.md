@@ -73,7 +73,8 @@ Answer the pause, do not route around it. The two answers that keep the artifact
 | The pause says | Answer |
 |---|---|
 | "This needs X, which the proposal does not describe" | Decide. If X is small and changes no observable behaviour, "add it as a new task N.M in this group". If it changes behaviour, "propose the delta spec change", review the proposed text, and tell the reviewer in the pull request. The main specs are never edited here. |
-| "The design does not work because Y" | Stop coding. The fix is a tech proposal update: the decision changes, the proposal is re-reviewed (a short follow-up on the proposal pull request is enough), then implementation continues. Improvising around a design problem is how specs and code drift. |
+| "The design does not work because Y" | Stop coding. The fix is a tech proposal update: the decision changes and the status line goes back to **In review**, which stops the command. The reviewer approves the new version (a short follow-up pull request on the proposal is enough), then implementation continues. Improvising around a design problem is how specs and code drift. |
+| "This is a bug: write the failing test first" | For `kind: bug`, the first task reproduces the bug in a test and runs it to see it fail. Do not let it skip to the fix: the failing test is the proof the fix fixes the reported problem. |
 
 ### QA verification
 

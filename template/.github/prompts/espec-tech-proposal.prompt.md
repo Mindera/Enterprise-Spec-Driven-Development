@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: agent
 description: "espec phase 2 · Tech Proposal: turn a feature definition into the how (architecture, APIs, data, decisions), delta specs and an implementation task list."
 ---
 
@@ -22,7 +22,15 @@ Input: `${input:source:Change name, ticket key or URL, or a pasted feature defin
    - A ticket key, URL or pasted definition → run the Import mode of
      `/espec:feature-definition` first (fetch or ask for the text, review it, store
      `feature.md` and `.espec.yaml`), then continue.
+   - A bug report (a ticket that describes broken behaviour rather than a feature) → create the
+     change with `espec/bin/espec new <name> --kind bug` (or `espec.ps1`), fill `feature.md` from the
+     report in the bug format of AGENTS.md, and continue. **Bug fixes** in AGENTS.md says what is
+     different from here on.
    - Nothing usable → ask for one of the above and stop.
+
+   When `tech-proposal.md` already exists and its status line reads **Approved**, this run revises an
+   approved proposal: set the status line to **In review** before changing anything, and say so in
+   the report. The reviewer approves again; implementation stops until they do.
 
 2. **Check readiness.** Re-read `feature.md` from disk. Run the review checklist from the feature
    definition prompt. When the definition is not Ready for tech proposal, list the gaps and ask whether
@@ -50,6 +58,12 @@ Input: `${input:source:Change name, ticket key or URL, or a pasted feature defin
    scenario, and every scenario uses `#### Scenario:` with four hashes. When the change has no
    observable behaviour change, set `skip_specs: true` in `.espec.yaml`, create no `specs/` folder and
    say so.
+   Then record the base of every MODIFIED and REMOVED requirement: run
+   `espec/bin/espec stamp <change-name>` (`espec\bin\espec.ps1 stamp <change-name>` on Windows). It
+   writes `<!-- espec:base <hash> -->` under each heading. When you cannot run commands, tell the
+   developer to run it before the proposal pull request; `espec validate` fails without it. When stamp
+   reports that a requirement changed in the main spec, re-read it, merge the new text into the delta,
+   and run `stamp <change-name> --rebase`.
 
 6. **Write `tasks.md`** from `espec/templates/tasks.md`, following the Tasks format. Each task states
    its verification. Each group lands its own tests. Tasks cite the `AC-n` and `EC-n` they satisfy.
@@ -75,7 +89,8 @@ Input: `${input:source:Change name, ticket key or URL, or a pasted feature defin
   acceptance criteria. Record minor assumptions in the proposal.
 - Never leave "explore the codebase" or "decide the approach" as tasks. Do that now.
 - Do not restate the why. Link to `feature.md`.
-- Read existing main specs in full before writing a delta against them.
+- Read existing main specs in full before writing a delta against them. Never write or edit a base
+  stamp by hand; `espec stamp` computes it.
 - Compute the coverage report from the files, not from what you meant to write. A Partial you cannot
   close now stays a Partial; the inspection and the reviewer check the same claims.
 - End the reply with the usage line from the **Usage report** section of AGENTS.md.

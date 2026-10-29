@@ -134,6 +134,30 @@ operations, each a `## ... Requirements` section.
 
 A new capability keeps the `## Purpose` section. An existing capability deletes it.
 
+### Base stamps
+
+A MODIFIED requirement is a copy of the main spec, edited. If another change edits the same
+requirement and is archived first, archiving this delta would silently overwrite that edit. So every
+MODIFIED and REMOVED requirement records the version it was written against, right under its heading:
+
+```markdown
+### Requirement: Export limit
+<!-- espec:base 3f9c1a07be42 -->
+The system SHALL refuse an export of more than 50,000 invoices.
+```
+
+The hash covers the main spec requirement block (heading to the next heading, trailing blanks
+ignored). Nobody writes it by hand:
+
+| Command | Does |
+|---|---|
+| `espec/bin/espec stamp <change-name>` | Writes the stamp under every MODIFIED and REMOVED requirement that has none. The tech proposal runs it after writing the deltas. |
+| `espec/bin/espec validate` | Fails when a stamp is missing, or when the main spec requirement no longer matches it. Runs in CI on every pull request that touches `espec/`. |
+| `espec/bin/espec stamp <change-name> --rebase` | After you have merged the newer main spec text into the delta, records the new version. Without `--rebase`, stamp refuses to overwrite a stamp that no longer matches. |
+
+A MODIFIED requirement under a name that a RENAMED entry introduces is stamped against the old name.
+Archive never copies a stamp into a main spec, and `espec validate` fails a main spec that holds one.
+
 ### Worked example
 
 The main spec `espec/specs/invoice-export/spec.md` holds four requirements: **Export current
@@ -161,6 +185,7 @@ due date, total and status, in that order.
 ## MODIFIED Requirements
 
 ### Requirement: Export limit
+<!-- espec:base 3f9c1a07be42 -->
 The system SHALL refuse an export of more than 50,000 invoices.
 
 #### Scenario: Too many rows
@@ -174,6 +199,7 @@ The system SHALL refuse an export of more than 50,000 invoices.
 ## REMOVED Requirements
 
 ### Requirement: XML export
+<!-- espec:base 8d21e0c4f5a9 -->
 **Reason:** No customer has used XML since 2024. Product confirmed the removal in BILL-142.
 **Migration:** CSV covers every known use. Saved XML presets open as CSV on first use.
 
@@ -187,8 +213,9 @@ After archive the main spec holds, in this order: **Export current filter** (unt
 body under its new name) and **CSV column set** (new). **XML export** is gone. The `## Purpose` is
 unchanged. No `## ADDED Requirements` or other delta heading remains.
 
-A change with no behaviour change (refactor, tooling, docs) sets `skip_specs: true` in `.espec.yaml`
-and has no `specs/` folder. Do not invent a requirement to fill it.
+A change that needs no main spec change sets `skip_specs: true` in `.espec.yaml` and has no `specs/`
+folder: a refactor, tooling or docs change, or a bug fix that restores behaviour the main specs already
+describe (see [Bug fixes](../template/espec/AGENTS.md#bug-fixes)). Do not invent a requirement to fill it.
 
 ## Tasks and checkbox rules
 
@@ -299,22 +326,23 @@ Capabilities are named for what the system does, not for the change that introdu
 ```yaml
 ticket: BILL-142                 # Jira key or GitHub issue URL
 title: Export invoices as CSV
+kind: feature                    # feature | bug
 status: proposed                 # defined | proposed | in-progress | implemented | archived | cancelled
 created: 2026-10-24
 owners:
   product: <name>
   engineering: <name>
   qa: <name>
-skip_specs: false                # true only when no observable behaviour changes
+skip_specs: false                # true only when the main specs need no change
 ```
 
 | Status | Set by | Meaning |
 |---|---|---|
 | `defined` | Phase 1 | `feature.md` exists and is Ready for tech proposal |
-| `proposed` | Phase 2 | `tech-proposal.md`, `specs/` (or `skip_specs: true`) and `tasks.md` exist. Approval is the **Status: Approved** line in `tech-proposal.md`, which implementation checks |
+| `proposed` | Phase 2 | `tech-proposal.md`, `specs/` (or `skip_specs: true`) and `tasks.md` exist. Approval is the **Status: Approved** line in `tech-proposal.md`, which implementation checks. A later change to a decision, scope or behaviour sets it back to In review |
 | `in-progress` | Phase 3 | At least one task is checked |
 | `implemented` | Phase 3 | Every task is checked |
-| `archived` | Phase 4 | Folder moved under `changes/archive/`. Archive also adds `archived: YYYY-MM-DD`, and `archived_with_open_tasks: <reason>` when the user chose to archive early |
+| `archived` | Phase 4 | Folder moved under `changes/archive/`. Archive also adds `archived: YYYY-MM-DD`, `archived_with_open_tasks: <reason>` when the user chose to archive early, and `archived_without_sync: <reason>` when the deltas were not applied |
 | `cancelled` | Phase 4 | The change will not ship. Archive moves the folder under `changes/archive/` without applying its deltas and records `cancelled: YYYY-MM-DD` and `cancelled_reason`. Never evidence for archive-clean |
 
 The file stays with the folder. It is the audit record of the change.
@@ -335,12 +363,15 @@ step shows a plan, and stops on the first conflict before it moves anything:
 | Situation | Result |
 |---|---|
 | MODIFIED or REMOVED heading not found in the main spec | Conflict. Stop. |
+| MODIFIED or REMOVED base stamp no longer matches the main spec | Conflict. Stop. Merge the newer text into the delta, then `espec stamp <change-name> --rebase` |
 | Delta only MODIFIES or REMOVES, and the capability has no main spec | Conflict. Stop. |
 | ADDED heading already present with identical content | Already synced. Skip it. |
 | ADDED heading already present with different content | Conflict. Stop. |
 | Delta has `## Purpose` and ADDED requirements, and no main spec exists | New main spec created from `templates/main-spec.md` |
 
-After applying, every touched main spec is verified: no delta headings remain, every requirement has
+`espec validate` reports every one of these conflicts on each pull request, long before archive.
+
+After applying, every touched main spec is verified: no delta headings or base stamps remain, every requirement has
 a scenario, names are unique, and a second pass finds nothing left to apply. Only then does the
 folder move to `espec/changes/archive/YYYY-MM-DD-<change-name>/`. An existing archive folder is
 never overwritten.

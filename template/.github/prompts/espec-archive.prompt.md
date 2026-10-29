@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: agent
 description: "espec phase 4 · Archive: fold a finished change's delta specs into the main specs and move the change to the archive."
 ---
 
@@ -33,19 +33,27 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
      from `## Purpose` plus ADDED requirements when none exists.
    - Detect conflicts as defined in AGENTS.md (MODIFIED or REMOVED heading missing in the main spec,
      MODIFIED or REMOVED against a capability with no main spec, ADDED heading already present with
-     different content). A conflict stops the archive. Nothing has moved yet, so the user can fix
-     the delta and run again.
+     different content, a base stamp that no longer matches the main spec). Run
+     `espec/bin/espec validate <change-name>` when you can run commands; it reports all of them. A
+     conflict stops the archive. Nothing has moved yet, so the user can fix the delta and run again.
+     For a stamp conflict, another change has edited the requirement since this delta was written:
+     show both versions, merge the newer main spec text into the delta with the user, then run
+     `espec/bin/espec stamp <change-name> --rebase`.
    - Show the combined plan and ask: "Sync and archive", "Archive without syncing", or "Cancel".
+     "Archive without syncing" is for deltas already applied another way. Ask for the reason and
+     record it in `.espec.yaml` as `archived_without_sync: <reason>` and in the release note.
 
 4. **Apply the sync** (only after "Sync and archive"), one capability at a time, in the order
    RENAMED → REMOVED → MODIFIED → ADDED. Match headings by exact text after trimming whitespace.
    Keep everything the delta does not mention exactly as it was, including the existing `## Purpose`.
+   Never copy a `<!-- espec:base ... -->` stamp line into a main spec; it belongs to the delta.
    A new main spec starts from `espec/templates/main-spec.md`, takes the delta's Purpose verbatim, and
    gets a `## Requirements` section holding the ADDED requirements.
 
 5. **Verify** each touched main spec: no delta headings remain (`## ADDED Requirements`,
    `## MODIFIED Requirements`, `## REMOVED Requirements`, `## RENAMED Requirements`), every
-   requirement has at least one `#### Scenario:`, requirement names are unique. Then re-run the plan
+   requirement has at least one `#### Scenario:`, requirement names are unique, no base stamp line
+   remains. Then re-run the plan
    from step 3 and confirm there is nothing left to apply. Any mismatch: report and stop before moving.
 
 6. **Move the change.** Target is `espec/changes/archive/YYYY-MM-DD-<change-name>/` using today's
@@ -66,7 +74,7 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
 
 **Change:** <change-name>
 **Archived to:** espec/changes/archive/<YYYY-MM-DD-change-name>/
-**Specs:** ✓ synced (<capabilities>) | no delta specs | sync skipped | not applied (cancelled)
+**Specs:** ✓ synced (<capabilities>) | no delta specs | sync skipped: <reason> | not applied (cancelled)
 **Tasks:** 12/12 complete | archived with 2 open tasks: <reason>
 ```
 

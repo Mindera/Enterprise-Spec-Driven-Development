@@ -109,7 +109,7 @@ delta specs as a proposed tech proposal update, which the user confirms.
 | Input | A change name. Empty input auto-selects when exactly one active change exists. |
 | Reads | `AGENTS.md`. `tasks.md` (checkbox count), `.espec.yaml`, every delta under `specs/`, and the matching main specs in `espec/specs/`. |
 | Writes | `espec/specs/<capability>/spec.md` for every capability the deltas touch, in the order RENAMED, REMOVED, MODIFIED, ADDED. A new main spec from `espec/templates/main-spec.md` when the capability is new. `.espec.yaml` gets `status: archived` and `archived: YYYY-MM-DD`. The folder moves to `espec/changes/archive/YYYY-MM-DD-<change-name>/`. A change that will not ship gets `status: cancelled` with the date and reason and moves without a sync. |
-| Pauses when | Tasks are unchecked: asks whether to archive anyway and records the reason. The user says the change will not ship: asks for the reason and cancels it. `tech-proposal.md` or `specs/` is missing without `skip_specs`. Always, after showing the sync plan: "Sync and archive", "Archive without syncing" or "Cancel". A conflict is found: stops before moving anything. Before posting the release note or transitioning the ticket: only when asked. |
+| Pauses when | Tasks are unchecked: asks whether to archive anyway and records the reason. The user says the change will not ship: asks for the reason and cancels it. `tech-proposal.md` or `specs/` is missing without `skip_specs`. Always, after showing the sync plan: "Sync and archive", "Archive without syncing" (asks for the reason and records it) or "Cancel". A conflict is found: stops before moving anything. Before posting the release note or transitioning the ticket: only when asked. |
 | Output | An "Archive complete" block: change, archive path, specs synced or skipped, task count. A release note for the ticket: what shipped, which capabilities changed, what was deferred. |
 
 ## /espec:archive-clean
@@ -212,20 +212,24 @@ bash espec/bin/espec validate           # from inside a project, no toolkit need
 
 | Command | What it does | Touches |
 |---|---|---|
-| `espec init [dir]` | Copies `template/` into a repository and prints the next steps. Never overwrites an existing file. | `.github/` and `espec/` in the target repo |
-| `espec update [dir]` | Refreshes the managed files: the `espec-*` prompts, `espec.instructions.md`, the `espec-validate.yml` workflow, `AGENTS.md`, `templates/` and `espec/bin/`. Leaves `copilot-instructions.md`, `project.md`, `config.yaml`, `specs/` and `changes/` alone. | Managed files only |
-| `espec new <change-name> [--ticket KEY] [--title "Title"] [dir]` | Scaffolds `espec/changes/<change-name>/` from `espec/templates/`: `feature.md`, `tech-proposal.md`, `tasks.md`, an empty `specs/` and a `.espec.yaml` with the ticket, title and today's date. The name must be kebab-case. | `espec/changes/<change-name>/` |
+| `espec init [dir]` | Copies `template/` into a repository and prints the next steps. Never overwrites an existing file. Copies the licence to `espec/LICENSE.md` and records the toolkit version in `espec/.toolkit-version`. | `.github/` and `espec/` in the target repo |
+| `espec update [dir]` | Refreshes the managed files: the `espec-*` prompts, `espec.instructions.md`, the `espec-validate.yml` workflow, `AGENTS.md`, `templates/`, `espec/bin/`, `espec/LICENSE.md` and `espec/.toolkit-version`, and prints the version it moves from and to. Leaves `copilot-instructions.md`, `CODEOWNERS`, `project.md`, `config.yaml`, `specs/` and `changes/` alone. | Managed files only |
+| `espec version [dir]` | Prints the toolkit version the project was set up or last updated with. | Nothing |
+| `espec new <change-name> [--ticket KEY] [--title "Title"] [--kind feature\|bug] [dir]` | Scaffolds `espec/changes/<change-name>/` from `espec/templates/`: `feature.md` (from `bug.md` with `--kind bug`), `tech-proposal.md`, `tasks.md`, an empty `specs/` and a `.espec.yaml` with the ticket, title, kind and today's date. The name must be kebab-case. | `espec/changes/<change-name>/` |
+| `espec stamp <change-name> [--rebase] [dir]` | Writes the [base stamp](conventions.md#base-stamps) under every MODIFIED and REMOVED requirement of the change's deltas. Refuses to replace a stamp whose main spec requirement has changed since, unless `--rebase` is given after the delta has been merged with the newer text. | The change's delta specs |
 | `espec list [dir]` | Lists active changes with name, status and ticket from `.espec.yaml` and task progress counted from `tasks.md`, plus the number of archived changes. | Nothing |
-| `espec validate [change-name] [dir]` | Checks one change, or every active change, plus the main specs: the feature definition marker, required sections and `UC`, `EC`, `AC` ids, the ⚠️ marker on forced notes, leftover placeholders, delta section names, `#### Scenario:` with four hashes, every requirement has a scenario, a Reason on every REMOVED requirement, unique requirement names, the `- [ ] N.M` task format, the sections and status line of `tech-proposal.md` with every `UC`, `EC` and `AC` in its Traceability table and every `FT-n` in its review (Approved once implementation has started), a valid `.espec.yaml` status, and the sections of `pull-request.md` once a change is implemented. Exits non-zero on a failure, so it can run in CI. | Nothing |
+| `espec validate [change-name] [dir]` | Checks one change, or every active change, plus the main specs: the feature definition marker, required sections and `UC`, `EC`, `AC` ids, the ⚠️ marker on forced notes, leftover placeholders, delta section names, `#### Scenario:` with four hashes, every requirement has a scenario, a Reason on every REMOVED requirement, unique requirement names, every delta still applying to the main spec as it is today (MODIFIED, REMOVED and RENAMED headings present, ADDED headings not present with other content, base stamps matching), no base stamp left in a main spec, the `- [ ] N.M` task format, the sections and status line of `tech-proposal.md` with every `UC`, `EC` and `AC` in its Traceability table and every `FT-n` in its review (Approved once implementation has started), a valid `.espec.yaml` status and kind (a bug needs Steps to reproduce and `AC` ids instead of `UC` and `EC`, and a shorter proposal), and the sections of `pull-request.md` once a change is implemented. Exits non-zero on a failure, so it can run in CI. | Nothing |
 
 `[dir]` defaults to the current directory. `init` and `update` run from the toolkit checkout; `new`,
-`list` and `validate` also run from `espec/bin/` inside a project. Run `validate` before you ask for
+`list`, `validate`, `stamp` and `version` also run from `espec/bin/` inside a project. Run `validate` before you ask for
 a tech proposal review. Run `update` after pulling a new espec release, then commit the result.
 
 ### Validation in CI
 
 `init` adds `.github/workflows/espec-validate.yml` to the project. It runs `espec/bin/espec validate`
-on every pull request that touches `espec/`, and on demand. Because the validator ships with the
+on every pull request that touches `espec/`, and on demand. On a pull request it also fails when
+`espec/specs/` changes but nothing was added under `espec/changes/archive/`: main specs change only
+through archive and archive-clean. Because the validator ships with the
 project, the job needs no network access and no checkout of this toolkit. A draft change committed
 with template placeholders fails the check, which is the point: fill the definition in, or keep the
 draft on a branch until it is ready.

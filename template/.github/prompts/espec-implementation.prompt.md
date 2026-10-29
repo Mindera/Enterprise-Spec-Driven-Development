@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: agent
 description: "espec phase 3 · Implementation: implement the tasks of an approved change, following its tech proposal and specs, check tasks off as they are verified, and write a pull request description that reads without the code."
 ---
 
@@ -32,7 +32,9 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
 
 5. **Implement, task by task, until done or blocked.** For each pending task:
    - Say which task you are working on.
-   - Make the smallest change that satisfies the task and the scenarios it cites.
+   - Make the smallest change that satisfies the task and the scenarios it cites. For a bug
+     (`kind: bug` in `.espec.yaml`), the first task writes a test that reproduces the bug and fails;
+     run it and see it fail before you change any code.
    - Run the verification the task names (test, command, observable behaviour).
    - Only then change `- [ ]` to `- [x]` on that exact line. When the line no longer matches the
      task, re-read `tasks.md` and find it again.
@@ -43,6 +45,10 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
    - The task needs work the tech proposal or specs do not describe.
    - You are tempted to narrow, defer, simplify or accept an exception to specified behaviour.
    - Implementation reveals a design problem. Propose the artifact change; do not improvise around it.
+     When the user accepts a change to the tech proposal, the delta specs or the tasks that alters a
+     decision, scope or observable behaviour, set the status line of `tech-proposal.md` to
+     **In review**, make the change, and stop: the reviewer approves again before implementation
+     continues. A wording fix or a new task that changes none of those does not need re-approval.
    - A test fails for a reason outside the task.
    Surface the issue, give options, and wait.
 
@@ -88,5 +94,6 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
   result. A difference from the tech proposal that changes observable behaviour also updates the
   change's delta specs, which you propose and the user confirms.
 - Do not edit `espec/specs/` in this phase. Behaviour changes go in the change's delta specs, and
-  that is a tech proposal update, which you propose and the user confirms.
+  that is a tech proposal update, which you propose and the user confirms. After editing a MODIFIED
+  or REMOVED requirement, run `espec/bin/espec stamp <change-name>`.
 - End the reply with the usage line from the **Usage report** section of AGENTS.md.

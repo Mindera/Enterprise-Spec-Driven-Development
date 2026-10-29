@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Version hygiene for the espec toolkit.
 
-Fails when VERSION is not X.Y.Z, when README.md does not show the same vX.Y.Z, or, given a base
-ref, when files changed against that ref but VERSION was not raised above it.
+Fails when VERSION is not X.Y.Z, when README.md does not show the same vX.Y.Z, when CHANGELOG.md has
+no "## vX.Y.Z" entry for it, or, given a base ref, when files changed against that ref but VERSION was
+not raised above it.
 Run from anywhere: python3 scripts/ci/check-version.py [base-ref]
 """
 import re
@@ -37,6 +38,11 @@ def main() -> int:
         problems.append(f"README.md: version badge does not show {tag}")
     if f"current version is **{tag}**" not in readme:
         problems.append(f"README.md: 'current version' line does not show {tag}")
+
+    changelog = ROOT / "CHANGELOG.md"
+    headings = changelog.read_text(encoding="utf-8").splitlines() if changelog.exists() else []
+    if not any(line.split()[:2] == ["##", tag] for line in headings):
+        problems.append(f"CHANGELOG.md: no '## {tag}' entry")
 
     if len(sys.argv) > 1:
         base = sys.argv[1]

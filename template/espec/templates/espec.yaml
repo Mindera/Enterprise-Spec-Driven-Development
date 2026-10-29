@@ -1,13 +1,15 @@
 ticket: <PROJ-123 or issue URL>
 title: <title>
+kind: feature                    # feature | bug
 status: defined                  # defined | proposed | in-progress | implemented | archived | cancelled
 created: <YYYY-MM-DD>
 owners:
   product: <name>
   engineering: <name>
   qa: <name>
-skip_specs: false                # true only when no observable behaviour changes
+skip_specs: false                # true only when the main specs need no change (see AGENTS.md)
 # archived: <YYYY-MM-DD>                  # set by /espec:archive
 # archived_with_open_tasks: <reason>      # set by /espec:archive when archiving early
+# archived_without_sync: <reason>         # set by /espec:archive when the deltas were not applied
 # cancelled: <YYYY-MM-DD>                 # set by /espec:archive when the change will not ship
 # cancelled_reason: <reason>              # set together with cancelled

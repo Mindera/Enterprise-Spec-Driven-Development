@@ -42,6 +42,8 @@ with a dash: `/espec-feature-definition`, `/espec-tech-proposal`, `/espec-implem
 ```
 espec/
 ├── AGENTS.md                     # This file: conventions for humans and AI
+├── LICENSE.md                    # The toolkit's licence, copied by init and update
+├── .toolkit-version              # The toolkit version, written by init and update
 ├── project.md                    # Project context: stack, conventions, ticketing, teams
 ├── config.yaml                   # Ticket system, rules, archive settings
 ├── specs/                        # The system as it is today (one folder per capability)
@@ -62,7 +64,7 @@ espec/
 │       └── YYYY-MM-DD-archive-clean/
 │           └── cleanup.md
 ├── templates/                    # Blank files the commands start from
-└── bin/                          # espec validate, new, list (copied by init, refreshed by update)
+└── bin/                          # espec validate, new, list, stamp, version (copied by init, refreshed by update)
 ```
 
 `<capability>` is a kebab-case name for a durable system behaviour (`invoice-export`, `user-auth`),
@@ -242,6 +244,10 @@ Rules:
   When something cannot be traced, say so in **Questions for Product**.
 - Questions for Product go back to the ticket. The tech proposal is not approved while a blocking
   question is open.
+- Approval holds for the proposal as approved. Any later change to `tech-proposal.md`, the delta
+  specs or `tasks.md` that alters a decision, scope or observable behaviour sets the status line back
+  to **In review**, during the proposal or the implementation, and the reviewer approves again.
+  Wording fixes and checked tasks do not.
 
 ## Spec format (main specs in `espec/specs/`)
 
@@ -291,10 +297,12 @@ A delta states only what changes in a capability. It is applied to the main spec
 
 ## MODIFIED Requirements
 ### Requirement: <existing name>
+<!-- espec:base <hash> -->
 ...the FULL updated requirement, every scenario included, not a diff...
 
 ## REMOVED Requirements
 ### Requirement: <existing name>
+<!-- espec:base <hash> -->
 **Reason:** <why>
 **Migration:** <what replaces it, if anything>
 
@@ -310,8 +318,16 @@ Rules:
 - MODIFIED must carry the whole requirement block. Partial content loses detail at archive time.
   If you only add new concerns to an existing capability, use ADDED instead.
 - REMOVED needs a reason and a migration note.
-- A change with no behaviour change (pure refactor, tooling, docs) sets `skip_specs: true` in
-  `.espec.yaml` and has no `specs/` folder. Do not invent a requirement to fill the folder.
+- Every MODIFIED and REMOVED requirement carries a **base stamp**, `<!-- espec:base <hash> -->`, right
+  under its heading: the hash of the main spec requirement it was written against. Never write it by
+  hand: `espec/bin/espec stamp <change-name>` writes it. `espec validate` fails when the requirement
+  has changed in the main spec since, which is how two changes editing the same requirement are kept
+  from overwriting each other. Then re-read the main spec, merge its new text into the delta, and run
+  `espec/bin/espec stamp <change-name> --rebase`. A MODIFIED requirement that follows a RENAMED entry
+  is stamped against the old name.
+- `skip_specs: true` in `.espec.yaml` means the main specs need no change, and the change has no
+  `specs/` folder: a pure refactor, tooling or docs change, or a bug fix that restores behaviour the
+  main specs already describe. Do not invent a requirement to fill the folder.
 
 ## Tasks format (`tasks.md`)
 
@@ -548,20 +564,40 @@ The verdict is **Approve** only with zero blocking findings. An untraced `UC-n`,
 `FT-n` without a verdict, an acceptance criterion without a scenario, an unresolved ticket difference,
 an open blocking Question for Product and a constraint with no home are always blocking.
 
+## Bug fixes
+
+A bug is code that does not do what was intended. It follows the same phases with less paper.
+
+- Start it with `espec/bin/espec new <change-name> --kind bug`. `.espec.yaml` gets `kind: bug` and
+  `feature.md` starts from `templates/bug.md`: Why (who is affected and how often), What (expected
+  versus actual behaviour, naming the main spec scenario the code breaks when there is one), Steps to
+  reproduce, Out of scope, Acceptance criteria (`AC-n` only, no `UC-n` or `EC-n`) and Open questions.
+  It keeps the feature definition marker, so every command recognises it.
+- The tech proposal needs only Context (the root cause, with paths), Approach, Traceability, Test
+  strategy and Questions for Product. Add other sections when the fix touches them.
+- The first task writes a test that reproduces the bug and fails before the fix.
+- Specs: when the main specs already describe the correct behaviour, set `skip_specs: true` and name
+  that scenario in the Traceability table. When they do not, the intended behaviour was never
+  specified: write the delta (ADDED or MODIFIED) like any change.
+- Approval, implementation, review and archive are unchanged. A one-line fix still gets a change
+  folder: the archive is the record of why the behaviour changed.
+
 ## Change lifecycle (`.espec.yaml`)
 
 ```yaml
 ticket: PROJ-123                 # Jira key or GitHub issue URL
 title: Export invoices as CSV
+kind: feature                    # feature | bug
 status: defined                  # defined | proposed | in-progress | implemented | archived | cancelled
 created: 2026-10-24
 owners:
   product: <name>
   engineering: <name>
   qa: <name>
-skip_specs: false                # true only when no observable behaviour changes
+skip_specs: false                # true only when the main specs need no change
 archived: 2026-11-02             # set by /espec:archive
 archived_with_open_tasks: ""     # set by /espec:archive when the user chose to archive early, with the reason
+archived_without_sync: ""        # set by /espec:archive when the deltas were not applied, with the reason
 cancelled: 2026-11-02            # set by /espec:archive when the change will not ship
 cancelled_reason: ""             # why, set together with cancelled
 ```
@@ -570,6 +606,10 @@ cancelled_reason: ""             # why, set together with cancelled
 - `proposed`: `tech-proposal.md`, `specs/` (or `skip_specs`) and `tasks.md` exist. Approval is the
   **Status: Approved** line in `tech-proposal.md`, set by the reviewer. Implementation does not start
   without it, and `espec validate` fails a change that is `in-progress` on an unapproved proposal.
+  A change to an approved proposal that alters a decision, scope or behaviour sets the line back to
+  In review (see the Tech proposal rules). The line is a claim anyone can type: the repository makes
+  it binding by requiring the named approvers' review on `tech-proposal.md` (CODEOWNERS and branch
+  protection, set up once per repository).
 - `in-progress`: at least one task is checked.
 - `implemented`: every task is checked and `pull-request.md` exists.
 - `archived`: folder moved under `changes/archive/`.
@@ -585,13 +625,17 @@ cancelled_reason: ""             # why, set together with cancelled
 3. A new capability is created from the delta's `## Purpose` and its ADDED requirements. A delta that
    only MODIFIES or REMOVES requirements of a capability that has no main spec is a conflict: stop.
 4. A MODIFIED or REMOVED heading that does not exist in the main spec is a conflict: stop and report.
-   An ADDED heading that already exists with identical content is already synced; with different
-   content it is a conflict.
+   A base stamp that no longer matches the main spec is a conflict: another change edited the
+   requirement after this delta was written. An ADDED heading that already exists with identical
+   content is already synced; with different content it is a conflict. `espec validate` reports all
+   of these.
 5. After applying, the main spec must contain no delta section headings (`## ADDED Requirements`
-   and friends) and every requirement must still have at least one scenario.
+   and friends) and no base stamp lines, and every requirement must still have at least one scenario.
 6. Move `changes/<change-name>/` to `changes/archive/YYYY-MM-DD-<change-name>/` and set
    `status: archived`. Never overwrite an existing archive folder.
 7. Produce a short release note for the ticket: what shipped, which specs changed, what was deferred.
+   Archiving without syncing the deltas (they were applied another way) needs a reason, recorded as
+   `archived_without_sync` in `.espec.yaml` and in the release note.
 8. A change that will not ship is cancelled instead of archived: set `status: cancelled`, `cancelled`
    and `cancelled_reason` in `.espec.yaml`, skip the spec sync, move the folder as in rule 6, and
    write a note for the ticket saying what was cancelled and why. Its deltas are never applied.
@@ -722,6 +766,7 @@ Usage: <amount> <unit> (<tool>)
 - Phase 3 implements what the specs and tasks say. When a task needs more than the spec describes,
   or you are tempted to narrow, defer or simplify specified behaviour, stop and surface it. Never
   silently reduce scope. Only check a task when its behaviour is fully implemented and verified.
+  An accepted change to the design sets the proposal back to In review and waits for approval.
 - Phase 4 never deletes a spec without evidence and confirmation.
 - Inspect commands and the technical assessment are read-only. They never edit the ticket,
   `feature.md`, the proposal, specs, tasks or code, and they save a report only when asked. The

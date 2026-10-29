@@ -55,7 +55,10 @@ from that file, or map them onto the statuses you have:
 | Status | Who moves it | Meaning |
 |---|---|---|
 | Draft | Product | Definition in progress |
-| Ready for tech proposal | Product | The readiness check passed and the description is final |
+| Ready for tech proposal | Product | The readiness check passed; engineering can investigate |
+| In technical assessment | Engineering | A developer is assessing the ticket against the code with `/espec:assess` |
+| Further discovery required | Engineering | The assessment raised blocking items: a product decision, a confirmation from another team, a spike. Each is in the assessment comment with an owner. Product answers and updates the description; engineering re-assesses |
+| Assessed, ready for tech proposal | Engineering | The assessment outcome is Ready for tech proposal and the description holds the agreed scope |
 | Tech proposal in review | Engineering | The proposal pull request exists; Questions for Product may be in a comment |
 | In progress | Engineering | Implementation started |
 | Done | Engineering | Archived; the release note is the last comment |
@@ -82,8 +85,11 @@ screen. Three things to show:
 - **The readiness check.** Nine lines, each ✅ or ❌ with a fix. The definition is Ready for tech
   proposal only when every line passes.
 
-Then show the hand-off: paste into the ticket, set the status, and what engineering sends back
-(a comment from `/espec:inspect-feature-definition`, and later Questions for Product).
+Then show the hand-off: paste into the ticket, set the status, and what engineering sends back:
+a comment from `/espec:inspect-feature-definition`, then the technical assessment from
+`/espec:assess` (what exists, dependencies on other teams, alternatives for product to decide), and
+later Questions for Product. "Further discovery required" is not a rejection: it is a list of
+decisions and confirmations, each with an owner, after which engineering assesses again.
 
 ## Step 6: give reviewers the review prompt
 

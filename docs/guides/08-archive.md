@@ -54,23 +54,29 @@ Purpose and ADDED requirements. It also lists conflicts:
 | Situation | Result |
 |---|---|
 | A MODIFIED or REMOVED heading is not in the main spec | Conflict. Stop. |
+| A MODIFIED or REMOVED base stamp no longer matches the main spec | Conflict. Stop. Another change edited the requirement after this delta was written |
 | The delta only MODIFIES or REMOVES, and the capability has no main spec | Conflict. Stop. |
 | An ADDED heading is already present with identical content | Already synced. Skip it. |
 | An ADDED heading is already present with different content | Conflict. Stop. |
 
 A conflict stops the archive before anything moves. Nothing is half applied. Fix the delta (usually
 a heading that drifted by a word, or a capability that was renamed by another change since the
-proposal) and run again.
+proposal) and run again. For a stamp conflict, merge the main spec's newer text into the delta so
+neither change's edit is lost, run `espec/bin/espec stamp <change-name> --rebase`, and have the
+reviewer read the merged requirement. `espec validate` reports all of these in CI as soon as the
+other change is archived, so they rarely first appear here.
 
 **Read the plan.** It is the last moment to catch a delta that would overwrite a requirement with a
 partial block. Then answer: "Sync and archive", "Archive without syncing" (for a change whose specs
-were already applied another way) or "Cancel".
+were already applied another way; it asks why and records the reason as `archived_without_sync` in
+`.espec.yaml` and in the release note) or "Cancel".
 
 ### Apply, verify, move
 
 The deltas are applied one capability at a time in the order RENAMED, REMOVED, MODIFIED, ADDED,
 matching headings by exact text. Everything the delta does not mention stays as it was, Purpose
-included. Each touched main spec is then verified: no delta headings remain, every requirement has a
+included. Base stamp lines stay in the archived delta; they never reach a main spec. Each touched
+main spec is then verified: no delta headings remain, every requirement has a
 scenario, names are unique, and a second pass finds nothing left to apply. Only then does the folder
 move to `espec/changes/archive/YYYY-MM-DD-<change-name>/`, with `status: archived` and the date in
 `.espec.yaml`. An existing archive folder is never overwritten.
@@ -118,7 +124,9 @@ specs. On a rhythm, [archive clean](09-archive-clean.md).
 | Conflict: MODIFIED heading not found | Another change renamed or removed the requirement since the proposal, or the heading differs by a character | Open the main spec, fix the heading in the delta (or add a RENAMED entry), run again |
 | Conflict: ADDED heading exists with different content | Two changes added the same requirement with different wording | Decide which text is right; make the delta MODIFIED with the full block, or drop it |
 | The main spec lost scenarios after the sync | A MODIFIED block was partial | Revert the archive commit. Fix the delta to carry the whole requirement. Archive again |
-| Two changes touch the same capability | Normal | Archive in merge order. The second archive reads the main spec as the first left it; expect to adjust its delta |
+| Two changes touch the same capability | Normal | Archive in merge order. The second archive reads the main spec as the first left it. When both edited the same requirement, the second change's base stamp no longer matches: merge, then `stamp --rebase` |
+| CI: "espec/specs/ changed, but no change was archived in this pull request" | A main spec was edited by hand | Revert the edit. Put the change in a delta and archive it, or run archive-clean for corrections |
+| A bad archive reached `main` | Wrong delta, or the wrong change | Revert the archive commit (it holds both the spec edits and the folder move), fix the delta, archive again |
 | The folder already exists under archive with today's date | A previous run moved it | Nothing to do, unless the sync did not happen: check the main spec, then move on |
 | Archive ran before the implementation merged | Order mistake | Revert the archive commit on `main`; run again after the merge |
 | The change will not ship | Scope dropped or superseded | Run `/espec-archive` and say so: it cancels the change with the reason and touches no spec. Do not delete the folder |
