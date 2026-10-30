@@ -25,12 +25,19 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
    **Question for Product** that is still open in `tech-proposal.md` is a pause: show it and ask
    whether product has answered it.
 
-3. **Read the context from disk**: `feature.md`, `tech-proposal.md`, every file under `specs/`, and
-   `tasks.md`. Do not rely on what you remember from earlier in the conversation.
+3. **Start from a new session.** Implementation runs in a new chat or session, so the conversation
+   that wrote or discussed the proposal does not steer the code: the files are the only input. When
+   this conversation already holds earlier work on the change (a tech proposal, an inspection, a
+   discussion of the design), say so and stop with: "Start a new chat or session and run
+   `/espec:implementation <change-name>` there." Continue in this session only when the user
+   explicitly insists, and say that earlier context may bias the result.
 
-4. **Show progress**: `N/M tasks complete`, the next pending tasks, and the group they belong to.
+4. **Read the context from disk**: `feature.md`, `tech-proposal.md`, every file under `specs/`, and
+   `tasks.md`.
 
-5. **Implement, task by task, until done or blocked.** For each pending task:
+5. **Show progress**: `N/M tasks complete`, the next pending tasks, and the group they belong to.
+
+6. **Implement, task by task, until done or blocked.** For each pending task:
    - Say which task you are working on.
    - Make the smallest change that satisfies the task and the scenarios it cites. For a bug
      (`kind: bug` in `.espec.yaml`), the first task writes a test that reproduces the bug and fails;
@@ -40,7 +47,7 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
      task, re-read `tasks.md` and find it again.
    - Set `status: in-progress` in `.espec.yaml` after the first checked task.
 
-6. **Pause and ask** when:
+7. **Pause and ask** when:
    - A task is unclear, or two tasks contradict each other.
    - The task needs work the tech proposal or specs do not describe.
    - You are tempted to narrow, defer, simplify or accept an exception to specified behaviour.
@@ -52,11 +59,11 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
    - A test fails for a reason outside the task.
    Surface the issue, give options, and wait.
 
-7. **QA verification group.** Treat `Q.n` tasks like any other: run the scenario, record what you
+8. **QA verification group.** Treat `Q.n` tasks like any other: run the scenario, record what you
    observed in the task line (environment, result), and check it only when it passes. When the user is
    QA or asks for verification only, skip to this group and do not touch application code.
 
-8. **Write the pull request description.** When every task is checked, or when the user stops early
+9. **Write the pull request description.** When every task is checked, or when the user stops early
    and asks for a pull request anyway, write `pull-request.md` from
    `espec/templates/pull-request.md`, following the Pull request description format in AGENTS.md.
    Re-read `tech-proposal.md` from disk and compare it with what you actually built: every decision,
@@ -66,7 +73,7 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
    understand the change without opening the code. Print the file, and the command to use it:
    `gh pr create --body-file espec/changes/<change-name>/pull-request.md`.
 
-9. **Assess coverage.** Re-read `feature.md`, `tech-proposal.md`, every file under `specs/`,
+10. **Assess coverage.** Re-read `feature.md`, `tech-proposal.md`, every file under `specs/`,
    `tasks.md` and `pull-request.md` from disk. For every `AC-n`: the file, the test and whether it
    passed in this session, the `Q.n` line and whether it is checked. For every item in Proposal versus
    implementation: as proposed, differs with a reason, or differs without one. Close the gaps you can:
@@ -74,7 +81,7 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
    **Implementation coverage** format of AGENTS.md. Print it also when the user stops early, with the
    open tasks counted as not delivered.
 
-10. **On completion**, set `status: implemented` in `.espec.yaml` and report: tasks completed this
+11. **On completion**, set `status: implemented` in `.espec.yaml` and report: tasks completed this
    session, overall progress, anything deferred with the reason, and
    "All tasks complete. Review, then run `/espec:archive <change-name>`."
    When `review.tool` in `config.yaml` is `diffcompass`, add the review command for the reviewer:

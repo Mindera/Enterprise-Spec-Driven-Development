@@ -775,6 +775,8 @@ Usage: <amount> <unit> (<tool>)
 - Always read `project.md` and `config.yaml` for project context and rules before writing. Apply them;
   do not paste them into artifacts.
 - Re-read artifacts from disk before building on them. Humans edit them between steps.
+- Implementation starts in a new chat or session, never in the one that wrote or discussed the
+  proposal. The approved files are its only input; leftover conversation biases the code.
 - When a ticket system is reachable (an MCP server, a browser tool, or a pasted body), prefer the ticket
   as the source of truth for `feature.md`. Keep the ticket and `feature.md` identical; when they differ,
   show the diff and ask which one wins.

@@ -7,11 +7,21 @@ bumps to (see [AGENTS.md](AGENTS.md)). When a version is merged to `main`, the r
 To move a project to a version, check it out in the toolkit clone and run `espec update`:
 
 ```bash
-git -C ~/espec fetch --tags && git -C ~/espec checkout v1.0.9
+git -C ~/espec fetch --tags && git -C ~/espec checkout v1.0.10
 ~/espec/bin/espec update /path/to/your/repo
 ```
 
 Entries marked **Action** need something done in projects that update.
+
+## v1.0.10 (2026-10-30)
+
+Flows:
+
+- Implementation starts in a new chat or session. `/espec:tech-proposal` ends by telling the developer
+  to open one, and `/espec:implementation` stops when the conversation already holds earlier work on
+  the change (a proposal, an inspection, a design discussion) and asks for a new session, continuing
+  only when the user insists. The approved files are the only input, so nothing said and not written
+  down steers the code.
 
 ## v1.0.9 (2026-10-29)
 
