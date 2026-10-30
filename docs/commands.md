@@ -57,7 +57,7 @@ and the worked examples in [examples/coverage/](../examples/coverage/).
 | GitHub Copilot | `/espec-feature-definition <source>` |
 | Prompt file | [template/.github/prompts/espec-feature-definition.prompt.md](../template/.github/prompts/espec-feature-definition.prompt.md) |
 | Product tools | [product-ai/rovo/feature-definition-agent.md](../product-ai/rovo/feature-definition-agent.md), [product-ai/m365-copilot/feature-definition-agent.md](../product-ai/m365-copilot/feature-definition-agent.md), [product-ai/prompts/feature-definition.prompt.md](../product-ai/prompts/feature-definition.prompt.md) |
-| Who runs it | Product Manager. Designer for the Experience and design section, with the design-notes agent. A developer when the work has no product owner. |
+| Who runs it | Product Manager. Designer for the UI design section, with the UI design agent. A developer when the work has no product owner. |
 | Input | One of: a one-line idea (Draft mode), a ticket key, URL or pasted definition (Import mode), an existing `feature.md` (Review mode). The AI says which mode it picked. |
 | Reads | In-repo: `espec/AGENTS.md`, `project.md`, `config.yaml`. The ticket, when a tool can reach it. |
 | Writes | The feature definition, printed as one Markdown block to paste into the ticket. In-repo: `espec/changes/<change-name>/feature.md` and `.espec.yaml` with `status: defined` when the definition is ready. |

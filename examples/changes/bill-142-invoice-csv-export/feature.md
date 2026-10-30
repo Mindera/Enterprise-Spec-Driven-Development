@@ -1,7 +1,7 @@
 <!-- espec:feature-definition v1 -->
 # Feature: Export invoices as CSV
 
-**Ticket:** BILL-142 · **Product owner:** Mariana Costa · **Design:** Tomasz Nowak · **Status:** Ready for tech proposal
+**Ticket:** BILL-142 · **Product owner:** Mariana Costa · **UI design:** Tomasz Nowak · **Status:** Ready for tech proposal
 
 ## Why
 
@@ -245,9 +245,9 @@ views can be exported the same way. Nothing changes for users who never export.
 - **AND** no partial file is offered
 - **AND** the failed export no longer counts towards the three in progress
 
-## Experience and design
+## UI design
 
-Design owner: Tomasz Nowak. Design file: Figma › Ledgerly › Invoices › CSV export (v3).
+UI design owner: Tomasz Nowak. Design file: Figma › Ledgerly › Invoices › CSV export (v3).
 
 ### Entry point and flow
 - The export lives in the invoice list toolbar, next to the filters, as a secondary action labelled

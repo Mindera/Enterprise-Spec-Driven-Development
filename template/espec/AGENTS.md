@@ -109,7 +109,7 @@ an HTML comment marker so tools and prompts can recognise it:
 <!-- espec:feature-definition v1 -->
 # Feature: <title>
 
-**Ticket:** PROJ-123 · **Product owner:** <name> · **Design:** <name or none> · **Status:** Draft | Ready for tech proposal
+**Ticket:** PROJ-123 · **Product owner:** <name> · **UI design:** <name or none> · **Status:** Draft | Ready for tech proposal
 
 ## Why
 <!-- The problem or opportunity, who has it, what happens if we do nothing. 3 to 6 sentences. -->
@@ -145,8 +145,8 @@ an HTML comment marker so tools and prompts can recognise it:
 - **WHEN** <action>
 - **THEN** <observable result>
 
-## Experience and design
-<!-- Filled by Design: flows, screens and states (empty, loading, error, success), content and tone,
+## UI design
+<!-- Filled by the Designer: flows, screens and states (empty, loading, error, success), content and tone,
      accessibility needs, links to design files. Still what, not how. -->
 
 ## Constraints
@@ -178,6 +178,10 @@ Rules:
   answered or explicitly accepted as deferred by product.
 
 ## Tech proposal format (`tech-proposal.md`)
+
+`tech-proposal.md` is the technical design: architecture, decisions, contracts. On its own, "design"
+means this document. What people see and do is the **UI design** section of `feature.md`; there is no
+separate `design.md` or `ui-design.md`.
 
 ```markdown
 # Tech Proposal: <title>
@@ -433,7 +437,7 @@ scenario, task or test, or leaves a question open that product must answer. Ever
 | At least one EC-n, or a stated reason why none apply | ✅ | |
 | Out of scope is an explicit list | ✅ | |
 | Every UC-n and EC-n is covered by an AC-n, and every AC-n says what it covers | ✅ | |
-| Experience and design is filled, or marked "not needed" with a reason | ✅ | |
+| UI design is filled, or marked "not needed" with a reason | ✅ | |
 | Open questions is "None" or every question has an owner | ✅ | |
 | No how outside Forced technical notes | ✅ | |
 
@@ -688,14 +692,14 @@ Rules:
 ```markdown
 ## Coverage: tech proposal versus feature definition
 
-**Change:** `espec/changes/<change-name>/` · **Match:** <n> of <m> product ids covered (<p>%), <k> partial, <j> missing · Constraints, metrics, design and forced notes: <a> of <b> addressed
+**Change:** `espec/changes/<change-name>/` · **Match:** <n> of <m> product ids covered (<p>%), <k> partial, <j> missing · Constraints, metrics, UI design and forced notes: <a> of <b> addressed
 
 | Id | Scenario | Tasks | QA line | Status | Gap |
 |----|----------|-------|---------|--------|-----|
 | UC-1, AC-1 | invoice-export › Export current filter › Successful export | 2.1, 3.1 | Q.1 | Covered | |
 | EC-6, AC-9 | | | | Missing | Question for Product 2: which time zone the dates follow |
 
-| Constraint, metric, design item or FT-n | Addressed in | Status |
+| Constraint, metric, UI design item or FT-n | Addressed in | Status |
 |-----------------------------------------|--------------|--------|
 | Constraint: data residency | Non-functional requirements; task 5.4 | Addressed |
 | FT-1 | Forced technical notes review: Overridden | Addressed |
@@ -707,7 +711,7 @@ Rules:
   `specs/` (or `skip_specs: true` with the reason), at least one task and a `Q.n` line exist, and the
   scenario's THEN states the observable result the criterion asks for. **Partial**: one of those is
   missing, or the scenario narrows the criterion. **Missing**: none exists.
-- The second table has one row per item under Constraints, Success metrics and Experience and design,
+- The second table has one row per item under Constraints, Success metrics and UI design,
   and one per `FT-n`. **Addressed** names the section or task; otherwise **No home**.
 - `p` is `n` divided by `m`, rounded to a whole number.
 

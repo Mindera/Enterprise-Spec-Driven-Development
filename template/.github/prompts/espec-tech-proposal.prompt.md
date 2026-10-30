@@ -74,7 +74,7 @@ Input: `${input:source:Change name, ticket key or URL, or a pasted feature defin
 
 8. **Assess coverage.** Re-read `feature.md`, `tech-proposal.md`, every file under `specs/` and
    `tasks.md` from disk. For every `UC-n`, `EC-n` and `AC-n`, find the scenario, the tasks and the
-   `Q.n` line under the names you used; for every constraint, success metric, design item and `FT-n`,
+   `Q.n` line under the names you used; for every constraint, success metric, UI design item and `FT-n`,
    find where the proposal addresses it. Close the gaps you can now: write the missing scenario, task
    or `Q.n` line, give a homeless constraint a home. What you cannot close becomes a Question for
    Product. Then print the report in the **Tech proposal coverage** format of AGENTS.md.

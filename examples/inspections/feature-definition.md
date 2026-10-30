@@ -11,13 +11,13 @@
 | At least one EC-n, or a stated reason why none apply                          | ✅     |     |
 | Out of scope is an explicit list                                              | ✅     |     |
 | Every UC-n and EC-n is covered by an AC-n, and every AC-n says what it covers | ✅     |     |
-| Experience and design is filled, or marked "not needed" with a reason         | ✅     |     |
+| UI design is filled, or marked "not needed" with a reason         | ✅     |     |
 | Open questions is "None" or every question has an owner                       | ✅     |     |
 | No how outside Forced technical notes                                         | ✅     |     |
 
 Evidence: Why closes with "If we do nothing, support keeps absorbing the extracts, close week gets slower for every
 customer, and both renewals stay at risk." UC-1 to UC-3 each carry actor, trigger, preconditions, main flow,
-outcome and alternative flows. EC-1 to EC-9 are present. Out of scope lists eight items. Experience and design
+outcome and alternative flows. EC-1 to EC-9 are present. Out of scope lists eight items. UI design
 names the owner, the Figma file, the entry point, nine states, content and tone, and accessibility. Open questions
 is "None", with the one resolved question dated 2026-10-17 and owned by Mariana Costa. FT-1 carries the ⚠️ marker
 and the reason given.
@@ -89,7 +89,7 @@ items apply and are absent.
 ## Findings
 | # | Severity | Finding | Where | Suggested fix |
 |---|----------|---------|-------|---------------|
-| 1 | Advisory | No edge case says whether an export in progress can be cancelled; the three-slot limit in EC-3 is what makes it matter | Edge cases; Experience and design › States › "Error, too many in progress" | Add EC-10 as proposed and cover it in AC-6 or a new AC |
+| 1 | Advisory | No edge case says whether an export in progress can be cancelled; the three-slot limit in EC-3 is what makes it matter | Edge cases; UI design › States › "Error, too many in progress" | Add EC-10 as proposed and cover it in AC-6 or a new AC |
 | 2 | Advisory | EC-4 fixes access at the moment of the request; nothing says what happens when access changes while the export runs or during the 24-hour window | Edge cases › EC-4; AC-7; AC-11 | Add EC-11 as proposed and extend AC-7 |
 | 3 | Advisory | The language of the Status column values is not stated; the headings constraint gives the reason to fix it | AC-12; Constraints › Language | Add "Status values are in English" to the THEN of AC-12, or EC-12 as proposed |
 | 4 | Advisory | AC-11 WHEN reads "navigates to another screen or closes the browser"; EC-8 also lists "loses the connection", so QA working from the AC would not test it | Acceptance criteria › AC-11 | Add "or loses the connection" to the WHEN of AC-11 |

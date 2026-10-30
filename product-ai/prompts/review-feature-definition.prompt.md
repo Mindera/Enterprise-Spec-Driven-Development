@@ -18,7 +18,7 @@ Do this, in order:
    - At least one edge case (EC-n), or a stated reason why none apply
    - Out of scope is an explicit list
    - Every UC-n and EC-n is covered by an AC-n written as GIVEN / WHEN / THEN, and every AC-n says what it covers
-   - Experience and design is filled, or marked "not needed" with a reason
+   - UI design is filled, or marked "not needed" with a reason
    - Open questions is "None" or every question has an owner
    - No HOW outside "## Forced technical notes"
 2. HOW scan. Quote every HOW found outside Forced technical notes, say why it is a HOW, and give an outcome rephrasing. Ask for each: keep as a forced technical note (FT-n with ⚠️ and a reason) or use the rephrasing.

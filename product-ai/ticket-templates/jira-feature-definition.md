@@ -11,7 +11,7 @@ starts from it.
 <!-- espec:feature-definition v1 -->
 # Feature: <title>
 
-**Ticket:** <this issue> · **Product owner:** <name> · **Design:** <name or none> · **Status:** Draft
+**Ticket:** <this issue> · **Product owner:** <name> · **UI design:** <name or none> · **Status:** Draft
 
 ## Why
 
@@ -42,7 +42,7 @@ starts from it.
 - **WHEN**
 - **THEN**
 
-## Experience and design
+## UI design
 
 ## Constraints
 

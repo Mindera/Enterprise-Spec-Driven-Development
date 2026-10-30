@@ -7,11 +7,24 @@ bumps to (see [AGENTS.md](AGENTS.md)). When a version is merged to `main`, the r
 To move a project to a version, check it out in the toolkit clone and run `espec update`:
 
 ```bash
-git -C ~/espec fetch --tags && git -C ~/espec checkout v1.0.10
+git -C ~/espec fetch --tags && git -C ~/espec checkout v1.0.11
 ~/espec/bin/espec update /path/to/your/repo
 ```
 
 Entries marked **Action** need something done in projects that update.
+
+## v1.0.11 (2026-10-30)
+
+Formats:
+
+- "Design" on its own now means the technical design in `tech-proposal.md`. The UI side is named UI
+  design everywhere: the feature definition section **Experience and design** is now **UI design**, the
+  header field **Design:** is **UI design:**, and coverage reports say "UI design item".
+- The Design Notes agent and prompt are now **espec UI Design**: `product-ai/rovo/ui-design-agent.md`,
+  `product-ai/m365-copilot/ui-design-agent.md` and `product-ai/prompts/ui-design.prompt.md`.
+- **Action:** rename the `## Experience and design` heading to `## UI design` in the ticket template
+  in Jira or GitHub and in open `feature.md` files. Rovo and M365 admins paste the new instructions
+  into both agents and rename the Design Notes agent to `espec UI Design`.
 
 ## v1.0.10 (2026-10-30)
 

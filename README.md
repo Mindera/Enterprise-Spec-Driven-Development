@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="./VERSION"><img alt="Version: v1.0.10" src="https://img.shields.io/badge/version-v1.0.10-orange.svg?style=flat-square"></a>
+  <a href="./VERSION"><img alt="Version: v1.0.11" src="https://img.shields.io/badge/version-v1.0.11-orange.svg?style=flat-square"></a>
   <a href="./LICENSE.md"><img alt="License: Sustainable Use 1.0" src="https://img.shields.io/badge/License-Sustainable%20Use%201.0-blue.svg?style=flat-square"></a>
   <img alt="GitHub Copilot" src="https://img.shields.io/badge/Developers-GitHub%20Copilot-24292f?style=flat-square">
   <img alt="Rovo" src="https://img.shields.io/badge/Product-Rovo-0052cc?style=flat-square">
@@ -40,7 +40,7 @@ of specs that the next feature starts from.
 | Role | AI tool | What they produce |
 |------|---------|-------------------|
 | Product Manager | Rovo or M365 Copilot | Feature definition in a Jira or GitHub ticket |
-| Designer | Rovo or M365 Copilot | Experience and design section of that ticket |
+| Designer | Rovo or M365 Copilot | UI design section of that ticket |
 | Developer | GitHub Copilot | Tech proposal, specs, tasks, code |
 | QA | GitHub Copilot | Test strategy input, verified scenarios |
 
@@ -198,7 +198,7 @@ Your repo also gets its own copy of the validator in `espec/bin` and a GitHub Ac
 runs it on every pull request touching `espec/`, so format rules are checked without any dependency
 on this toolkit. Then name your tech proposal approvers in CODEOWNERS
 ([engineering setup, step 5](docs/guides/setup-engineering.md#step-5-protect-approval-and-the-main-specs)).
-To pin a version, check out its tag (`git -C ~/espec checkout v1.0.10`) before `init` or `update`.
+To pin a version, check out its tag (`git -C ~/espec checkout v1.0.11`) before `init` or `update`.
 
 ### Product and design
 
@@ -270,7 +270,7 @@ Questions, bugs and ideas go to [GitHub Issues](https://github.com/Mindera/Enter
 Pull requests are welcome. Keep the README simple and the prompts shorter than the documents they
 produce.
 
-The current version is **v1.0.10**, kept in [`VERSION`](VERSION). Every change bumps the last number
+The current version is **v1.0.11**, kept in [`VERSION`](VERSION). Every change bumps the last number
 (`vX.Y.Z` → `vX.Y.Z+1`) and adds an entry to the [changelog](CHANGELOG.md); every version merged to
 `main` is tagged and released. See [`AGENTS.md`](AGENTS.md) for the rules every contributor and every
 AI assistant follows.

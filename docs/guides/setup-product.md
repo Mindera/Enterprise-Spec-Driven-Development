@@ -1,6 +1,6 @@
 # Product setup
 
-How to give Product Managers and Designers the espec Feature Definition and Design Notes agents in
+How to give Product Managers and Designers the espec Feature Definition and UI Design agents in
 the tool they already have, Atlassian Rovo or Microsoft 365 Copilot, and the ticket template that
 engineering's tools recognise. Nothing here touches a code repository.
 
@@ -37,11 +37,11 @@ Configure. In both:
 7. **Capabilities (M365):** none. Leave code interpreter and image generation off.
 8. **Share** with the product and design groups.
 
-## Step 3: create the Design Notes agent
+## Step 3: create the UI Design agent
 
-Same steps with [rovo/design-notes-agent.md](../../product-ai/rovo/design-notes-agent.md) or
-[m365-copilot/design-notes-agent.md](../../product-ai/m365-copilot/design-notes-agent.md). Name it
-`espec Design Notes`. Knowledge: design principles, content guidelines, accessibility standards.
+Same steps with [rovo/ui-design-agent.md](../../product-ai/rovo/ui-design-agent.md) or
+[m365-copilot/ui-design-agent.md](../../product-ai/m365-copilot/ui-design-agent.md). Name it
+`espec UI Design`. Knowledge: design principles, content guidelines, accessibility standards.
 Share with the design group.
 
 ## Step 4: add the ticket template
@@ -102,7 +102,7 @@ and product leads use it most.
 
 - A PM can open the agent, say "Define a new feature with me", and reach a definition with all nine
   readiness lines ✅ in one sitting.
-- A Designer can paste that definition into the Design Notes agent and get an Experience and design
+- A Designer can paste that definition into the UI Design agent and get an UI design
   section plus new `EC-n` and `AC-n` entries numbered after the existing ones.
 - The pasted ticket starts with the marker line.
 - Engineering runs `/espec-inspect-feature-definition` on that ticket and gets zero blocking findings.

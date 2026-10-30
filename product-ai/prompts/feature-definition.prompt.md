@@ -35,7 +35,7 @@ Print one line per item with ✅ or ❌ and a one-line fix:
 - At least one edge case, or a stated reason why none apply
 - Out of scope is an explicit list
 - Every UC-n and EC-n is covered by an AC-n, and every AC-n says what it covers
-- Experience and design is filled, or marked "not needed" with a reason
+- UI design is filled, or marked "not needed" with a reason
 - Open questions is "None" or every question has an owner
 - No HOW outside Forced technical notes
 Status is "Ready for tech proposal" only when every item passes. Otherwise it stays "Draft".
@@ -44,7 +44,7 @@ Status is "Ready for tech proposal" only when every item passes. Otherwise it st
 <!-- espec:feature-definition v1 -->
 # Feature: <title>
 
-**Ticket:** <key or URL> · **Product owner:** <name> · **Design:** <name or none> · **Status:** Draft | Ready for tech proposal
+**Ticket:** <key or URL> · **Product owner:** <name> · **UI design:** <name or none> · **Status:** Draft | Ready for tech proposal
 
 ## Why
 <problem, who has it, cost of doing nothing>
@@ -80,8 +80,8 @@ Status is "Ready for tech proposal" only when every item passes. Otherwise it st
 - **WHEN** <action>
 - **THEN** <observable result>
 
-## Experience and design
-<flows, screens and states, content, accessibility, links. Still what, not how. Filled by Design.>
+## UI design
+<flows, screens and states, content, accessibility, links. Still what, not how. Filled by the Designer.>
 
 ## Constraints
 <business, legal, compliance, brand, timing, markets, devices. Outcomes, not mechanisms.>

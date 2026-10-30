@@ -8,7 +8,7 @@ Paste the output of the espec Feature Definition agent over it, keeping the firs
 <!-- espec:feature-definition v1 -->
 # Feature: <title>
 
-**Ticket:** this issue · **Product owner:** <name> · **Design:** <name or none> · **Status:** Draft
+**Ticket:** this issue · **Product owner:** <name> · **UI design:** <name or none> · **Status:** Draft
 
 ## Why
 
@@ -39,7 +39,7 @@ Paste the output of the espec Feature Definition agent over it, keeping the firs
 - **WHEN**
 - **THEN**
 
-## Experience and design
+## UI design
 
 ## Constraints
 

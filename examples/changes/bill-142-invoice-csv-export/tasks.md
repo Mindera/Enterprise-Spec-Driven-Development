@@ -26,9 +26,9 @@
 
 - [x] 4.1 Add `ExportButton.tsx` to the `InvoiceList.tsx` toolbar with the label `Export CSV (n)` bound to the list total, rendered only with the flag and `invoices:read`, moved into More actions below 900 px (covers AC-1, AC-7) and verify `InvoiceList.test.tsx`
 - [x] 4.2 Add `useInvoiceExport.ts`: create, poll every 2 s backing off to 5 s, start the download automatically when READY and the user is still on the list, show the preparing message after 10 s or at once above 2,000 rows (covers AC-1, AC-2) and verify `useInvoiceExport.test.ts`
-- [x] 4.3 Add the messages and states from the design section: empty result, row limit with count, concurrency limit, no permission, failed with Try again, expired, in en, de, fr and pt (covers AC-4, AC-5, AC-6, AC-7, AC-13) and verify `ExportButton.test.tsx` and the locale completeness check `npm run i18n:check`
+- [x] 4.3 Add the messages and states from the UI design section: empty result, row limit with count, concurrency limit, no permission, failed with Try again, expired, in en, de, fr and pt (covers AC-4, AC-5, AC-6, AC-7, AC-13) and verify `ExportButton.test.tsx` and the locale completeness check `npm run i18n:check`
 - [x] 4.4 Add `ExportsIndicator.tsx` to the top bar: exports of the last 48 h with progress, Download and Expired states, kept across navigation (covers AC-2, AC-11) and verify `ExportsIndicator.test.tsx`
-- [x] 4.5 Accessibility: live-region announcements for preparing, ready and failed, focus kept in place, popover focus trap and Escape, 44 px targets on tablet (design section) and verify axe assertions in the tests above plus a VoiceOver pass on iPad Safari recorded in the PR
+- [x] 4.5 Accessibility: live-region announcements for preparing, ready and failed, focus kept in place, popover focus trap and Escape, 44 px targets on tablet (UI design section) and verify axe assertions in the tests above plus a VoiceOver pass on iPad Safari recorded in the PR
 - [x] 4.6 Add Playwright `web/e2e/invoice-export.spec.ts`: export a filtered list, export the saved view "Overdue Q3", navigate away during an export and download it from the indicator (covers AC-1, AC-3, AC-11) and verify the e2e suite passes in CI
 
 ## 5. Observability, performance and rollout

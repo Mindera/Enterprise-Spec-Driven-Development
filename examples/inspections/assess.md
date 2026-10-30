@@ -53,7 +53,7 @@ opened; "nothing found" means a search of the backend, the frontend and the test
 | Alternative | Instead of | What product gains | What product gives up |
 |-------------|------------|--------------------|-----------------------|
 | Override FT-1: run exports on the existing job queue, whose metrics already feed "Ledgerly Ops", and add an export panel and alert next to the nightly batch ones | FT-1 as written: "Use the existing nightly batch job" | AC-1 and AC-2 as written (10 seconds, 2 minutes), exports at any hour, EC-8 for free because jobs outlive the browser | Nothing visible, if finance operations accept a second panel on the same dashboard (dependency 2) |
-| Keep FT-1: exports are queued for the 02:00 UTC batch | The 10-second and 2-minute outcomes | The exact mechanism product asked for, and no new job type to operate | AC-1, AC-2 and Constraints › Close week performance as written: an export requested at 09:00 is ready the next morning. UC-1 ("within a few seconds") and UC-2 ("within two minutes") change, and the Loading states in the design go |
+| Keep FT-1: exports are queued for the 02:00 UTC batch | The 10-second and 2-minute outcomes | The exact mechanism product asked for, and no new job type to operate | AC-1, AC-2 and Constraints › Close week performance as written: an export requested at 09:00 is ready the next morning. UC-1 ("within a few seconds") and UC-2 ("within two minutes") change, and the Loading states in the UI design go |
 
 ## Criteria that cannot be met as written
 

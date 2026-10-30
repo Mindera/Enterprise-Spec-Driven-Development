@@ -7,6 +7,13 @@ When this page and `AGENTS.md` disagree, `AGENTS.md` wins.
 Blank files for each format live in `template/espec/templates/`. A complete worked example lives in
 [examples/changes/bill-142-invoice-csv-export/](../examples/changes/bill-142-invoice-csv-export/).
 
+## Design vocabulary
+
+On its own, "design" means the technical design: architecture, decisions and contracts, written in
+`tech-proposal.md`. What people see and do (flows, screens and states, copy, accessibility) is the
+**UI design** section of `feature.md`, filled by the Designer. A change folder has no `design.md` or
+`ui-design.md`.
+
 ## Product boundary and forced technical notes
 
 A feature definition says **what** and **why**. It never says **how**. APIs, databases, queues,
@@ -298,7 +305,7 @@ the chat before the usage line and saved only on request under
 
 | Command | Compares | Per row | Match figure |
 |---|---|---|---|
-| `/espec:tech-proposal` | `tech-proposal.md`, `specs/` and `tasks.md` against `feature.md` | Every `UC-n`, `EC-n` and `AC-n`: Covered, Partial or Missing, with the scenario, tasks and `Q.n` found on disk. Every constraint, success metric, design item and `FT-n`: Addressed or No home | `<n> of <m> product ids covered (<p>%)` |
+| `/espec:tech-proposal` | `tech-proposal.md`, `specs/` and `tasks.md` against `feature.md` | Every `UC-n`, `EC-n` and `AC-n`: Covered, Partial or Missing, with the scenario, tasks and `Q.n` found on disk. Every constraint, success metric, UI design item and `FT-n`: Addressed or No home | `<n> of <m> product ids covered (<p>%)` |
 | `/espec:implementation` | The code, the tests, `tasks.md` and `pull-request.md` against `tech-proposal.md`, `specs/` and `feature.md` | Every `AC-n`: Delivered, Partial or Not delivered, with the file, the test and whether it passed this session, and the `Q.n` and whether it is checked. Every proposal item: As proposed, Differs with a reason, or Differs without one | `<n> of <m> acceptance criteria delivered (<p>%)` |
 
 The report counts what the files show, not what the command meant to write. Before printing, the

@@ -54,7 +54,7 @@ The report has nine parts:
 The worked example report in
 [examples/inspections/tech-proposal.md](../../examples/inspections/tech-proposal.md) came back
 **Not yet** with two blocking findings that a human reviewer would likely have missed: the list of
-exports only showed 24 hours, so the Expired state in the design could never appear, and the
+exports only showed 24 hours, so the Expired state in the UI design could never appear, and the
 December code freeze from the Constraints had no home in Rollout. Both were fixed in the proposal
 that is in the example folder, which is why its status line says Approved.
 
