@@ -144,7 +144,7 @@ A bug runs through the same phases with a lighter definition and proposal: see
 | Command | `/espec:implementation` |
 | Who | Developer implements. QA runs the `## QA verification` group. |
 | Tool | GitHub Copilot: `/espec-implementation <change-name>`. |
-| Inputs | The approved change folder, re-read from disk every time. |
+| Inputs | The approved change folder, re-read from disk every time, in a new chat or session so the proposal conversation does not steer the code. |
 | Outputs | Code and tests. `tasks.md` with a task checked off only after its verification passed. `pull-request.md`: the pull request description, readable without the code, with a proposal-versus-implementation table. `.espec.yaml` moves to `in-progress` after the first check and `implemented` after the last. In the chat, a coverage report: how much of the proposal and the feature definition the code delivers, criterion by criterion. |
 | Exit criteria | **All tasks complete**: every checkbox in `tasks.md` is `[x]`, including the QA verification group. |
 | Hand-off | The pull request, whose description is `pull-request.md`. It links to the ticket, and its Release note section becomes the ticket comment at archive. |

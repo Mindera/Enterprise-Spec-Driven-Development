@@ -80,7 +80,8 @@ Input: `${input:source:Change name, ticket key or URL, or a pasted feature defin
    Product. Then print the report in the **Tech proposal coverage** format of AGENTS.md.
 
 9. **Report.** List the files written, the open Questions for Product (ready to paste), and stop with:
-   "Review the tech proposal. When approved, run `/espec:implementation <change-name>`."
+   "Review the tech proposal. When approved, start a new chat or session and run
+   `/espec:implementation <change-name>` there, so this conversation does not steer the code."
 
 ## Guardrails
 

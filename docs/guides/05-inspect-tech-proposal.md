@@ -99,9 +99,9 @@ run that produced Approve, so the archive carries the evidence.
 
 ## Hand-off
 
-Merge the proposal pull request. Then [implementation](06-implementation.md) starts from `main`
-with `/espec-implementation <change-name>`. The implementation gate checks `.espec.yaml`, the presence
-of `tech-proposal.md` and `tasks.md`, and that the proposal's status line reads Approved; it stops on
+Merge the proposal pull request. Then [implementation](06-implementation.md) starts from `main`,
+in a new chat or session, with `/espec-implementation <change-name>`. The implementation gate checks
+`.espec.yaml`, the presence of `tech-proposal.md` and `tasks.md`, and that the proposal's status line reads Approved; it stops on
 Draft or In review. `espec validate` also fails a change that is in progress on an unapproved proposal.
 Set the line when you approve, or implementation will not start.
 

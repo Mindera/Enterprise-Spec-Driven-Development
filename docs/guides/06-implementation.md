@@ -21,6 +21,9 @@ proposal and why, and how it was verified.
 - No blocking Question for Product is open. The command stops on one and asks whether product has
   answered.
 - `main` is green and you are on a fresh branch from it.
+- You are in a new chat or session. Do not run the command in the conversation that wrote or
+  inspected the proposal: what was said there, and not written down, would steer the code. The
+  command stops and asks for a new session when it sees earlier work on the change.
 
 ```bash
 git checkout main && git pull
@@ -39,9 +42,8 @@ git checkout -b espec/bill-142-implementation
 
 The command checks `.espec.yaml` (`proposed` or `in-progress`) and that `tech-proposal.md` and
 `tasks.md` exist, reads `feature.md`, the proposal, every delta spec and `tasks.md` from disk, and
-prints progress: `N/M tasks complete`, the next pending tasks and their group. It does not rely on
-anything it remembers from earlier in the conversation, so you can stop and restart at any time, in
-any session, and it picks up from `tasks.md`.
+prints progress: `N/M tasks complete`, the next pending tasks and their group. The files are its only
+input, so you can stop and restart at any time in a new session, and it picks up from `tasks.md`.
 
 ### One task at a time
 
