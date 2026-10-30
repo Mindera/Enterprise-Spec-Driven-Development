@@ -49,6 +49,9 @@ The tech proposal must answer every `FT-n`:
 | FT-1 | Accepted | The audit tool constraint is real. Email delivery is added as D-3. |
 ```
 
+`espec validate` fails unless each `FT-n` has a row in this table whose Verdict is **Accepted** or
+**Overridden**, and every Overridden row has a Reason. Naming the note elsewhere does not count.
+
 Nothing forced is lost. Nothing forced is hidden among the product requirements.
 
 ## Feature definition ids
