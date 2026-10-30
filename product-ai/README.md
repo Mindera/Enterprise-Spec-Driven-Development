@@ -22,7 +22,7 @@ you state a solution they ask you to rephrase it as an outcome, and if you insis
 
 1. Pick your tool: `rovo/` or `m365-copilot/`.
 2. Create the Feature Definition agent from the file. Paste the Instructions block as is.
-3. Create the Design Notes agent the same way.
+3. Create the UI Design agent the same way.
 4. Share both agents with the product and design teams.
 5. Add the ticket template to Jira or GitHub so every feature starts with the same structure.
 
@@ -31,7 +31,7 @@ you state a solution they ask you to rephrase it as an outcome, and if you insis
 1. Open the agent and say "Define a new feature with me". Answer the questions. Insist on edge cases.
 2. When the readiness check is all ✅, paste the result into the ticket and set the status line to
    **Ready for tech proposal**.
-3. Ask a Designer to run the Design Notes agent on the ticket and paste the experience section back.
+3. Ask a Designer to run the UI Design agent on the ticket and paste the experience section back.
 4. A developer assesses the ticket against the code with `/espec:assess` and posts the result as a
    ticket comment: what exists today, what depends on other teams, alternatives with their
    consequences, anything that cannot be met as written. Decide on what it raises; the ticket

@@ -9,8 +9,8 @@ how to set each tool up. The underlying rules are in
 
 | Phase | Product Manager | Designer | Developer | QA | Eng Manager / Architect |
 |---|---|---|---|---|---|
-| 1 Feature definition | Writes | Fills Experience and design | Runs the technical assessment | Reviews edge cases and ACs | Reads the assessment |
-| 2 Tech proposal | Answers Questions for Product | Answers design questions | Writes | Writes the test strategy | Reviews and approves |
+| 1 Feature definition | Writes | Fills UI design | Runs the technical assessment | Reviews edge cases and ACs | Reads the assessment |
+| 2 Tech proposal | Answers Questions for Product | Answers UI design questions | Writes | Writes the test strategy | Reviews and approves |
 | 3 Implementation | Available for questions | Reviews built screens | Implements, checks tasks | Runs QA verification | Decides on design pauses |
 | 4 Archive | Reads the release note, closes the ticket | | Runs archive and archive-clean | Confirms the note matches what was verified | Confirms clean verdicts |
 | Tool | Rovo or M365 Copilot | Rovo or M365 Copilot | GitHub Copilot | GitHub Copilot | GitHub Copilot, the PR review, DiffCompass |
@@ -37,16 +37,16 @@ Never:
 
 | Phase | Does | Tool |
 |---|---|---|
-| 1 | Fills the **Experience and design** section: flows, screens, the empty / loading / error / success states, content and tone, accessibility needs, links to design files. Proposes edge cases that come from the UI (what the user sees when something fails). | The design-notes agent: [product-ai/rovo/design-notes-agent.md](../product-ai/rovo/design-notes-agent.md) or [product-ai/m365-copilot/design-notes-agent.md](../product-ai/m365-copilot/design-notes-agent.md), or the prompt in [product-ai/prompts/design-notes.prompt.md](../product-ai/prompts/design-notes.prompt.md) |
-| 2 | Answers design questions from the tech proposal. | The ticket |
+| 1 | Fills the **UI design** section: flows, screens, the empty / loading / error / success states, content and tone, accessibility needs, links to design files. Proposes edge cases that come from the UI (what the user sees when something fails). | The UI design agent: [product-ai/rovo/ui-design-agent.md](../product-ai/rovo/ui-design-agent.md) or [product-ai/m365-copilot/ui-design-agent.md](../product-ai/m365-copilot/ui-design-agent.md), or the prompt in [product-ai/prompts/ui-design.prompt.md](../product-ai/prompts/ui-design.prompt.md) |
+| 2 | Answers UI design questions from the tech proposal. | The ticket |
 | 3 | Reviews the built screens against the states listed in phase 1. A `Q.n` task can name this review. | The ticket, the staging environment |
 | 4 | Nothing. | |
 
 Never:
 
-- Specifies components, CSS, animation libraries or front-end frameworks. The design section is
+- Specifies components, CSS, animation libraries or front-end frameworks. The UI design section is
   still what, not how.
-- Writes outside the Experience and design section of the definition without the PM.
+- Writes outside the UI design section of the definition without the PM.
 
 ## Developer
 
@@ -107,7 +107,7 @@ Never:
    [product-ai/rovo/feature-definition-agent.md](../product-ai/rovo/feature-definition-agent.md).
    Name it so it is easy to @-mention, for example "Feature Definition".
 2. Create a second agent from
-   [product-ai/rovo/design-notes-agent.md](../product-ai/rovo/design-notes-agent.md) for designers.
+   [product-ai/rovo/ui-design-agent.md](../product-ai/rovo/ui-design-agent.md) for designers.
 3. Optional: add knowledge sources, such as the Confluence space that holds product context and the
    glossary.
 4. Optional: give the agent Jira actions (create issue, edit issue) so it can write the description
@@ -122,7 +122,7 @@ Never:
 1. Open Copilot agent builder and create an agent. Paste the instructions from
    [product-ai/m365-copilot/feature-definition-agent.md](../product-ai/m365-copilot/feature-definition-agent.md).
 2. Create a second agent from
-   [product-ai/m365-copilot/design-notes-agent.md](../product-ai/m365-copilot/design-notes-agent.md).
+   [product-ai/m365-copilot/ui-design-agent.md](../product-ai/m365-copilot/ui-design-agent.md).
 3. Optional: add a SharePoint site or document library with product context as knowledge.
 4. Share the agents with the product team.
 5. No agent builder available? Paste

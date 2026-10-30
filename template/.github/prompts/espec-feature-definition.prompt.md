@@ -65,7 +65,7 @@ Report each item as ✅ or ❌ with a one-line fix:
 - `Edge cases` has at least one `EC-n`, or an explicit justification why none apply.
 - `Out of scope` is an explicit list.
 - Every `UC-n` and `EC-n` is covered by an `AC-n`; every `AC-n` names what it covers.
-- `Experience and design` is filled or marked "not needed" with a reason.
+- `UI design` is filled or marked "not needed" with a reason.
 - `Open questions` is either `None` or every question has an owner.
 - No how outside `## Forced technical notes`.
 

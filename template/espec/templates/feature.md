@@ -1,7 +1,7 @@
 <!-- espec:feature-definition v1 -->
 # Feature: <title>
 
-**Ticket:** <PROJ-123 or issue URL> · **Product owner:** <name> · **Design:** <name or none> · **Status:** Draft
+**Ticket:** <PROJ-123 or issue URL> · **Product owner:** <name> · **UI design:** <name or none> · **Status:** Draft
 
 ## Why
 
@@ -44,7 +44,7 @@
 - **WHEN**
 - **THEN**
 
-## Experience and design
+## UI design
 
 <!-- Flows, screens and states (empty, loading, error, success), content and tone, accessibility, links. -->
 

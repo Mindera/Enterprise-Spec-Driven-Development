@@ -9,7 +9,7 @@ comment on the ticket, and the team aligns on scope in refinement before anyone 
 |---|---|
 | Command | `/espec-assess <ticket key, URL or change name>` in Copilot Chat, agent mode. Read-only: it prints a report and a comment for the ticket. |
 | Who | A developer leads. Product, Design, QA and other teams join as needed. The team closes it in refinement. |
-| Input | The ticket (Ready for tech proposal, or as far as product could take it), designs and research, the main specs, the code |
+| Input | The ticket (Ready for tech proposal, or as far as product could take it), UI designs and research, the main specs, the code |
 | Output | An assessment comment on the ticket. The ticket description updated by product after scope decisions. An outcome: **Ready for tech proposal** or **Further discovery required**. |
 | Time | Minutes for the command, one to four hours checking its evidence and talking to owners, a thirty-minute refinement |
 | Rules | [AGENTS.md, Technical assessment report](../../template/espec/AGENTS.md#technical-assessment-report) |

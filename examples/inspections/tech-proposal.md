@@ -44,7 +44,7 @@ number exists, and one covers list disagrees with it (finding 4).
 
 Q.1 to Q.13 each name one acceptance criterion, in order. Beyond the product ids, the proposal also traces
 Constraint: audit (invoice-export › Export current filter › Export is recorded; tasks 2.1, 3.3; no QA line,
-finding 6), Constraint: data residency (5.4; Q.15), Constraint: close week performance (5.3; Q.15), the design
+finding 6), Constraint: data residency (5.4; Q.15), Constraint: close week performance (5.3; Q.15), the UI design
 items for narrow screens and accessibility (invoice-list › List actions › Actions on narrow screens; 4.1, 4.5;
 Q.14, Q.15) and FT-1 (5.1, 5.2; Q.16). All of those scenarios and tasks exist as named.
 
@@ -118,7 +118,7 @@ integration test but no QA line (finding 6).
 ## Findings
 | # | Severity | Finding | Where | Suggested fix |
 |---|----------|---------|-------|---------------|
-| 1 | Blocking | The spec requires an expired export to be "shown as expired in the list of exports" and the design lists an Expired state, but the list endpoint returns exports created in the last 24 hours while expiry is `created_at + 24 h`, so an export leaves the list at the moment it expires. The only test of the Expired state uses the staging expire hook, which keeps `created_at` inside the window and cannot catch this | APIs and contracts › `GET /api/v1/invoices/exports`; Data model › `expires_at`; specs/invoice-export › Export retention › Download after 24 hours; tasks 3.2, 4.4 | Return the caller's exports created in the last 48 hours (or the latest 20 whatever their age) with their status, update tasks 3.2 and 4.4 and the Exports indicator, and add a test where an export expires naturally; or, with product, drop the Expired state from the design and the spec |
+| 1 | Blocking | The spec requires an expired export to be "shown as expired in the list of exports" and the UI design lists an Expired state, but the list endpoint returns exports created in the last 24 hours while expiry is `created_at + 24 h`, so an export leaves the list at the moment it expires. The only test of the Expired state uses the staging expire hook, which keeps `created_at` inside the window and cannot catch this | APIs and contracts › `GET /api/v1/invoices/exports`; Data model › `expires_at`; specs/invoice-export › Export retention › Download after 24 hours; tasks 3.2, 4.4 | Return the caller's exports created in the last 48 hours (or the latest 20 whatever their age) with their status, update tasks 3.2 and 4.4 and the Exports indicator, and add a test where an export expires naturally; or, with product, drop the Expired state from the UI design and the spec |
 | 2 | Blocking | The Timing constraint (Q4 2026 release train, code freeze 5 December 2026) has no home in the proposal | feature.md › Constraints › Timing; tech-proposal.md › Rollout and migration | State in Rollout that the code ships dark in the Q4 2026 train before 5 December and that the three enablement stages are flag changes needing no deploy, with target dates for internal, design partner and general enablement so the January close is met |
 | 3 | Advisory | The test strategy, Q.11 and Q.13 depend on `POST /internal/test/exports/{id}/expire` and a storage failure toggle on staging; no task builds either | Test strategy (first paragraph and the Background export row); tasks.md | Add a task in group 2 or 5 that delivers both hooks under the staging profile only, verified by a test that they are absent in the prod profile |
 | 4 | Advisory | Task 2.5 is listed for UC-1 and AC-1 in the proposal's Traceability table but its covers list reads "(covers AC-2, AC-11, AC-13)" | Traceability › row "UC-1, AC-1"; tasks.md › 2.5 | Add AC-1 to the covers list of 2.5, since the worker is what produces the file |
@@ -134,7 +134,7 @@ overridden with its need met on the Ops dashboard, the three decisions list thei
 strategy covers every edge case at a named level. Two points to settle before approval:
 
 1. **Engineering, expired exports.** The list of exports only returns exports created in the last 24 hours, and
-   an export expires at exactly 24 hours, so the Expired state in the design and in the spec scenario Download
+   an export expires at exactly 24 hours, so the Expired state in the UI design and in the spec scenario Download
    after 24 hours can never be shown. Either widen the list window (48 hours, or the latest 20) or ask product to
    drop the Expired state. Which?
 2. **Engineering, timing.** The feature must be in the Q4 2026 release train (code freeze 5 December 2026).

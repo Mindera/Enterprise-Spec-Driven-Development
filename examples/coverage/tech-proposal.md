@@ -1,6 +1,6 @@
 ## Coverage: tech proposal versus feature definition
 
-**Change:** `espec/changes/bill-142-invoice-csv-export/` · **Match:** 13 of 13 product ids covered (100%), 0 partial, 0 missing · Constraints, metrics, design and forced notes: 16 of 18 addressed
+**Change:** `espec/changes/bill-142-invoice-csv-export/` · **Match:** 13 of 13 product ids covered (100%), 0 partial, 0 missing · Constraints, metrics, UI design and forced notes: 16 of 18 addressed
 
 Re-read from disk after writing: `feature.md` (3 UC, 9 EC, 13 AC, 7 constraints, 5 success metrics, 1 FT),
 `specs/invoice-export/spec.md` (7 ADDED requirements, 23 scenarios), `specs/invoice-list/spec.md` (1 MODIFIED
@@ -23,7 +23,7 @@ that name.
 | UC-1, UC-2, UC-3, AC-12 | invoice-export › Export file contents › Columns and header row; File name | 2.2, 2.3 | Q.12 | Covered | |
 | EC-9, AC-13 | invoice-export › Background export › Export fails | 1.2, 2.5, 4.3 | Q.13 | Covered | |
 
-| Constraint, metric, design item or FT-n | Addressed in | Status |
+| Constraint, metric, UI design item or FT-n | Addressed in | Status |
 |-----------------------------------------|--------------|--------|
 | Constraint: data residency | Non-functional requirements (EU bucket, pre-signed URL host); task 5.4 `StorageConfigTest` | Addressed |
 | Constraint: devices (iPad Safari, both orientations) | Architecture (frontend states); tasks 4.1, 4.5; Q.14 | Addressed |
@@ -37,11 +37,11 @@ that name.
 | Metric: 95% of exports up to 2,000 rows ready in 10 s, 99% complete without error | Non-functional requirements (targets); task 5.2 alert at 5% failure rate; task 5.3 load test | Addressed |
 | Metric: zero data-residency incidents | Same evidence as the data residency constraint | Addressed |
 | Metric: both enterprise renewals sign in Q1 2027 | Out of the proposal's reach; depends on the timing constraint above | No home |
-| Design: states (empty, preparing, ready, failed, expired, limit, no permission) | invoice-export scenarios for each state; task 4.3 messages in four locales; Q.4 to Q.7, Q.13 | Addressed |
-| Design: actions on narrow screens | invoice-list › List actions › Actions on narrow screens; tasks 4.1, 4.5 | Addressed |
-| Design: accessibility (live regions, focus, 44 px targets) | Non-functional requirements › Accessibility; task 4.5; Q.15 | Addressed |
-| Design: exports indicator kept across navigation | invoice-export › Background export › User leaves the page; task 4.4 | Addressed |
-| Design: copy and tone of the messages | task 4.3 takes the strings from the Experience and design section verbatim | Addressed |
+| UI design: states (empty, preparing, ready, failed, expired, limit, no permission) | invoice-export scenarios for each state; task 4.3 messages in four locales; Q.4 to Q.7, Q.13 | Addressed |
+| UI design: actions on narrow screens | invoice-list › List actions › Actions on narrow screens; tasks 4.1, 4.5 | Addressed |
+| UI design: accessibility (live regions, focus, 44 px targets) | Non-functional requirements › Accessibility; task 4.5; Q.15 | Addressed |
+| UI design: exports indicator kept across navigation | invoice-export › Background export › User leaves the page; task 4.4 | Addressed |
+| UI design: copy and tone of the messages | task 4.3 takes the strings from the UI design section verbatim | Addressed |
 | FT-1: use the nightly batch job | Forced technical notes review: Overridden; the monitoring need is met by the Ops dashboard panel and shared alert routing; tasks 5.1, 5.2 | Addressed |
 
 **Judgement:** Every use case, edge case and acceptance criterion has a scenario whose THEN states the result the

@@ -16,7 +16,7 @@ flowchart TB
   subgraph Product["Product · Rovo or M365 Copilot"]
     direction TB
     PM["Product Manager<br/>Phase 1: AI Assisted Feature Definition<br/>what and why, never how"]
-    DS["Designer<br/>Experience and design section"]
+    DS["Designer<br/>UI design section"]
     PM --> DS
   end
 
@@ -70,9 +70,9 @@ assesses it against the repository before the tech proposal starts.
 | | |
 |---|---|
 | Command | `/espec:feature-definition` |
-| Who | The Product Manager writes. The Designer fills the Experience and design section. QA reviews edge cases and acceptance criteria. |
+| Who | The Product Manager writes. The Designer fills the UI design section. QA reviews edge cases and acceptance criteria. |
 | Tool | Rovo or M365 Copilot, with the agents in [product-ai/](../product-ai/README.md). GitHub Copilot in-repo when a developer starts a feature: `/espec-feature-definition`. |
-| Inputs | The idea, the research, the available designs, the business why, known uncertainties. |
+| Inputs | The idea, the research, the available UI designs, the business why, known uncertainties. |
 | Outputs | The ticket description in the feature definition format, with the readiness checklist all ✅ and the status line set to Ready for tech proposal. In-repo, also `espec/changes/<change-name>/feature.md`. |
 | Exit criteria | **Ready for tech proposal** on the ticket: Why, What, at least one UC, edge cases, out of scope and acceptance criteria are present, every UC and EC maps to an AC, open questions are answered or accepted as deferred, and no how sits outside the forced notes. `/espec:inspect-feature-definition` returns Ready for tech proposal. |
 | Hand-off | The ticket. Product hands it to engineering when it is sufficiently specified for technical assessment, or when they cannot progress further without engineering input, for example because the desired behaviour depends on capabilities or constraints they cannot assess. |
@@ -88,7 +88,7 @@ dependency beforehand. That is what the assessment is for.
 | Command | `/espec:assess` |
 | Who | A developer leads the investigation, involving Product, Design, QA and other teams as needed. |
 | Tool | GitHub Copilot, with access to the repository: `/espec-assess <ticket key, URL or change name>`. |
-| Inputs | The ticket, available designs and research, known questions, the code and its tests, the main specs in `espec/specs/`, API contracts, `espec/project.md` and `espec/config.yaml`. |
+| Inputs | The ticket, available UI designs and research, known questions, the code and its tests, the main specs in `espec/specs/`, API contracts, `espec/project.md` and `espec/config.yaml`. |
 | Activity | Investigate feasibility with Copilot: what the code already does for each acceptance criterion and constraint, with file paths; which capabilities in `espec/specs/` the feature touches; dependencies outside the repository, listed as unconfirmed with an owner to ask; alternatives with their consequences for product; criteria that cannot be met as written, with an outcome rephrasing; spikes where reading the code cannot answer a question. Seek clarification or confirmation from the appropriate people. |
 | Outputs | The Technical assessment report, printed in the chat and pasted as a developer-authored comment on the ticket: findings, evidence, alternatives and trade-offs, questions, dependencies, and links to any spikes or related work. On request, saved to `espec/changes/<change-name>/inspections/YYYY-MM-DD-assess.md`. The PO updates the ticket description after scope decisions are agreed. |
 | Completion outcome | Either **Ready for tech proposal**, or **Further discovery required**, with the outstanding questions, dependencies or spikes recorded and their next actions identified. |
@@ -180,7 +180,7 @@ changes `espec/specs/` without archiving a change fails. See
 | Artifact | Ticket | Repository |
 |---|---|---|
 | Feature definition | Description. Product edits here. | `espec/changes/<change-name>/feature.md`, an identical copy |
-| Design notes | **Experience and design** section of the description | Same section of `feature.md` |
+| Design notes | **UI design** section of the description | Same section of `feature.md` |
 | Forced technical notes | `## Forced technical notes` in the description | Same section of `feature.md`, reviewed in `tech-proposal.md` |
 | Technical assessment | Comment from engineering, with the outcome | Printed by `/espec:assess`. On request, `espec/changes/<change-name>/inspections/YYYY-MM-DD-assess.md` |
 | Questions for Product | Comment from engineering | `## Questions for Product` in `tech-proposal.md` |

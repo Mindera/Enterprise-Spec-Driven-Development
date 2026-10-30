@@ -85,7 +85,7 @@ Product chose the same day to let engineering override it as long as exports sho
 dashboard, which is the agreement the tech proposal's forced-note review records. The assessment also
 listed four dependencies to confirm with other teams, one of them the Q4 2026 release train. The tech
 proposal came back **Not yet** with two blocking findings: the list of exports only showed the last 24
-hours, so the Expired state that the design and the spec promise could never appear, and the Q4 2026 code
+hours, so the Expired state that the UI design and the spec promise could never appear, and the Q4 2026 code
 freeze from the Constraints, which the assessment had flagged, still had no home in the proposal. The
 `tech-proposal.md` in this folder is the version after both were fixed (a 48-hour list window, and a
 Timing bullet under Rollout), which is why its status line says Approved. Each report still quotes the
@@ -97,7 +97,7 @@ text it inspected, so you can see what the command caught.
 [`coverage/implementation.md`](coverage/implementation.md) are the self-checks that `/espec:tech-proposal`
 and `/espec:implementation` printed at the end of their runs over this change. The first says how much of
 the feature definition the proposal covers: every `UC`, `EC` and `AC` with the scenario, tasks and `Q.n`
-found on disk, every constraint, metric, design item and forced note with where the proposal addresses it,
+found on disk, every constraint, metric, UI design item and forced note with where the proposal addresses it,
 a match figure and a short judgement. The second says how much of the proposal and the definition the
 code delivers: every acceptance criterion with its file, the test that passed in the session and the QA
 line, and every proposal item as proposed or differing with a reason.

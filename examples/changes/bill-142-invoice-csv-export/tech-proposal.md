@@ -305,7 +305,7 @@ record of the export). Rollback of the migration is a plain `DROP TABLE`; nothin
 | Constraint: audit | invoice-export › Export current filter › Export is recorded | 2.1, 3.3 |
 | Constraint: data residency | Non-functional (no spec scenario; verified by configuration test) | 5.4 |
 | Constraint: close week performance | Non-functional (no spec scenario; verified by load test) | 5.3 |
-| Design: actions on narrow screens, accessibility | invoice-list › List actions › Actions on narrow screens | 4.1, 4.5 |
+| UI design: actions on narrow screens, accessibility | invoice-list › List actions › Actions on narrow screens | 4.1, 4.5 |
 | FT-1 | Overridden, see review. Monitoring need met by the Ops dashboard panel | 5.1, 5.2 |
 
 Every UC, EC and AC in `feature.md` appears above. No gaps found.

@@ -81,7 +81,7 @@ It then works through nine steps and announces each. Where to pay attention:
 6. **Update `.espec.yaml`** to `proposed` with the engineering and QA owners.
 7. **Assess coverage.** It re-reads what it wrote and prints a coverage report: one row per `UC-n`,
    `EC-n` and `AC-n` with the scenario, tasks and `Q.n` it found on disk and a status of Covered,
-   Partial or Missing; one row per constraint, metric, design item and forced note with where the
+   Partial or Missing; one row per constraint, metric, UI design item and forced note with where the
    proposal addresses it; a match figure such as `13 of 13 product ids covered (100%)`; and a short
    judgement. Read the Partial and Missing rows first. A gap it could close, it closed before
    printing; what is left is a Question for Product or a decision for you.

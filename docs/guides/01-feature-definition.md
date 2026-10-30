@@ -6,7 +6,7 @@ Product writes the **what** and the **why** of a feature with an AI agent that r
 | | |
 |---|---|
 | Command | `/espec:feature-definition`. In Rovo or M365 Copilot, the `espec Feature Definition` agent. In the repository, `/espec-feature-definition`. |
-| Who | The Product Manager. Then the Designer for the Experience and design section. A developer when the work has no product owner. |
+| Who | The Product Manager. Then the Designer for the UI design section. A developer when the work has no product owner. |
 | Input | An idea, a problem, a draft, or an existing ticket |
 | Output | The feature definition, pasted as the ticket description, status line **Ready for tech proposal** |
 | Time | Thirty to ninety minutes for a feature of normal size, in one or two sittings |
@@ -78,9 +78,9 @@ description; it asks before every write.
 
 ### The Designer's pass
 
-The Designer opens the `espec Design Notes` agent, pastes the current ticket description, and answers
+The Designer opens the `espec UI Design` agent, pastes the current ticket description, and answers
 its questions about flows, screens and states, content, accessibility and devices. The agent returns
-the **Experience and design** section and proposes new `EC-n` and `AC-n` entries numbered after the
+the **UI design** section and proposes new `EC-n` and `AC-n` entries numbered after the
 highest existing ones. The Designer pastes the section into the ticket and adds the new entries to
 their sections. The PM re-reads the acceptance criteria: a new state is a new thing to test.
 

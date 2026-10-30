@@ -8,7 +8,7 @@ labels: feature-definition
 <!-- espec:feature-definition v1 -->
 # Feature: <title>
 
-**Ticket:** this issue · **Product owner:** <name> · **Design:** <name or none> · **Status:** Draft
+**Ticket:** this issue · **Product owner:** <name> · **UI design:** <name or none> · **Status:** Draft
 
 ## Why
 
@@ -43,7 +43,7 @@ labels: feature-definition
 - **WHEN**
 - **THEN**
 
-## Experience and design
+## UI design
 
 ## Constraints
 
