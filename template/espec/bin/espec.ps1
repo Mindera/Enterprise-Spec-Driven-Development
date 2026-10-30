@@ -325,6 +325,21 @@ function Get-FeatureIds([string[]]$Lines) {
 function Get-ForcedIds([string[]]$Lines) {
   return @($Lines | ForEach-Object { if ($_ -cmatch '^- \*\*(FT-[0-9]+):\*\*') { $Matches[1] } } | Select-Object -Unique)
 }
+# What is wrong with the row of an FT-n in a Forced technical notes review table, empty when its verdict is
+# Accepted, or Overridden with a reason.
+function Get-ForcedVerdictProblem([string[]]$Review, [string]$Ft) {
+  foreach ($l in $Review) {
+    if ($l -cnotmatch '^\s*\|') { continue }
+    $c = @($l.Split('|') | ForEach-Object { $_.Trim(" `t*``".ToCharArray()) })
+    if ($c.Count -lt 2 -or $c[1] -cne $Ft) { continue }
+    $v = if ($c.Count -gt 2) { $c[2] } else { '' }
+    $r = if ($c.Count -gt 3) { $c[3] } else { '' }
+    if ($v -cne 'Accepted' -and $v -cne 'Overridden') { return 'has no Accepted or Overridden verdict' }
+    if ($v -ceq 'Overridden' -and ($r -eq '' -or $r -eq '-')) { return 'is Overridden without a reason' }
+    return ''
+  }
+  return 'has no row'
+}
 # Draft, In review or Approved from the status line, empty when absent.
 function Get-ProposalStatus([string[]]$Lines) {
   foreach ($l in $Lines) { if ($l -cmatch '\*\*Status:\*\* *(Draft|In review|Approved)') { return $Matches[1] } }
@@ -405,12 +420,13 @@ function Test-TechProposal([string]$Change) {
       if ($trace -cnotmatch ('(^|[^A-Za-z0-9])' + $id + '([^0-9]|$)')) { Add-Fail "tech-proposal.md: $id from feature.md is not in the Traceability table" }
     }
     if ($ids.Count -gt 0 -and $script:Fails -eq $before) { Add-Pass 'tech-proposal.md: every UC, EC and AC is in the Traceability table' }
-    $review = @(Get-Section $lines '## Forced technical notes review') -join "`n"
+    $review = @(Get-Section $lines '## Forced technical notes review')
     $fts = @(Get-ForcedIds $flines); $before = $script:Fails
     foreach ($ft in $fts) {
-      if ($review -cnotmatch ('(^|[^A-Za-z0-9])' + $ft + '([^0-9]|$)')) { Add-Fail "tech-proposal.md: $ft has no row in Forced technical notes review" }
+      $problem = Get-ForcedVerdictProblem $review $ft
+      if ($problem) { Add-Fail "tech-proposal.md: $ft $problem in Forced technical notes review" }
     }
-    if ($fts.Count -gt 0 -and $script:Fails -eq $before) { Add-Pass 'tech-proposal.md: every FT-n has a verdict in the review' }
+    if ($fts.Count -gt 0 -and $script:Fails -eq $before) { Add-Pass 'tech-proposal.md: every FT-n is Accepted, or Overridden with a reason, in the review' }
   }
   $left = @(Get-PlaceholdersOutsideCode $lines)
   if ($left.Count -eq 0) { Add-Pass 'tech-proposal.md: no template placeholders left' }

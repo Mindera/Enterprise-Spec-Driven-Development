@@ -55,6 +55,21 @@ sed 's/\*\*Status:\*\* Approved/**Status:** In review/' "$TP.bak" > "$TP"
 if ./espec/bin/espec validate >/dev/null; then echo "expected validate to fail on an unapproved proposal"; exit 1; fi
 mv "$TP.bak" "$TP"
 
+# A forced note needs an Accepted or Overridden verdict, and an override needs a reason; naming it is not enough.
+cp "$TP" "$TP.bak"
+expect_ft() {
+  sed "s/^| FT-1 | Overridden | .*/$1/" "$TP.bak" > "$TP"
+  if out=$(./espec/bin/espec validate); then echo "expected validate to fail on: $1"; exit 1; fi
+  printf '%s\n' "$out" | grep -F "FT-1 $2 in Forced technical notes review" >/dev/null \
+    || { echo "expected 'FT-1 $2' for: $1"; exit 1; }
+}
+expect_ft 'FT-1 was discussed with product.' 'has no row'
+expect_ft '| FT-1 | To be decided | Pending |' 'has no Accepted or Overridden verdict'
+expect_ft '| FT-1 | Overridden | |' 'is Overridden without a reason'
+sed 's/^| FT-1 | Overridden | .*/| FT-1 | **Accepted** | |/' "$TP.bak" > "$TP"
+./espec/bin/espec validate >/dev/null
+mv "$TP.bak" "$TP"
+
 # After the archive the main specs hold the delta's text, which counts as already applied.
 rm -rf espec/specs/*
 cp -R "$ROOT/examples/specs/." espec/specs/

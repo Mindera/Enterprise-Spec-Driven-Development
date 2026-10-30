@@ -269,6 +269,20 @@ placeholders_outside_code() {
 feature_ids() { sed -n 's/^### \([UEA]C-[0-9][0-9]*\).*/\1/p' "$1" | awk '!s[$0]++'; }
 # forced_ids FILE: FT-n notes of a feature.md, each once.
 forced_ids() { sed -n 's/^- \*\*\(FT-[0-9][0-9]*\):\*\*.*/\1/p' "$1" | awk '!s[$0]++'; }
+# forced_verdict FT: reads a Forced technical notes review table on stdin and prints what is wrong with
+# the row of FT, nothing when its verdict is Accepted, or Overridden with a reason.
+forced_verdict() {
+  awk -v ft="$1" '
+    function trim(s) { gsub(/^[ \t*`]+|[ \t*`]+$/, "", s); return s }
+    /^[ \t]*\|/ {
+      split($0, c, "|"); if (trim(c[2]) != ft) next
+      found = 1; v = trim(c[3]); r = trim(c[4])
+      if (v != "Accepted" && v != "Overridden") print "has no Accepted or Overridden verdict"
+      else if (v == "Overridden" && (r == "" || r == "-")) print "is Overridden without a reason"
+      exit
+    }
+    END { if (!found) print "has no row" }'
+}
 # proposal_status FILE: Draft, In review or Approved from the status line, empty when absent.
 proposal_status() { grep -oE '\*\*Status:\*\* *(Draft|In review|Approved)' "$1" | head -n 1 | sed 's/.*\*\* *//'; }
 
@@ -303,7 +317,7 @@ validate_feature() {
 }
 
 validate_tech_proposal() {
-  local c="$1" f="$1/tech-proposal.md" status="" h missing="" st trace review id ft n before left
+  local c="$1" f="$1/tech-proposal.md" status="" h missing="" st trace review id ft problem n before left
   [ -f "$c/.espec.yaml" ] && status=$(yaml_value "$c/.espec.yaml" status)
   case "$status" in defined|cancelled) echo "  - tech-proposal.md not checked (status $status)"; return 0 ;; esac
   if [ ! -f "$f" ]; then
@@ -345,10 +359,10 @@ validate_tech_proposal() {
     review=$(section "$f" "## Forced technical notes review"); n=0; before=$FAILS
     for ft in $(forced_ids "$c/feature.md"); do
       n=$((n + 1))
-      printf '%s\n' "$review" | grep -Eq "(^|[^A-Za-z0-9])$ft([^0-9]|$)" \
-        || bad "tech-proposal.md: $ft has no row in Forced technical notes review"
+      problem=$(printf '%s\n' "$review" | forced_verdict "$ft")
+      [ -z "$problem" ] || bad "tech-proposal.md: $ft $problem in Forced technical notes review"
     done
-    [ "$n" -eq 0 ] || [ "$FAILS" -ne "$before" ] || ok "tech-proposal.md: every FT-n has a verdict in the review"
+    [ "$n" -eq 0 ] || [ "$FAILS" -ne "$before" ] || ok "tech-proposal.md: every FT-n is Accepted, or Overridden with a reason, in the review"
   fi
   left=$(placeholders_outside_code "$f")
   if [ -z "$left" ]; then ok "tech-proposal.md: no template placeholders left"; else fail_each "tech-proposal.md: placeholder" "$left"; fi

@@ -7,11 +7,23 @@ bumps to (see [AGENTS.md](AGENTS.md)). When a version is merged to `main`, the r
 To move a project to a version, check it out in the toolkit clone and run `espec update`:
 
 ```bash
-git -C ~/espec fetch --tags && git -C ~/espec checkout v1.0.11
+git -C ~/espec fetch --tags && git -C ~/espec checkout v1.0.12
 ~/espec/bin/espec update /path/to/your/repo
 ```
 
 Entries marked **Action** need something done in projects that update.
+
+## v1.0.12 (2026-10-30)
+
+CLI:
+
+- `espec validate` now checks the verdict on each forced technical note, not just that it is named. Every
+  `FT-n` in `feature.md` needs a row in the tech proposal's Forced technical notes review whose Verdict is
+  **Accepted** or **Overridden**, and an Overridden row needs a Reason. A missing row, a missing verdict
+  and an override without a reason each fail with the `FT-n` named. Same behaviour in bash and
+  PowerShell, covered by both smoke tests.
+- **Action:** run `espec update`, then `espec validate`. A proposal that mentions an `FT-n` outside the
+  review table, or leaves its verdict or override reason empty, now fails until the row is completed.
 
 ## v1.0.11 (2026-10-30)
 

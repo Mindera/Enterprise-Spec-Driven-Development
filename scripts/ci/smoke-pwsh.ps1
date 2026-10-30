@@ -75,6 +75,25 @@ try {
     if ($LASTEXITCODE -eq 0) { throw 'expected validate to fail on an unapproved proposal' }
     [System.IO.File]::WriteAllText($tp, $approved)
 
+    # A forced note needs an Accepted or Overridden verdict, and an override needs a reason; naming it is not enough.
+    $ftCases = @(
+      @('FT-1 was discussed with product.', 'has no row'),
+      @('| FT-1 | To be decided | Pending |', 'has no Accepted or Overridden verdict'),
+      @('| FT-1 | Overridden | |', 'is Overridden without a reason')
+    )
+    foreach ($case in $ftCases) {
+      [System.IO.File]::WriteAllText($tp, ($approved -replace '(?m)^\| FT-1 \| Overridden \| .*$', $case[0].Replace('$', '$$')))
+      $global:LASTEXITCODE = 0
+      $out = (& $cli validate) -join "`n"
+      if ($LASTEXITCODE -eq 0) { throw "expected validate to fail on: $($case[0])" }
+      if (-not $out.Contains("FT-1 $($case[1]) in Forced technical notes review")) { throw "expected 'FT-1 $($case[1])' for: $($case[0])" }
+    }
+    [System.IO.File]::WriteAllText($tp, ($approved -replace '(?m)^\| FT-1 \| Overridden \| .*$', '| FT-1 | **Accepted** | |'))
+    $global:LASTEXITCODE = 1
+    & $cli validate | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw 'expected validate to pass on an Accepted forced note' }
+    [System.IO.File]::WriteAllText($tp, $approved)
+
     # After the archive the main specs hold the delta's text, which counts as already applied.
     Remove-Item -Recurse -Force (Join-Path $Work 'espec/specs/invoice-list'), (Join-Path $Work 'espec/specs/invoice-export') -ErrorAction SilentlyContinue
     Get-ChildItem -LiteralPath (Join-Path $Root 'examples/specs') -Directory | ForEach-Object {
