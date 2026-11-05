@@ -9,8 +9,9 @@ try {
   if (-not (Test-Path -LiteralPath $cli)) { throw 'init did not copy espec/bin/espec.ps1' }
   if (-not (Test-Path -LiteralPath (Join-Path $Work '.github/workflows/espec-validate.yml'))) { throw 'init did not copy the validate workflow' }
   Get-Content -Raw -LiteralPath (Join-Path $Work '.diffcompass.json') | ConvertFrom-Json | Out-Null
+  Get-Content -Raw -LiteralPath (Join-Path $Work 'espec/templates/code-repo.diffcompass.json') | ConvertFrom-Json | Out-Null
   $prompts = @(Get-ChildItem -LiteralPath (Join-Path $Work '.github/prompts') -File)
-  if ($prompts.Count -ne 9) { throw "expected 9 prompt files, got $($prompts.Count)" }
+  if ($prompts.Count -ne 10) { throw "expected 10 prompt files, got $($prompts.Count)" }
 
   Push-Location $Work
   try {
@@ -102,6 +103,25 @@ try {
     $global:LASTEXITCODE = 1
     & $cli validate | Out-Null
     if ($LASTEXITCODE -ne 0) { throw 'worked example failed validation against the archived specs' }
+
+    # repos: nothing to do without a list, clones then fast-forwards the listed repos, rejects bad names.
+    if (((& $cli repos) -join "`n") -notmatch 'No repos listed') { throw 'repos did not report an empty list' }
+    $src = "$Work.src"
+    git init -q -b main $src
+    git -C $src -c user.name=smoke -c user.email=smoke@example.com commit -q --allow-empty -m init
+    $cfgPath = Join-Path $Work 'espec/config.yaml'
+    $cfg = [System.IO.File]::ReadAllText($cfgPath)
+    [System.IO.File]::WriteAllText($cfgPath, ($cfg -replace '(?m)^repos: \[\]', "repos:`n  - name: app`n    url: '$src'`n    branch: main"))
+    if (((& $cli repos) -join "`n") -notmatch 'cloned') { throw 'repos did not clone' }
+    if (-not (Test-Path -LiteralPath (Join-Path $Work 'repos/app/.git'))) { throw 'expected repos/app to be cloned' }
+    if (((& $cli repos) -join "`n") -notmatch 'updated') { throw 'repos did not update' }
+    if (((& $cli repos --no-pull) -join "`n") -notmatch 'skipped') { throw 'repos --no-pull did not skip' }
+    [System.IO.File]::WriteAllText($cfgPath, ($cfg -replace '(?m)^repos: \[\]', "repos:`n  - name: bad/name`n    url: x"))
+    $global:LASTEXITCODE = 0
+    & $cli repos 2>$null | Out-Null
+    if ($LASTEXITCODE -eq 0) { throw 'expected repos to reject a bad name' }
+    [System.IO.File]::WriteAllText($cfgPath, $cfg)
+    Remove-Item -Recurse -Force (Join-Path $Work 'repos'), $src
 
     # init and update refuse to run from inside a project.
     $global:LASTEXITCODE = 0

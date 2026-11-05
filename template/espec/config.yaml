@@ -19,6 +19,15 @@ review:
   tool: diffcompass
   base: origin/main             # Branch the tour compares against before the pull request exists
 
+# Spec hub (optional). Leave empty when the specs live next to the code, which is the recommended setup.
+# In a spec hub this repository holds the specs only and the code lives in the repositories listed here.
+# `espec/bin/espec repos` clones them side by side under repos/ (add /repos/ to .gitignore), and the
+# commands read, change and review the code there. See "Spec hub" in espec/AGENTS.md.
+repos: []
+#  - name: web-app                # Folder under repos/, used in task group prefixes such as [web-app]
+#    url: https://github.com/your-org/web-app.git
+#    branch: main                 # Default branch: what repos checks out, and the review base
+
 archive:
   clean:
     # Archived change folders older than this many days are listed for pruning by /espec:archive-clean.

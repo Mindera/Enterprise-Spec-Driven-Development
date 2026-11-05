@@ -162,7 +162,7 @@ ignored). Nobody writes it by hand:
 | Command | Does |
 |---|---|
 | `espec/bin/espec stamp <change-name>` | Writes the stamp under every MODIFIED and REMOVED requirement that has none. The tech proposal runs it after writing the deltas. |
-| `espec/bin/espec validate` | Fails when a stamp is missing, or when the main spec requirement no longer matches it. Runs in CI on every pull request that touches `espec/`. |
+| `espec/bin/espec validate` | Fails when a stamp is missing, or when the main spec requirement no longer matches it. Runs in CI on every pull request. |
 | `espec/bin/espec stamp <change-name> --rebase` | After you have merged the newer main spec text into the delta, records the new version. Without `--rebase`, stamp refuses to overwrite a stamp that no longer matches. |
 
 A MODIFIED requirement under a name that a RENAMED entry introduces is stamped against the old name.

@@ -38,6 +38,7 @@ Never:
 | Phase | Does | Tool |
 |---|---|---|
 | 1 | Fills the **UI design** section: flows, screens, the empty / loading / error / success states, content and tone, accessibility needs, links to design files. Proposes edge cases that come from the UI (what the user sees when something fails). | The UI design agent: [product-ai/rovo/ui-design-agent.md](../product-ai/rovo/ui-design-agent.md) or [product-ai/m365-copilot/ui-design-agent.md](../product-ai/m365-copilot/ui-design-agent.md), or the prompt in [product-ai/prompts/ui-design.prompt.md](../product-ai/prompts/ui-design.prompt.md) |
+| 1 | When the frames are in Figma, a developer (or the Designer, in the repository) runs `/espec:design-context` to write the UI design section from the linked frames. Answers the questions it lists. | GitHub Copilot with the Figma MCP server |
 | 2 | Answers UI design questions from the tech proposal. | The ticket |
 | 3 | Reviews the built screens against the states listed in phase 1. A `Q.n` task can name this review. | The ticket, the staging environment |
 | 4 | Nothing. | |
@@ -143,10 +144,10 @@ repository, or the body in
 3. Commit. Prompt files are read from the repository, so the whole team gets the commands on their
    next pull. The `espec-validate` workflow now checks `espec/` on every pull request.
 4. Restart the IDE so the prompt files under `.github/prompts/` are picked up. In Copilot Chat the
-   nine commands then appear: `/espec-feature-definition`, `/espec-tech-proposal`,
+   ten commands then appear: `/espec-feature-definition`, `/espec-tech-proposal`,
    `/espec-implementation`, `/espec-archive`, `/espec-archive-clean`, the read-only
-   `/espec-inspect-feature-definition`, `/espec-assess` and `/espec-inspect-tech-proposal`, and
-   `/espec-review`. If they do not appear, check that prompt files are enabled in the IDE's Copilot
+   `/espec-inspect-feature-definition`, `/espec-assess` and `/espec-inspect-tech-proposal`,
+   `/espec-review`, and `/espec-design-context`. If they do not appear, check that prompt files are enabled in the IDE's Copilot
    settings.
 5. Enable an MCP server when the organisation allows it: the Atlassian MCP server for Jira, or the
    GitHub MCP server for GitHub Issues. With one of them the tech proposal fetches the ticket by key

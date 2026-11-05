@@ -83,19 +83,23 @@ tech proposal, delta specs and tasks for its part. Questions for Product from ev
 the same ticket. Each change is archived on its own, and each release note names the repository.
 The ticket is closed when the last one ships.
 
+When features span the same repositories all the time and product wants one definition and one
+approval per ticket, a [spec hub](guides/setup-spec-hub.md) keeps one change folder for all of them.
+
 ## Can the specs live in a separate repository from the code?
 
-Not as the toolkit is built, and we recommend against it. Every phase after the definition assumes
-`espec/` sits next to the code it describes: the tech proposal reads the code to write Context, the
-implementation edits code and checks tasks in the same commit, the review tour reads the change folder
-from the pull request diff, and archive-clean looks for evidence in the code and tests beside the
-specs. Splitting them means two pull requests per step that must stay in step by hand, and a spec
-repository that can claim behaviour no code in it proves.
+Yes, as an opt-in **spec hub**, but we recommend specs next to the code whenever you can. With
+`espec/` beside the code, the tech proposal reads the code to write Context, the implementation edits
+code and checks tasks in the same commit, the review tour reads the change folder from the pull
+request diff, and archive-clean looks for evidence in the code and tests beside the specs.
 
-When the code really is spread over many repositories, run espec in each one that owns behaviour, as
-in the previous answer, and keep any cross-repository view (a capability map, an architecture page)
-as documentation that links to each repository's `espec/specs/`. Decide this before the rollout:
-moving specs into code repositories later means rebuilding their history.
+When that is not possible, a [spec hub](guides/setup-spec-hub.md) holds `espec/` and lists the code
+repositories under `repos:` in `config.yaml`; `espec repos` clones them beside it. The commands read
+and change code under `repos/<name>`. The costs: two pull requests per step (specs in the hub, code
+in its repository) kept in step by hand, a spec repository that can claim behaviour no code in it
+proves, and cloud agents that cannot see both. When the repositories rarely share a feature, run
+espec in each one instead, as in the previous answer. Decide this before the rollout: moving specs
+between repositories later means rebuilding their history.
 
 ## Who approves the tech proposal?
 

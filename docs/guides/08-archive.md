@@ -77,7 +77,9 @@ The deltas are applied one capability at a time in the order RENAMED, REMOVED, M
 matching headings by exact text. Everything the delta does not mention stays as it was, Purpose
 included. Base stamp lines stay in the archived delta; they never reach a main spec. Each touched
 main spec is then verified: no delta headings remain, every requirement has a
-scenario, names are unique, and a second pass finds nothing left to apply. Only then does the folder
+scenario, names are unique, and the result matches the plan: removed and old renamed headings are
+gone, added, modified and new renamed ones hold the delta's text. The conflict checks are not run
+again on the synced spec, where a removed requirement is meant to be missing. Only then does the folder
 move to `espec/changes/archive/YYYY-MM-DD-<change-name>/`, with `status: archived` and the date in
 `.espec.yaml`. An existing archive folder is never overwritten.
 

@@ -11,7 +11,8 @@ bash -n "$ROOT/template/espec/bin/espec"
 test -x "$WORK/espec/bin/espec"
 test -f "$WORK/.github/workflows/espec-validate.yml"
 python3 -m json.tool "$WORK/.diffcompass.json" >/dev/null
-[ "$(ls "$WORK/.github/prompts" | wc -l)" -eq 9 ] || { echo "expected 9 prompt files"; exit 1; }
+python3 -m json.tool "$WORK/espec/templates/code-repo.diffcompass.json" >/dev/null
+[ "$(ls "$WORK/.github/prompts" | wc -l)" -eq 10 ] || { echo "expected 10 prompt files"; exit 1; }
 
 cd "$WORK"
 
@@ -74,6 +75,24 @@ mv "$TP.bak" "$TP"
 rm -rf espec/specs/*
 cp -R "$ROOT/examples/specs/." espec/specs/
 ./espec/bin/espec validate >/dev/null
+
+# repos: nothing to do without a list, clones then fast-forwards the listed repos, rejects bad names.
+./espec/bin/espec repos | grep 'No repos listed' >/dev/null
+SRC="$WORK.src"
+git init -q -b main "$SRC"
+git -C "$SRC" -c user.name=smoke -c user.email=smoke@example.com commit -q --allow-empty -m init
+cp espec/config.yaml config.bak
+# awk -v expands the \n escapes into newlines.
+set_repos() { awk -v b="$1" '/^repos: \[\]/ { print b; next } { print }' config.bak > espec/config.yaml; }
+set_repos "repos:\n  - name: app\n    url: '$SRC'\n    branch: main"
+./espec/bin/espec repos | grep 'cloned' >/dev/null
+[ -d repos/app/.git ] || { echo "expected repos/app to be cloned"; exit 1; }
+./espec/bin/espec repos | grep 'updated' >/dev/null
+./espec/bin/espec repos --no-pull | grep 'skipped' >/dev/null
+set_repos 'repos:\n  - name: bad/name\n    url: x'
+if ./espec/bin/espec repos >/dev/null 2>&1; then echo "expected repos to reject a bad name"; exit 1; fi
+mv config.bak espec/config.yaml
+rm -rf repos "$SRC"
 
 # init and update refuse to run from inside a project.
 if ./espec/bin/espec update . >/dev/null 2>&1; then

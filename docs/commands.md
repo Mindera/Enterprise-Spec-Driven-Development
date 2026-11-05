@@ -1,7 +1,8 @@
 # Commands
 
 Five commands, one per step of the workflow, three read-only commands (a technical assessment and two
-inspections), a review command that starts the DiffCompass tour, plus an optional CLI. Canonical names use a colon.
+inspections), a review command that starts the DiffCompass tour, a design-context command that
+reads Figma frames into the feature definition, plus an optional CLI. Canonical names use a colon.
 In GitHub Copilot Chat the same command is typed with a dash, because prompt file names cannot
 contain `:`. Rovo and M365 Copilot have no slash commands. There the command is an agent you
 @-mention or a prompt you paste.
@@ -33,7 +34,8 @@ Only phase 1 runs in Rovo and M365 Copilot. Phases 2 to 4 need the repository an
 | `/espec:inspect-feature-definition` | before 2 | Developer, QA, reviewer | Ticket key, URL, pasted definition or change name | Nothing. A report and a ticket comment in the chat |
 | `/espec:assess` | before 2 | Developer, with Product, Design, QA and the owning teams | Ticket key, URL, pasted definition or change name | Nothing. A report and a ticket comment in the chat |
 | `/espec:inspect-tech-proposal` | before 3 | QA, Engineering Manager, Architect | Change name | Nothing. A report and a ticket comment in the chat |
-| `/espec:review` | after 3 | Reviewer | Pull request number or URL, branch or change name | Nothing. Launches the DiffCompass tour |
+| `/espec:review` | after 3 | Reviewer | Pull request number or URL, branch or change name. In a spec hub: code pull request URL and change name | Nothing. Launches the DiffCompass tour |
+| `/espec:design-context` | 1, before 2 | Developer or Designer | Change name, ticket key or Figma frame URLs | The **UI design** and **Open questions** sections of `feature.md`. The ticket only on yes |
 
 Every command ends with a usage line, such as `Usage: 3 premium requests (GitHub Copilot)`, so
 developers see what each run cost. When the tool does not show usage to the agent, the line says so
@@ -182,7 +184,7 @@ ticket. Worked example reports: [examples/inspections/](../examples/inspections/
 | GitHub Copilot | `/espec-review [target]` |
 | Prompt file | [template/.github/prompts/espec-review.prompt.md](../template/.github/prompts/espec-review.prompt.md) |
 | Who runs it | The reviewer of the implementation pull request. The author, to preview the tour before asking for review. |
-| Input | A pull request number or URL, a branch, or a change name. Empty input uses the current branch, and its open pull request when there is one. |
+| Input | A pull request number or URL, a branch, or a change name. Empty input uses the current branch, and its open pull request when there is one. In a [spec hub](guides/setup-spec-hub.md): the code pull request URL, then the change name. |
 | Reads | `AGENTS.md`, `config.yaml` (`review.tool`, `review.base`), `.diffcompass.json`, and for the change the diff touches: `.espec.yaml`, `tasks.md` and `pull-request.md`. |
 | Writes | Nothing. Runs `diffcompass pr <number> --open` for a pull request, or `diffcompass --base <review.base> --open` for a branch. |
 | Pauses when | `review.tool` is `none`: points to the manual review. `diffcompass doctor` fails: points to the install instructions. A change name matches more than one branch or pull request: asks which. |
@@ -190,6 +192,26 @@ ticket. Worked example reports: [examples/inspections/](../examples/inspections/
 
 It never approves, comments on or edits the pull request. The decision stays with the reviewer, in
 the pull request.
+
+In a spec hub the code pull request does not contain the change folder. The command finds the change
+by name, or by the ticket key in the branch or the pull request body, reads it from the hub, runs the
+tour from `repos/<name>` and prints a brief to paste into the tour's Ask panel.
+
+## /espec:design-context
+
+| | |
+|---|---|
+| GitHub Copilot | `/espec-design-context <source>` |
+| Prompt file | [template/.github/prompts/espec-design-context.prompt.md](../template/.github/prompts/espec-design-context.prompt.md) |
+| Who runs it | A developer after importing the ticket, or a Designer working in the repository. |
+| Input | A change name, a ticket key, or Figma frame URLs. The change folder must exist: import the ticket with `/espec:feature-definition` first. |
+| Needs | A Figma MCP server (`get_metadata`, `get_design_context`, `get_screenshot`). See [setup step 7](guides/setup-engineering.md#step-7-let-copilot-reach-the-ticket-system-optional-recommended). |
+| Reads | `AGENTS.md`, `project.md`, `config.yaml`, `feature.md`, the ticket's description, links and comments, and every linked frame. |
+| Writes | The **UI design** section of `feature.md`: screens and states mapped to `UC-n` and `EC-n`, interactions, copy verbatim, differences per platform, accessibility. Gaps go to **Open questions** with Design as owner. Shows the diff and asks before writing. Updates the ticket only on yes, so the ticket and `feature.md` stay identical. |
+| Pauses when | A Figma link has no `node-id`. The design shows behaviour the definition does not describe: listed as a question for Product. Before writing and before touching the ticket: always asks. |
+
+It writes what people see and do, not component names, code or tokens. The tech proposal reads the
+linked frames for those.
 
 ## The espec CLI (optional)
 
@@ -214,6 +236,7 @@ bash espec/bin/espec validate           # from inside a project, no toolkit need
 |---|---|---|
 | `espec init [dir]` | Copies `template/` into a repository and prints the next steps. Never overwrites an existing file. Copies the licence to `espec/LICENSE.md` and records the toolkit version in `espec/.toolkit-version`. | `.github/` and `espec/` in the target repo |
 | `espec update [dir]` | Refreshes the managed files: the `espec-*` prompts, `espec.instructions.md`, the `espec-validate.yml` workflow, `AGENTS.md`, `templates/`, `espec/bin/`, `espec/LICENSE.md` and `espec/.toolkit-version`, and prints the version it moves from and to. Leaves `copilot-instructions.md`, `CODEOWNERS`, `project.md`, `config.yaml`, `specs/` and `changes/` alone. | Managed files only |
+| `espec repos [--no-pull] [dir]` | [Spec hub](guides/setup-spec-hub.md) only. Clones every repository listed under `repos:` in `config.yaml` into `repos/<name>`, or fetches and fast-forwards it when the clone is clean and on the configured branch. `--no-pull` (`-NoPull` in PowerShell) leaves existing clones alone. Warns when `repos/` is not gitignored. Exits non-zero when a clone or fetch fails. | `repos/` |
 | `espec version [dir]` | Prints the toolkit version the project was set up or last updated with. | Nothing |
 | `espec new <change-name> [--ticket KEY] [--title "Title"] [--kind feature\|bug] [dir]` | Scaffolds `espec/changes/<change-name>/` from `espec/templates/`: `feature.md` (from `bug.md` with `--kind bug`), `tech-proposal.md`, `tasks.md`, an empty `specs/` and a `.espec.yaml` with the ticket, title, kind and today's date. The name must be kebab-case. | `espec/changes/<change-name>/` |
 | `espec stamp <change-name> [--rebase] [dir]` | Writes the [base stamp](conventions.md#base-stamps) under every MODIFIED and REMOVED requirement of the change's deltas. Refuses to replace a stamp whose main spec requirement has changed since, unless `--rebase` is given after the delta has been merged with the newer text. | The change's delta specs |
@@ -221,13 +244,14 @@ bash espec/bin/espec validate           # from inside a project, no toolkit need
 | `espec validate [change-name] [dir]` | Checks one change, or every active change, plus the main specs: the feature definition marker, required sections and `UC`, `EC`, `AC` ids, the ⚠️ marker on forced notes, leftover placeholders, delta section names, `#### Scenario:` with four hashes, every requirement has a scenario, a Reason on every REMOVED requirement, unique requirement names, every delta still applying to the main spec as it is today (MODIFIED, REMOVED and RENAMED headings present, ADDED headings not present with other content, base stamps matching), no base stamp left in a main spec, the `- [ ] N.M` task format, the sections and status line of `tech-proposal.md` with every `UC`, `EC` and `AC` in its Traceability table and every `FT-n` in its Forced technical notes review as Accepted, or Overridden with a reason (Approved once implementation has started), a valid `.espec.yaml` status and kind (a bug needs Steps to reproduce and `AC` ids instead of `UC` and `EC`, and a shorter proposal), and the sections of `pull-request.md` once a change is implemented. Exits non-zero on a failure, so it can run in CI. | Nothing |
 
 `[dir]` defaults to the current directory. `init` and `update` run from the toolkit checkout; `new`,
-`list`, `validate`, `stamp` and `version` also run from `espec/bin/` inside a project. Run `validate` before you ask for
+`list`, `validate`, `stamp`, `repos` and `version` also run from `espec/bin/` inside a project. Run `validate` before you ask for
 a tech proposal review. Run `update` after pulling a new espec release, then commit the result.
 
 ### Validation in CI
 
 `init` adds `.github/workflows/espec-validate.yml` to the project. It runs `espec/bin/espec validate`
-on every pull request that touches `espec/`, and on demand. On a pull request it also fails when
+on every pull request, and on demand, so it can be a required status check. It also checks that
+`espec/config.yaml` parses as YAML, since every command reads it. On a pull request it also fails when
 `espec/specs/` changes but nothing was added under `espec/changes/archive/`: main specs change only
 through archive and archive-clean. Because the validator ships with the
 project, the job needs no network access and no checkout of this toolkit. A draft change committed

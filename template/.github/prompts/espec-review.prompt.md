@@ -9,7 +9,11 @@ You start the code review of an implemented change with DiffCompass. You change 
 [espec/AGENTS.md](../../espec/AGENTS.md) and [espec/config.yaml](../../espec/config.yaml) first and
 follow the **Pull request description format** and **Reviewing the code** sections.
 
-Input: `${input:target:Pull request number or URL, branch or change name (leave empty for the current branch)}`
+Input: `${input:target:Pull request number or URL, branch or change name (leave empty for the current branch). In a spec hub: code pull request URL, then the change name}`
+
+**Spec hub.** When `repos:` in `config.yaml` lists repositories, the code lives in `repos/<name>` and
+its pull request does not contain the change folder. The input is then a code pull request URL,
+optionally followed by the change name. Steps 1 to 5 below say what differs.
 
 ## Steps
 
@@ -19,7 +23,9 @@ Input: `${input:target:Pull request number or URL, branch or change name (leave 
    command is missing or the doctor fails, show its output, point to
    [DiffCompass](https://github.com/Mindera/diffcompass) for installation and stop. When
    `.diffcompass.json` is missing at the repository root, warn that the tour will not read the change
-   folder and suggest copying it from the toolkit template.
+   folder and suggest copying it from the toolkit template. In a spec hub, check
+   `repos/<name>/.diffcompass.json` instead and suggest copying
+   `espec/templates/code-repo.diffcompass.json` into the code repository.
 
 2. **Resolve the target.**
    - A pull request number or URL: use it.
@@ -28,21 +34,32 @@ Input: `${input:target:Pull request number or URL, branch or change name (leave 
    - A change name: find the branch or pull request that touches `espec/changes/<change-name>/`, and
      ask when there is more than one.
    - Empty: the current branch, resolved as above.
+   - Spec hub: match the pull request URL to a repo in `repos:` by its `url`. When none matches, ask.
+     When `repos/<name>` is missing, ask the user to run `espec/bin/espec repos` and stop.
    Announce "Reviewing: pull request <number>" or "Reviewing: <branch> against <review.base>".
 
 3. **Find the change.** List the folders under `espec/changes/` the diff touches, excluding
    `archive/`. Exactly one is expected; name it. None means the diff is not an espec change: say the
    tour will run without a change folder and continue. More than one: list them and continue.
+   In a spec hub the diff never touches the change folder. Use the change name from the input;
+   otherwise take the ticket key from the branch name or the pull request body and find the change
+   whose `.espec.yaml` has that ticket. Ask when nothing matches.
 
 4. **Check the description.** For the change found, read `.espec.yaml`, `tasks.md` and
    `pull-request.md` from disk on the reviewed branch. Report, without blocking the tour:
    - `.espec.yaml` is not at `implemented`, or tasks are unchecked: say how many.
    - `pull-request.md` is missing or lacks a section: name it and point to `/espec:implementation`.
    - The pull request body differs from `pull-request.md`: say so. The description is the review's map.
+   In a spec hub, read these files from the hub checkout, count only unchecked tasks in the
+   `[<name>]` groups for this repo, and compare the pull request body with this repo's block in
+   `pull-request.md`. Report when the body does not link the hub change folder.
 
 5. **Launch the tour.** In the terminal, run `diffcompass pr <number> --open` for a pull request, or
    `diffcompass --base <review.base> --open` for a branch. It keeps running while the tour is open in
    the local browser; leave it running. When you cannot run commands, print the command instead.
+   In a spec hub, run it from `repos/<name>` after `git fetch`, with `--base origin/<branch>` for a
+   branch. Then print a short brief to paste into the tour's Ask panel: the change name, the
+   acceptance criteria and decisions that concern this repo, and the hub path of the change folder.
 
 6. **Report.** Print:
    - The command that was run and the change folder.

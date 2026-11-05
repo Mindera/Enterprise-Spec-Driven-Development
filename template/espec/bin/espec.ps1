@@ -17,6 +17,7 @@ param(
   [string] $Title = '',
   [string] $Kind = '',
   [switch] $Rebase,
+  [switch] $NoPull,
   [Alias('h')] [switch] $Help
 )
 Set-StrictMode -Version Latest
@@ -50,6 +51,8 @@ Usage: espec.ps1 <command> [arguments]
   stamp <name> [--rebase] [dir]
                              Record in each MODIFIED and REMOVED requirement of a change the version of the main
                              spec it was written against. --rebase re-records requirements whose main spec changed.
+  repos [--no-pull] [dir]    Spec hub only: clone the code repositories listed under repos: in espec/config.yaml
+                             into repos/, or fetch and fast-forward the clones already there
   version [dir]              Show the toolkit version a project was set up or last updated with
   help                       Show this help
 
@@ -118,7 +121,7 @@ function Invoke-Init([string]$Dir) {
 Next steps:
   1. Edit espec/project.md and espec/config.yaml: product, stack, conventions, ticket system.
   2. Commit the new files. The workflow in .github/workflows/espec-validate.yml runs
-     espec/bin/espec validate on pull requests that touch espec/.
+     espec/bin/espec validate on every pull request; make it a required check.
   3. Restart your IDE so GitHub Copilot picks up the prompt files in .github/prompts.
   4. Name the tech proposal approvers in CODEOWNERS and require code owner review on the default
      branch: docs/guides/setup-engineering.md, step 5, in the toolkit.
@@ -743,6 +746,95 @@ function Invoke-Validate([string[]]$Arguments) {
   if ($script:Fails -gt 0) { exit 1 }
 }
 
+# ---------------------------------------------------------------- repos (spec hub)
+
+# Entries of the top-level repos: list in config.yaml, as objects with Name, Url and Branch.
+function Get-ConfigRepos([string]$File) {
+  $result = @()
+  if (-not (Test-Path -LiteralPath $File)) { return $result }
+  $inside = $false; $entry = $null
+  foreach ($line in @(Get-Lines $File)) {
+    if ($line -match '^repos:') { $inside = $true; continue }
+    if (-not $inside) { continue }
+    if ($line -match '^[^\s#-]') { break }
+    if ($line -match '^\s*#' -or $line -match '^\s*$') { continue }
+    $text = $line
+    if ($text -match '^\s*- ') {
+      if ($entry -and ($entry.Name -or $entry.Url)) { $result += $entry }
+      $entry = [pscustomobject]@{ Name = ''; Url = ''; Branch = '' }
+      $text = $text -replace '^\s*- ', ''
+    }
+    if (-not $entry) { continue }
+    $text = $text.Trim()
+    if ($text -match '^(name|url|branch):(.*)$') {
+      $value = ($Matches[2] -replace '\s+#.*$', '').Trim() -replace '^["'']|["'']$', ''
+      switch ($Matches[1]) { 'name' { $entry.Name = $value } 'url' { $entry.Url = $value } 'branch' { $entry.Branch = $value } }
+    }
+  }
+  if ($entry -and ($entry.Name -or $entry.Url)) { $result += $entry }
+  return $result
+}
+
+# Runs git and returns its exit status and output. Windows PowerShell 5.1 turns native stderr into
+# errors under ErrorActionPreference Stop, so the preference is relaxed for the call.
+function Invoke-Git([string[]]$GitArgs) {
+  $global:LASTEXITCODE = 0
+  $saved = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
+  try { $out = & git @GitArgs 2>$null } finally { $ErrorActionPreference = $saved }
+  return [pscustomobject]@{ Ok = ($LASTEXITCODE -eq 0); Out = (@($out) -join "`n").Trim() }
+}
+
+function Invoke-Repos([string[]]$Arguments) {
+  $dir = '.'; $pull = -not $NoPull; $failed = $false
+  foreach ($a in $Arguments) {
+    if ($a -eq '--no-pull') { $pull = $false }
+    elseif ($a -like '-*') { Fail "unknown option: $a" }
+    else { $dir = $a }
+  }
+  Require-Project $dir
+  $entries = @(Get-ConfigRepos (Join-Path $dir 'espec/config.yaml'))
+  if ($entries.Count -eq 0) {
+    Write-Output 'No repos listed in espec/config.yaml: the specs live next to the code, so there is nothing to clone.'
+    return
+  }
+  if (-not (Get-Command git -ErrorAction SilentlyContinue)) { Fail 'git is not installed' }
+  New-Item -ItemType Directory -Force -Path (Join-Path $dir 'repos') | Out-Null
+  Write-Output "Code repositories in $(Join-Path $dir 'repos')"
+  foreach ($r in $entries) {
+    $name = $r.Name
+    if ($name -cnotmatch '^[A-Za-z0-9._-]+$' -or $name -eq '.' -or $name -eq '..') {
+      Write-Output "  $Cross '$name': a repo name is letters, digits, dots, dashes or underscores"; $failed = $true; continue
+    }
+    if (-not $r.Url) { Write-Output "  $Cross ${name}: no url in espec/config.yaml"; $failed = $true; continue }
+    $dest = Join-Path (Join-Path $dir 'repos') $name
+    if (Test-Path -LiteralPath (Join-Path $dest '.git')) {
+      if (-not $pull) { Write-Output "  skipped    repos/$name (--no-pull)"; continue }
+      if (-not (Invoke-Git @('-C', $dest, 'fetch', '--quiet', 'origin')).Ok) { Write-Output "  $Cross repos/${name}: git fetch failed"; $failed = $true; continue }
+      $current = (Invoke-Git @('-C', $dest, 'rev-parse', '--abbrev-ref', 'HEAD')).Out
+      if ((Invoke-Git @('-C', $dest, 'status', '--porcelain')).Out) {
+        Write-Output "  fetched    repos/$name (local changes on $current, not fast-forwarded)"
+      } elseif ($r.Branch -and $current -ne $r.Branch) {
+        Write-Output "  fetched    repos/$name (on $current, not $($r.Branch): the commands read the checked-out branch)"
+      } elseif ((Invoke-Git @('-C', $dest, 'merge', '--ff-only', '--quiet', '@{u}')).Ok) {
+        Write-Output "  updated    repos/$name ($current)"
+      } else {
+        Write-Output "  fetched    repos/$name (could not fast-forward $current)"
+      }
+    } elseif (Test-Path -LiteralPath $dest) {
+      Write-Output "  $Cross repos/$name exists and is not a git clone"; $failed = $true
+    } else {
+      $cloneArgs = @('clone', '--quiet')
+      if ($r.Branch) { $cloneArgs += @('--branch', $r.Branch) }
+      if (-not (Invoke-Git ($cloneArgs + @($r.Url, $dest))).Ok) { Write-Output "  $Cross ${name}: git clone failed"; $failed = $true; continue }
+      Write-Output "  cloned     repos/$name ($((Invoke-Git @('-C', $dest, 'rev-parse', '--abbrev-ref', 'HEAD')).Out))"
+    }
+  }
+  if ((Invoke-Git @('-C', $dir, 'rev-parse', '--is-inside-work-tree')).Ok -and -not (Invoke-Git @('-C', $dir, 'check-ignore', '-q', 'repos/')).Ok) {
+    Write-Output "  $WarnSign warning: repos/ is not ignored. Add /repos/ to .gitignore so code never lands in the spec hub."
+  }
+  if ($failed) { exit 1 }
+}
+
 # ---------------------------------------------------------------- dispatch
 
 $arguments = @($Rest)
@@ -754,6 +846,7 @@ switch ($Command.ToLowerInvariant()) {
   'list'     { Invoke-List (Get-FirstOrDot $arguments) }
   'validate' { Invoke-Validate $arguments }
   'stamp'    { Invoke-Stamp $arguments }
+  'repos'    { Invoke-Repos $arguments }
   'version'  { Invoke-Version (Get-FirstOrDot $arguments) }
   '--version' { Invoke-Version (Get-FirstOrDot $arguments) }
   'help'     { Show-Usage }

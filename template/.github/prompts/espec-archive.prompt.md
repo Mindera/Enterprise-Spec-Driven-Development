@@ -53,8 +53,11 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
 5. **Verify** each touched main spec: no delta headings remain (`## ADDED Requirements`,
    `## MODIFIED Requirements`, `## REMOVED Requirements`, `## RENAMED Requirements`), every
    requirement has at least one `#### Scenario:`, requirement names are unique, no base stamp line
-   remains. Then re-run the plan
-   from step 3 and confirm there is nothing left to apply. Any mismatch: report and stop before moving.
+   remains. Then compare each main spec with the plan from step 3: removed requirements and the old
+   names of renamed ones are absent; added, modified and new renamed requirements are present with
+   the delta's text. Do not re-run the step 3 conflict checks on the synced spec: a REMOVED heading
+   that is now missing is the expected result, not a conflict. Any mismatch with the plan: report and
+   stop before moving.
 
 6. **Move the change.** Target is `espec/changes/archive/YYYY-MM-DD-<change-name>/` using today's
    date, unless the name already starts with a date. Refuse to overwrite an existing folder. Set

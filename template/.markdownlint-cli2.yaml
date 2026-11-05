@@ -1,0 +1,20 @@
+# markdownlint starting point for an espec project. Yours after init; update never touches it.
+# The espec managed files are excluded: update overwrites them, so lint fixes there would be lost.
+# Run: npx --yes markdownlint-cli2 "**/*.md"
+config:
+  default: true
+  MD013: false          # line length: specs and prompts use long lines
+  MD024:
+    siblings_only: true # repeated headings such as "### Repo: web-app" under different parents
+  MD033: false          # inline HTML: espec marker comments and <details>
+  MD041: false          # first line heading: templates start with HTML markers or front matter
+  MD060: false          # table pipe spacing: espec templates use compact |---| separators
+ignores:
+  - "node_modules/**"
+  - "repos/**"
+  - ".github/prompts/espec-*.prompt.md"
+  - ".github/instructions/espec.instructions.md"
+  - "espec/AGENTS.md"
+  - "espec/LICENSE.md"
+  - "espec/templates/**"
+  - "espec/changes/archive/**"
