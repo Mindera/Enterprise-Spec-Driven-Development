@@ -63,7 +63,38 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
    observed in the task line (environment, result), and check it only when it passes. When the user is
    QA or asks for verification only, skip to this group and do not touch application code.
 
-9. **Write the pull request description.** When every task is checked, or when the user stops early
+9. **Validate security (mobile apps, optional).** When every task is checked, or before a pull
+   request is written early, and `security.tool` in `config.yaml` is `mobile-security-assessment`,
+   follow the **Security validation** section of AGENTS.md. With `none`, skip the step.
+   - **Access first.** Run `gh repo view <security.repo>`. When the GitHub CLI is missing, not signed
+     in, or the command fails, the user has no access to the private tool: say "Security validation
+     skipped: no access to <security.repo>", attach nothing, and go to step 10. Never ask for
+     credentials or another account.
+   - **Platforms.** Use `security.platforms`; when empty, detect them from the tree (`build.gradle*`
+     or `AndroidManifest.xml`: android, `*.xcodeproj` or `Package.swift`: ios, `commonMain`: kmp) and
+     say what you detected. No mobile platform: "Security validation skipped: not a mobile app".
+   - **Run it.** Clone or update the tool outside the project, read its `AGENTS.md` and follow its
+     **Running an assessment for a user** section: a virtualenv, `msa doctor`, the provider you run
+     on, one `msa assess` call with `--path <repository> --platform <platform>` per platform and
+     `--out` in a temporary folder outside the repository. When `msa doctor` names missing tools, pause:
+     list them and ask whether to install them or skip. A skipped run is recorded as skipped, with the
+     reason, never as passed.
+   - **Fix what the change caused.** Compare every `File:LINE` in the deduction ledger of `report.md`
+     with `git diff --name-only <review.base>...HEAD`. A finding whose evidence is in a file the change
+     touches belongs to this change: add a task to a `## Security` group in `tasks.md` (`S.1`, `S.2`),
+     fix it, run the assessment again and check the task only when the finding is gone. A finding in a
+     file the change did not touch is pre-existing: do not fix it here (step 7), report it.
+   - **Record the outcome** in the **Security validation** section of `pull-request.md` (step 10).
+     Findings remain, pre-existing or declined by the user: copy `report.md` to
+     `espec/changes/<change-name>/security-report.md`, write the alert line
+     "⚠️ Security findings: fix before merge", the scorecard, one row per finding (row, weakness,
+     `File:LINE`, standard, in this change or pre-existing) and a link to `security-report.md`. No
+     findings: write "Security validation passed: <platforms>, <tool> <rubric version>, <date>" and
+     attach nothing. Skipped: "Security validation skipped: <reason>".
+   - The assessment is static. Never probe the app's backend or any host the report names, and never
+     copy a secret value into the report, the tasks or the chat: the tool cites where a secret is.
+
+10. **Write the pull request description.** When every task is checked, or when the user stops early
    and asks for a pull request anyway, write `pull-request.md` from
    `espec/templates/pull-request.md`, following the Pull request description format in AGENTS.md.
    Re-read `tech-proposal.md` from disk and compare it with what you actually built: every decision,
@@ -73,7 +104,7 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
    understand the change without opening the code. Print the file, and the command to use it:
    `gh pr create --body-file espec/changes/<change-name>/pull-request.md`.
 
-10. **Assess coverage.** Re-read `feature.md`, `tech-proposal.md`, every file under `specs/`,
+11. **Assess coverage.** Re-read `feature.md`, `tech-proposal.md`, every file under `specs/`,
    `tasks.md` and `pull-request.md` from disk. For every `AC-n`: the file, the test and whether it
    passed in this session, the `Q.n` line and whether it is checked. For every item in Proposal versus
    implementation: as proposed, differs with a reason, or differs without one. Close the gaps you can:
@@ -81,8 +112,9 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
    **Implementation coverage** format of AGENTS.md. Print it also when the user stops early, with the
    open tasks counted as not delivered.
 
-11. **On completion**, set `status: implemented` in `.espec.yaml` and report: tasks completed this
-   session, overall progress, anything deferred with the reason, and
+12. **On completion**, set `status: implemented` in `.espec.yaml` and report: tasks completed this
+   session, overall progress, anything deferred with the reason, the security validation outcome
+   (passed, skipped with the reason, or the number of findings and the alert), and
    "All tasks complete. Review, then run `/espec:archive <change-name>`."
    When `review.tool` in `config.yaml` is `diffcompass`, add the review command for the reviewer:
    `/espec:review <change-name>`, which runs `diffcompass pr <number> --open` once the pull request
@@ -98,8 +130,10 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
 - Compute the coverage report from the files and the test runs of this session, not from memory. An
   acceptance criterion whose test did not run is Partial, whatever the code looks like.
 - `pull-request.md` never says "see code" or "self-explanatory". Every row names a file, a test or a
-  result. A difference from the tech proposal that changes observable behaviour also updates the
-  change's delta specs, which you propose and the user confirms.
+  result. The **Security validation** section is never empty: passed, skipped with the reason, or the
+  alert with the findings. "Passed" is written only after the tool ran on every platform. A difference
+  from the tech proposal that changes observable behaviour also updates the change's delta specs,
+  which you propose and the user confirms.
 - Do not edit `espec/specs/` in this phase. Behaviour changes go in the change's delta specs, and
   that is a tech proposal update, which you propose and the user confirms. After editing a MODIFIED
   or REMOVED requirement, run `espec/bin/espec stamp <change-name>`.

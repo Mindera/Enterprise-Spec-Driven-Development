@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="./VERSION"><img alt="Version: v1.0.14" src="https://img.shields.io/badge/version-v1.0.14-orange.svg?style=flat-square"></a>
+  <a href="./VERSION"><img alt="Version: v1.0.15" src="https://img.shields.io/badge/version-v1.0.15-orange.svg?style=flat-square"></a>
   <a href="./LICENSE.md"><img alt="License: Sustainable Use 1.0" src="https://img.shields.io/badge/License-Sustainable%20Use%201.0-blue.svg?style=flat-square"></a>
   <img alt="GitHub Copilot" src="https://img.shields.io/badge/Developers-GitHub%20Copilot-24292f?style=flat-square">
   <img alt="Rovo" src="https://img.shields.io/badge/Product-Rovo-0052cc?style=flat-square">
@@ -133,9 +133,11 @@ and proposal.
 
 **Phase 3** generates the code from the tech proposal and specs, one task at a time, and never
 narrows scope silently. It ends with a pull request description a reviewer can read without opening
-the code: what was built, where it differs from the proposal and why, and how it was verified. The
-reviewer then runs `/espec:review`, which walks the diff with
-[DiffCompass](https://github.com/Mindera/diffcompass): it reads the change folder and flags code that drifts from the proposal.
+the code: what was built, where it differs from the proposal and why, and how it was verified. On a
+mobile app it first runs a security validation against OWASP MASVS, fixes what the change introduced
+and puts the rest on the pull request as an alert. The reviewer then runs `/espec:review`, which walks
+the diff with [DiffCompass](https://github.com/Mindera/diffcompass): it reads the change folder and
+flags code that drifts from the proposal.
 
 **Phase 4** folds the change into the main specs. `archive-clean` goes further: it searches the specs
 for anything the code no longer does, proposes keep, update or purge with evidence, and applies what
@@ -189,6 +191,33 @@ Copilot:          Reviewing: pull request 1234. Change: bill-142-invoice-csv-exp
 See [Step 7: Code review](docs/guides/07-code-review.md) for the two-pass review and what to decide on
 each finding.
 
+## Security validation
+
+Mobile apps get a security validation before the pull request description is written. The
+implementation step runs
+[AI Mobile Security Assessment](https://github.com/Mindera/AI-Mobile-Security-Assessment), a static,
+evidence-backed assessment of Android, iOS and Kotlin Multiplatform code against OWASP MASVS, where
+every finding cites a file and line.
+
+```text
+Copilot:          Security validation: android detected. Running msa assess on the repository.
+                  2 findings in files this change touches: D01 SessionStore.kt:10, D06 HttpClient.kt:36.
+                  Added S.1 and S.2 to tasks.md. Fixing S.1...
+                  Second run: 0 findings in this change, 3 pre-existing.
+                  ⚠️ Security findings: fix before merge. Report saved as security-report.md.
+```
+
+- **Optional, by access.** The tool's repository is private. The step runs only when the signed-in
+  GitHub user can read it; otherwise the pull request says "Security validation skipped" and nothing
+  is attached. Set `security.tool: none` in `espec/config.yaml` to turn it off.
+- **Fixes what the change caused.** A finding in a file the diff touches becomes a task in a
+  `## Security` group of `tasks.md`, is fixed, and is checked when a second run no longer reports it.
+  Pre-existing findings are reported, not fixed in the change.
+- **Alert on the pull request.** Findings left: `pull-request.md` carries "⚠️ Security findings: fix
+  before merge", one row per finding and the report, saved as `security-report.md` in the change
+  folder. No findings: one line, "Security validation passed". The reviewer treats a finding in a
+  touched file as a change request, and the DiffCompass tour flags it.
+
 ## How it flows
 
 ```mermaid
@@ -231,7 +260,7 @@ Your repo also gets its own copy of the validator in `espec/bin` and a GitHub Ac
 runs it on every pull request, so format rules are checked without any dependency
 on this toolkit. Then name your tech proposal approvers in CODEOWNERS
 ([engineering setup, step 5](docs/guides/setup-engineering.md#step-5-protect-approval-and-the-main-specs)).
-To pin a version, check out its tag (`git -C ~/espec checkout v1.0.14`) before `init` or `update`.
+To pin a version, check out its tag (`git -C ~/espec checkout v1.0.15`) before `init` or `update`.
 
 ### Product and design
 
@@ -279,9 +308,10 @@ your-repo/
     ├── AGENTS.md                          # Conventions for humans and AI
     ├── LICENSE.md, .toolkit-version       # The toolkit's licence and the version you run
     ├── project.md                         # Your stack, teams, traps
-    ├── config.yaml                        # Ticket system, rules, archive settings
+    ├── config.yaml                        # Ticket system, review and security tools, rules, archive settings
     ├── specs/<capability>/spec.md         # The system as it is today
     ├── changes/<change-name>/             # feature.md · tech-proposal.md · specs/ · tasks.md · pull-request.md
+    │   ├── security-report.md             # Mobile apps: the security findings, only when there are some
     │   └── inspections/                   # Saved inspection reports, only on request
     ├── changes/archive/                   # Finished changes and clean-up reports
     ├── templates/                         # Blank files the commands start from
@@ -306,7 +336,7 @@ Questions, bugs and ideas go to [GitHub Issues](https://github.com/Mindera/Enter
 Pull requests are welcome. Keep the README simple and the prompts shorter than the documents they
 produce.
 
-The current version is **v1.0.14**, kept in [`VERSION`](VERSION). Every change bumps the last number
+The current version is **v1.0.15**, kept in [`VERSION`](VERSION). Every change bumps the last number
 (`vX.Y.Z` → `vX.Y.Z+1`) and adds an entry to the [changelog](CHANGELOG.md); every version merged to
 `main` is tagged and released. See [`AGENTS.md`](AGENTS.md) for the rules every contributor and every
 AI assistant follows.

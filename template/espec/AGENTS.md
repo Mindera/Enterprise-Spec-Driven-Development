@@ -391,6 +391,7 @@ differs from the tech proposal.
 ## Deviations and deferred work
 ## How to review
 ## Verification
+## Security validation
 ## Rollout
 ## Release note
 ```
@@ -404,6 +405,9 @@ Rules:
   entry point a reviewer opens first. "Verified by" names a test and the `Q.n` task.
 - **Deviations and deferred work** lists unchecked tasks with reasons and scope surfaced during
   implementation. "None" is a valid value and must be written.
+- **Security validation** is one of three lines: passed, skipped with the reason, or the alert
+  "⚠️ Security findings: fix before merge" followed by one row per finding and a link to
+  `security-report.md` in the change folder. See **Security validation** below.
 - **Rollout** describes what was implemented, not what was proposed.
 - Never write "see code" or "self-explanatory". Every claim points to a file, a test or a result.
 - The `## Release note` section is reused by `/espec:archive` as the ticket comment.
@@ -418,6 +422,31 @@ request, `diffcompass --base <review.base> --open` for a branch. `/espec:review`
 checks `pull-request.md` and runs the right one. `.diffcompass.json` at the repository root tells its agent to read the change folder first, follow **How to review**, and flag code that
 differs from the tech proposal or the delta specs without a row in **Proposal versus implementation**.
 The tour helps the reviewer; it does not replace approval in the pull request.
+
+### Security validation
+
+When `security.tool` in `config.yaml` is `mobile-security-assessment`, `/espec:implementation` runs
+[AI Mobile Security Assessment](https://github.com/Mindera/AI-Mobile-Security-Assessment) on the
+repository before it writes `pull-request.md`: a static, evidence-backed assessment of Android, iOS
+and Kotlin Multiplatform code against OWASP MASVS, where every finding cites a file and line. The
+tool's repository is private, so the step is optional: it runs only when `gh repo view <security.repo>`
+succeeds for the signed-in GitHub user and is skipped, with a note, otherwise. It also skips a
+repository with no mobile platform. `security.platforms` names the platforms; empty means detected.
+
+- A finding whose cited file is in the diff of the change is the change's to fix: it becomes a task in
+  a `## Security` group of `tasks.md`, is fixed, and is checked when a second run no longer reports it.
+- A finding in a file the change did not touch is pre-existing. It is not fixed in this change; it is
+  reported.
+- Findings left: the tool's `report.md` is saved as `security-report.md` in the change folder and the
+  **Security validation** section of `pull-request.md` carries the alert
+  "⚠️ Security findings: fix before merge", the scorecard, one row per finding and the link. The
+  reviewer treats a finding in a touched file as a change request.
+- No findings: the section says "Security validation passed", with the platforms, the tool's rubric
+  version and the date. Nothing is attached.
+- Skipped: the section says so and why. A run that did not happen never reads as passed.
+- The assessment is static. Nobody probes the app's backend or a host the report names, and secret
+  values never reach the report, the tasks or the chat: the tool cites where a secret is, not what it
+  is. The report maps the app's weaknesses, so it belongs only in a repository private to the team.
 
 ## Inspection report formats
 
@@ -811,6 +840,8 @@ empty.
   or you are tempted to narrow, defer or simplify specified behaviour, stop and surface it. Never
   silently reduce scope. Only check a task when its behaviour is fully implemented and verified.
   An accepted change to the design sets the proposal back to In review and waits for approval.
+  Security validation runs only with access to the tool; without it the pull request says skipped,
+  never passed.
 - Phase 4 never deletes a spec without evidence and confirmation.
 - Inspect commands and the technical assessment are read-only. They never edit the ticket,
   `feature.md`, the proposal, specs, tasks or code, and they save a report only when asked. The

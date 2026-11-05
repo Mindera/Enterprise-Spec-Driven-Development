@@ -7,13 +7,13 @@ bumps to (see [AGENTS.md](AGENTS.md)). When a version is merged to `main`, the r
 To move a project to a version, check it out in the toolkit clone and run `espec update`:
 
 ```bash
-git -C ~/espec fetch --tags && git -C ~/espec checkout v1.0.14
+git -C ~/espec fetch --tags && git -C ~/espec checkout v1.0.15
 ~/espec/bin/espec update /path/to/your/repo
 ```
 
 Entries marked **Action** need something done in projects that update.
 
-## v1.0.14 (2026-11-05)
+## v1.0.15 (2026-11-05)
 
 Fixes:
 
@@ -60,6 +60,29 @@ Docs:
 - Engineering setup: an example `.github/mcp.json` (Atlassian, Figma), more Common problems rows
   (MCP policy, Figma links and limits, stale `repos/`), and how to bring new lines into the files that
   are yours after init.
+
+## v1.0.14 (2026-11-05)
+
+Implementation:
+
+- `/espec:implementation` runs a security validation on mobile apps before it writes `pull-request.md`,
+  with [AI Mobile Security Assessment](https://github.com/Mindera/AI-Mobile-Security-Assessment): a
+  static assessment of Android, iOS and Kotlin Multiplatform code against OWASP MASVS. The tool's
+  repository is private, so the step runs only when the signed-in GitHub user can read it, and is
+  skipped with a note otherwise. A finding in a file the change touches becomes a task in a
+  `## Security` group of `tasks.md` and is fixed before the pull request; pre-existing findings are
+  reported. Findings left put "⚠️ Security findings: fix before merge" on the pull request with one row
+  per finding and the report saved as `security-report.md` in the change folder. No findings: one line,
+  "Security validation passed". `/espec:review` names the findings the diff does not fix, and
+  `.diffcompass.json` tells the tour to flag them.
+- New `security` block in `config.yaml`: `tool` (`mobile-security-assessment` or `none`), `repo` and
+  `platforms` (empty means detected from the repository).
+- `pull-request.md` has a **Security validation** section: passed, skipped with the reason, or the
+  alert. `espec validate` does not require it, so existing changes keep validating.
+- **Action:** after `espec update`, add the `security` block from
+  [template/espec/config.yaml](template/espec/config.yaml) to your `espec/config.yaml` (`update` never
+  touches it) and the new instruction from [template/.diffcompass.json](template/.diffcompass.json) to
+  yours. Without the block the implementation step skips the validation.
 
 ## v1.0.13 (2026-11-05)
 

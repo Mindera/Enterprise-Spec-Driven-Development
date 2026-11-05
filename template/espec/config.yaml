@@ -19,6 +19,18 @@ review:
   tool: diffcompass
   base: origin/main             # Branch the tour compares against before the pull request exists
 
+security:
+  # Security validation that /espec:implementation runs on a mobile app before it writes
+  # pull-request.md. mobile-security-assessment | none
+  # AI Mobile Security Assessment (https://github.com/Mindera/AI-Mobile-Security-Assessment) assesses
+  # Android, iOS and Kotlin Multiplatform code against OWASP MASVS. The repository is private: the step
+  # runs only when the signed-in GitHub user can read it and is skipped, with a note, otherwise.
+  # Findings in files the change touches are fixed before the pull request. The rest go on the pull
+  # request as an alert, with the report. With none, no security validation runs.
+  tool: mobile-security-assessment
+  repo: Mindera/AI-Mobile-Security-Assessment
+  platforms: []                 # android | ios | kmp. Empty: detected from the repository
+
 # Spec hub (optional). Leave empty when the specs live next to the code, which is the recommended setup.
 # In a spec hub this repository holds the specs only and the code lives in the repositories listed here.
 # `espec/bin/espec repos` clones them side by side under repos/ (add /repos/ to .gitignore), and the

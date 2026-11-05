@@ -35,6 +35,7 @@ Read `pull-request.md` top to bottom. Ten minutes. What to decide on each sectio
 | Behaviour delivered | One row per acceptance criterion. Each names a file and a test. Pick the three criteria most likely to be wrong and keep them for the second pass. |
 | Deviations and deferred work | Unchecked tasks have reasons. "None" is written, not implied. Anything product must know is here, and it will reach them through the release note. |
 | Verification | Commands and results. QA lines have environments. Numbers where the constraints had numbers. |
+| Security validation | Mobile apps: "passed" names the platforms and the date, "skipped" names a reason you accept, and the alert lists findings. A finding in a file the diff touches is a change request. Pre-existing findings get a change of their own, not this pull request. |
 | Rollout | As implemented. Flag default, migration order, rollback. |
 
 If the first pass finds a gap, request changes now. Do not read code to compensate for a description
@@ -69,6 +70,8 @@ Then grep the diff for `espec/specs/`: any hit is a change request.
 | Code differs from the proposal with no row in the table | Request changes: add the row with the reason, and the delta spec change if behaviour changed |
 | A test named in Behaviour delivered is missing or does not test the criterion | Request changes |
 | `espec/specs/` edited | Request changes. Main specs change at archive only |
+| A security finding in a file the diff touches, still open | Request changes. The author fixes it as an `S.n` task and re-runs the validation |
+| Security validation skipped on a mobile app without a reason you accept | Request changes, or ask the author to get access to the tool and run it |
 | A task checked without its verification | Request changes. Uncheck, verify, re-check |
 | Design you would have done differently, within the approved proposal | Comment, approve. The proposal was the place for that review |
 
