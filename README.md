@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="./VERSION"><img alt="Version: v1.0.12" src="https://img.shields.io/badge/version-v1.0.12-orange.svg?style=flat-square"></a>
+  <a href="./VERSION"><img alt="Version: v1.0.13" src="https://img.shields.io/badge/version-v1.0.13-orange.svg?style=flat-square"></a>
   <a href="./LICENSE.md"><img alt="License: Sustainable Use 1.0" src="https://img.shields.io/badge/License-Sustainable%20Use%201.0-blue.svg?style=flat-square"></a>
   <img alt="GitHub Copilot" src="https://img.shields.io/badge/Developers-GitHub%20Copilot-24292f?style=flat-square">
   <img alt="Rovo" src="https://img.shields.io/badge/Product-Rovo-0052cc?style=flat-square">
@@ -156,6 +156,39 @@ the ticket.
 In GitHub Copilot the commands are typed with a dash (`/espec-tech-proposal`), because prompt file
 names cannot contain a colon. In Rovo and M365 Copilot, phase 1 is an agent you @-mention.
 
+## Code review
+
+Code review is integrated with [DiffCompass](https://github.com/Mindera/diffcompass), a local,
+agent-led walkthrough of a pull request in the browser. The reviewer runs `/espec:review` and gets a
+guided tour of the diff that already knows the change folder: the tech proposal, the delta specs, the
+tasks and `pull-request.md`.
+
+<p align="center">
+  <a href="docs/guides/07-code-review.md"><img src="assets/diffcompass-demo.gif" alt="DiffCompass tour of a pull request: Briefing, guided tour, diagrams, dry runs and findings" width="800"></a>
+</p>
+
+```text
+Reviewer:         /espec-review 1234
+Copilot:          Reviewing: pull request 1234. Change: bill-142-invoice-csv-export.
+                  pull-request.md complete and matches the pull request body. 14/14 tasks checked.
+                  Running: diffcompass pr 1234 --open
+```
+
+- **Primed with the change folder.** `espec init` adds `.diffcompass.json` at the repository root. It
+  tells the tour agent to read the change folder before explaining code and to order the tour by
+  **How to review** in `pull-request.md`: entry points, then the core, then tests.
+- **Flags spec drift.** Findings include a `spec-drift` category: code that differs from the tech
+  proposal or the delta specs without a row in **Proposal versus implementation**, behaviour no
+  acceptance criterion or scenario describes, a named test missing from the diff, and any edit to
+  `espec/specs/` outside an archive.
+- **Feedback lands on the pull request.** Ask the tour questions as you go and leave line comments.
+  Approval still happens in the pull request.
+- **Optional.** `review.tool: diffcompass` in `espec/config.yaml` turns it on. Set `none` to review
+  by hand from `pull-request.md`.
+
+See [Step 7: Code review](docs/guides/07-code-review.md) for the two-pass review and what to decide on
+each finding.
+
 ## How it flows
 
 ```mermaid
@@ -198,7 +231,7 @@ Your repo also gets its own copy of the validator in `espec/bin` and a GitHub Ac
 runs it on every pull request touching `espec/`, so format rules are checked without any dependency
 on this toolkit. Then name your tech proposal approvers in CODEOWNERS
 ([engineering setup, step 5](docs/guides/setup-engineering.md#step-5-protect-approval-and-the-main-specs)).
-To pin a version, check out its tag (`git -C ~/espec checkout v1.0.12`) before `init` or `update`.
+To pin a version, check out its tag (`git -C ~/espec checkout v1.0.13`) before `init` or `update`.
 
 ### Product and design
 
@@ -270,7 +303,7 @@ Questions, bugs and ideas go to [GitHub Issues](https://github.com/Mindera/Enter
 Pull requests are welcome. Keep the README simple and the prompts shorter than the documents they
 produce.
 
-The current version is **v1.0.12**, kept in [`VERSION`](VERSION). Every change bumps the last number
+The current version is **v1.0.13**, kept in [`VERSION`](VERSION). Every change bumps the last number
 (`vX.Y.Z` → `vX.Y.Z+1`) and adds an entry to the [changelog](CHANGELOG.md); every version merged to
 `main` is tagged and released. See [`AGENTS.md`](AGENTS.md) for the rules every contributor and every
 AI assistant follows.

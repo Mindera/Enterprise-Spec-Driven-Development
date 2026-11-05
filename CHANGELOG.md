@@ -7,11 +7,19 @@ bumps to (see [AGENTS.md](AGENTS.md)). When a version is merged to `main`, the r
 To move a project to a version, check it out in the toolkit clone and run `espec update`:
 
 ```bash
-git -C ~/espec fetch --tags && git -C ~/espec checkout v1.0.12
+git -C ~/espec fetch --tags && git -C ~/espec checkout v1.0.13
 ~/espec/bin/espec update /path/to/your/repo
 ```
 
 Entries marked **Action** need something done in projects that update.
+
+## v1.0.13 (2026-11-05)
+
+Docs:
+
+- The README has a **Code review** section with a demo of the DiffCompass tour: `/espec:review`
+  launches it primed with the change folder through `.diffcompass.json`, findings flag spec drift,
+  and approval stays in the pull request. No change to the toolkit or to projects that update.
 
 ## v1.0.12 (2026-10-30)
 
