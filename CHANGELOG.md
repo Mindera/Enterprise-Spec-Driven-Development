@@ -7,11 +7,59 @@ bumps to (see [AGENTS.md](AGENTS.md)). When a version is merged to `main`, the r
 To move a project to a version, check it out in the toolkit clone and run `espec update`:
 
 ```bash
-git -C ~/espec fetch --tags && git -C ~/espec checkout v1.0.14
+git -C ~/espec fetch --tags && git -C ~/espec checkout v1.0.15
 ~/espec/bin/espec update /path/to/your/repo
 ```
 
 Entries marked **Action** need something done in projects that update.
+
+## v1.0.15 (2026-11-05)
+
+Fixes:
+
+- `/espec:archive` step 5 no longer reports a false conflict after applying a REMOVED or RENAMED
+  delta. It now checks the synced main spec against the plan from step 3 instead of re-running the
+  conflict checks, where a missing REMOVED heading is the expected result. `AGENTS.md` and the
+  archive guide say the same.
+
+CI:
+
+- `espec-validate.yml` runs on every pull request, not only those touching `espec/**`, so it can be a
+  required status check. It also checks that `espec/config.yaml` parses as YAML.
+- **Action:** run `espec update`, then make `espec validate` a required check on the default branch.
+
+Spec hub (opt-in):
+
+- `repos:` in `config.yaml` lists code repositories for a spec hub: specs in one repository, code in
+  several. `espec repos [--no-pull]` (bash and PowerShell) clones them into `repos/<name>` or fetches
+  and fast-forwards clean clones on the configured branch, and warns when `repos/` is not gitignored.
+- `AGENTS.md` has a **Spec hub** section: `### Repo: <name>` sub-sections in the tech proposal,
+  `[<name>]` task group prefixes, one code pull request per repository, review and archive rules.
+- `/espec:review` accepts a code pull request URL and a change name, finds the change in the hub and
+  runs the tour from `repos/<name>`. `espec/templates/code-repo.diffcompass.json` is the
+  `.diffcompass.json` for the code repositories.
+- New guide: [Spec hub setup](docs/guides/setup-spec-hub.md). The FAQ now presents the hub as the
+  fallback when specs cannot live next to the code.
+- **Action (optional):** to use a hub, copy the `repos:` block from `template/espec/config.yaml` into
+  your `config.yaml`, since `update` leaves that file alone.
+
+Commands:
+
+- New `/espec:design-context`: reads the Figma frames linked from a feature through the Figma MCP
+  server and writes the **UI design** section of `feature.md` (screens and states mapped to `UC-n`
+  and `EC-n`, interactions, copy, accessibility). Asks before writing and before updating the ticket.
+- **Action:** run `espec update` to get the new prompt; connect the Figma MCP server to use it.
+
+Templates (init only, copy them by hand into existing projects):
+
+- `.markdownlint-cli2.yaml`: markdownlint settings that skip the managed espec files.
+- `.github/PULL_REQUEST_TEMPLATE/espec-spec-change.md`: for tech proposal and archive pull requests.
+
+Docs:
+
+- Engineering setup: an example `.github/mcp.json` (Atlassian, Figma), more Common problems rows
+  (MCP policy, Figma links and limits, stale `repos/`), and how to bring new lines into the files that
+  are yours after init.
 
 ## v1.0.14 (2026-11-05)
 

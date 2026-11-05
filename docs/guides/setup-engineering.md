@@ -7,7 +7,7 @@ Copilot commands, the formats and the validation, with nothing installed on thei
 |---|---|
 | Who | One developer with write access to the repository. Thirty minutes, once. |
 | Needs | GitHub Copilot with Copilot Chat and agent mode. A `bash` shell (macOS, Linux, Git Bash) or PowerShell. Python is not needed. |
-| Result | `espec/` and `.github/` in the repository. `/espec-` commands in Copilot Chat for the whole team. `espec validate` on every pull request that touches `espec/`. |
+| Result | `espec/` and `.github/` in the repository. `/espec-` commands in Copilot Chat for the whole team. `espec validate` on every pull request. |
 
 ## What you get
 
@@ -25,7 +25,7 @@ Copilot commands, the formats and the validation, with nothing installed on thei
 | `.github/prompts/espec-*.prompt.md` | The nine Copilot commands | The toolkit |
 | `.github/instructions/espec.instructions.md` | Format rules applied whenever Copilot edits `espec/**` | The toolkit |
 | `.github/copilot-instructions.md` | Repository-wide rules, including for the Copilot coding agent | You, after init. Never overwritten. |
-| `.github/workflows/espec-validate.yml` | CI: validation on pull requests that touch `espec/`, and main specs changed only by archive | The toolkit |
+| `.github/workflows/espec-validate.yml` | CI: validation on every pull request, `config.yaml` syntax, and main specs changed only by archive | The toolkit |
 | `.github/ISSUE_TEMPLATE/feature-definition.md` | New issue skeleton for GitHub Issues projects | You |
 | `.diffcompass.json` | Code review tour settings for DiffCompass | You, after init |
 
@@ -149,9 +149,28 @@ one, `/espec-tech-proposal BILL-142` fetches it, and the inspect commands compar
 - **GitHub Issues:** the GitHub MCP server, or the `gh` CLI signed in on the machine. The prompts
   accept either.
 
+- **Figma** (for `/espec-design-context`): the Figma MCP server. The remote server needs a Figma
+  seat with Dev Mode access; the desktop app's local server is an alternative when the remote one is
+  not allowed.
+
+An example `.github/mcp.json` for VS Code and the Copilot CLI:
+
+```json
+{
+  "servers": {
+    "atlassian": { "type": "http", "url": "https://mcp.atlassian.com/v2/mcp" },
+    "figma": { "type": "http", "url": "https://mcp.figma.com/mcp" }
+  }
+}
+```
+
+For the Figma desktop server, use `"url": "http://127.0.0.1:3845/mcp"` with the desktop app open and
+its MCP server enabled. A setup that differs per developer goes in a gitignored `.mcp.json` in their
+checkout instead of the shared file.
+
 Commit the MCP configuration file only if your organisation allows it; the server URL is not a secret, the
-sign-in is per user. Check the current server URLs in the Atlassian and GitHub documentation; they
-change more often than this toolkit.
+sign-in is per user. Check the current server URLs in the Atlassian, GitHub and Figma documentation;
+they change more often than this toolkit.
 
 ## Step 8: the Copilot coding agent (GitHub Issues projects)
 
@@ -221,6 +240,10 @@ go into `config.yaml` (rules and context), `project.md`, and `copilot-instructio
 does change a toolkit file must mark it as modified, as the [licence](../../LICENSE.md) requires, and
 re-apply the change after every update.
 
+`update` also never brings new lines into the files that are yours after init. After an update,
+compare `config.yaml` and `copilot-instructions.md` with the same files in `~/espec/template/` and copy
+in what is new by hand; the changelog's **Action** entries say when.
+
 ## Rolling it out to a team
 
 1. Pilot with one change and one developer who has read [the guides](README.md). Pick a feature that
@@ -240,7 +263,7 @@ espec/bin/espec validate
 ```
 
 - Prints "Main specs: none yet" (or your specs) and `0 failures`.
-- `/espec-` shows nine commands in Copilot Chat in agent mode.
+- `/espec-` shows ten commands in Copilot Chat in agent mode.
 - The `espec-validate` workflow ran on the init pull request.
 - `espec/project.md` has no placeholder text left and the Tests line names a command that works.
 - `espec/bin/espec version` prints the toolkit version you installed.
@@ -256,4 +279,9 @@ espec/bin/espec validate
 | A command only talks and never edits a file | Ask mode | Switch Copilot Chat to Agent mode |
 | `espec validate` fails on a fresh change | Template placeholders are still in `feature.md` | Expected. Fill the definition in, or keep the draft on a branch |
 | The coding agent implemented an issue directly | `copilot-instructions.md` was replaced, or the issue body lacks the marker | Restore the rule; use the issue template so the marker is the first line |
+| An MCP server does not start, or its tools never appear | Organisation policy blocks MCP servers, or the folder is not trusted | Ask an admin to allow the server; trust the workspace folder; restart the IDE |
+| `/espec-design-context` reads the whole file or the wrong screen | The Figma link has no `node-id` | Ask the designer for a link to the frame (right click, Copy link to selection) |
+| Figma calls fail or are rate limited | No Dev Mode seat, or a large page read in one call | Get a seat with Dev Mode, or use the desktop server; read one frame at a time |
+| A command cites old code in a spec hub | `repos/<name>` is stale | Run `espec/bin/espec repos` |
+| A search from the hub root finds no code | `repos/` is gitignored, so search tools skip it | Search with an explicit `repos/<name>/` path |
 | `update` reports every file as updated right after `init` | Line endings changed on checkout (Windows) | Add `* text=auto eol=lf` for `espec/**` and `.github/prompts/**` in `.gitattributes` |

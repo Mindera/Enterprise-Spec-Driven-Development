@@ -32,10 +32,14 @@ comment for the ticket.
 `/espec:review` starts the code review of an implemented change: it checks `pull-request.md` and
 launches the DiffCompass tour of the pull request or branch. It writes nothing either.
 
+`/espec:design-context` reads the design frames linked from a feature (through a Figma MCP server)
+and writes the **UI design** section of `feature.md`, after the import and before the tech proposal.
+It writes nothing else.
+
 GitHub Copilot prompt files cannot contain `:` in their name, so in Copilot Chat the commands are typed
 with a dash: `/espec-feature-definition`, `/espec-tech-proposal`, `/espec-implementation`,
 `/espec-archive`, `/espec-archive-clean`, `/espec-inspect-feature-definition`, `/espec-assess`,
-`/espec-inspect-tech-proposal`, `/espec-review`. The colon form is the canonical name used in documentation.
+`/espec-inspect-tech-proposal`, `/espec-review`, `/espec-design-context`. The colon form is the canonical name used in documentation.
 
 ## Directory layout
 
@@ -64,7 +68,7 @@ espec/
 │       └── YYYY-MM-DD-archive-clean/
 │           └── cleanup.md
 ├── templates/                    # Blank files the commands start from
-└── bin/                          # espec validate, new, list, stamp, version (copied by init, refreshed by update)
+└── bin/                          # espec validate, new, list, stamp, repos, version (copied by init, refreshed by update)
 ```
 
 `<capability>` is a kebab-case name for a durable system behaviour (`invoice-export`, `user-auth`),
@@ -147,7 +151,9 @@ an HTML comment marker so tools and prompts can recognise it:
 
 ## UI design
 <!-- Filled by the Designer: flows, screens and states (empty, loading, error, success), content and tone,
-     accessibility needs, links to design files. Still what, not how. -->
+     accessibility needs, links to design files. Still what, not how. /espec:design-context fills it
+     from Figma frame links: screens and states mapped to UC-n and EC-n, interactions, copy verbatim,
+     accessibility. The tech proposal may read the linked frames for components and tokens. -->
 
 ## Constraints
 <!-- Business, legal, compliance, brand, timing, markets, devices. Outcomes, not mechanisms. -->
@@ -664,6 +670,8 @@ cancelled_reason: ""             # why, set together with cancelled
    of these.
 5. After applying, the main spec must contain no delta section headings (`## ADDED Requirements`
    and friends) and no base stamp lines, and every requirement must still have at least one scenario.
+   Verify the result against the plan, not by re-running the conflict checks of rule 4: once synced,
+   a REMOVED heading is expected to be missing.
 6. Move `changes/<change-name>/` to `changes/archive/YYYY-MM-DD-<change-name>/` and set
    `status: archived`. Never overwrite an existing archive folder.
 7. Produce a short release note for the ticket: what shipped, which specs changed, what was deferred.
@@ -791,6 +799,38 @@ Usage: <amount> <unit> (<tool>)
   `/cost` in Claude Code.
 - Never estimate or invent a figure. A guess shown as a number misleads budget decisions.
 - The line goes in the chat only, never in an artifact, a ticket comment or a pull request.
+
+## Spec hub (`repos:` in `config.yaml`)
+
+By default the specs live next to the code. When a feature spans several repositories that cannot
+share one, a **spec hub** holds the specs and the code stays in its own repositories. The hub lists
+them under `repos:` in `config.yaml`; `espec/bin/espec repos` clones or fast-forwards each into
+`repos/<name>`, which is gitignored. Everything in this section applies only when `repos:` is not
+empty.
+
+- The hub holds specs only. Never add application code to it. When `repos/<name>` is missing or
+  stale, ask the user to run `espec/bin/espec repos` instead of guessing.
+- `repos/` is gitignored, so a search from the hub root may skip it. Search and read code with an
+  explicit path (`repos/<name>/...`) and cite paths that way in the Context section and the
+  assessment.
+- `feature.md` and the delta specs are shared and repository-agnostic. When behaviour differs per
+  repository, add a scenario whose name ends with `(<name>)`.
+- `tech-proposal.md` adds `### Repo: <name>` sub-sections inside **Context**, **Approach**,
+  **Architecture** and **Test strategy** for each repository touched. **Approach** names the
+  repositories affected. When one repository consumes another's change (a shared library, an API),
+  **APIs and contracts** states the versioning and the release order.
+- `tasks.md` groups start with `[<name>]` (`## 1. [web-app] Export button`). Groups for a repository
+  others consume come first.
+- Implementation happens in `repos/<name>`, on a branch named after the ticket key, with one pull
+  request per repository. `tasks.md` is checked off in the hub. Every code pull request links the
+  hub change folder. `pull-request.md` keeps one `##` block per code pull request, naming the
+  repository.
+- Review runs `/espec:review <code pull request URL> <change-name>`: the tour runs from
+  `repos/<name>` against `origin/<branch>`. Each code repository keeps a `.diffcompass.json`
+  copied from `espec/templates/code-repo.diffcompass.json`.
+- Archive runs after every code pull request of the change is merged.
+- Cloud coding agents and pull request reviewers that run inside one repository cannot see the
+  hub or `repos/`. Run the espec commands from a local hub checkout.
 
 ## Guardrails for AI assistants
 

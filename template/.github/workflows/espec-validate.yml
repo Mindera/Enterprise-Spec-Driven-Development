@@ -5,11 +5,10 @@ name: espec validate
 # and that every delta still applies to the main spec as it is today.
 # Then checks that the main specs change only through /espec:archive and /espec:archive-clean.
 # The validator ships with the project in espec/bin, so this job needs no network access.
+# It runs on every pull request, not only those that touch espec/, so it can be a required check.
 
 on:
   pull_request:
-    paths:
-      - "espec/**"
   workflow_dispatch:
 
 permissions:
@@ -24,6 +23,15 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+
+      - name: espec/config.yaml parses
+        run: |
+          if ! python3 -c 'import yaml' 2>/dev/null; then
+            echo "PyYAML is not available on this runner; skipping the config.yaml syntax check."
+          else
+            python3 -c 'import sys, yaml; yaml.safe_load(open(sys.argv[1]))' espec/config.yaml
+            echo "espec/config.yaml parses"
+          fi
 
       - name: Run espec validate
         run: bash espec/bin/espec validate

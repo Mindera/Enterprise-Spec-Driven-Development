@@ -15,6 +15,7 @@ for the role matrix. The guides are the walkthroughs. When a guide and
 | Guide | Who | Result |
 |---|---|---|
 | [Engineering setup](setup-engineering.md) | A developer with write access to the repository | `espec/` and `.github/` in the repository, the Copilot commands available to the team, validation in CI |
+| [Spec hub setup](setup-spec-hub.md) | A developer, when the code spans several repositories that cannot hold the specs. Optional | A spec repository with the code repositories cloned under `repos/`, one change folder per ticket for all of them |
 | [Product setup](setup-product.md) | A Rovo or Microsoft 365 Copilot admin, then the product team | The two agents shared with product and design, the ticket template in Jira or GitHub |
 
 ## Steps, once per feature

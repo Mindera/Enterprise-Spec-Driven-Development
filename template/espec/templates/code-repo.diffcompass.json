@@ -1,0 +1,14 @@
+{
+  "analysis": {
+    "instructions": [
+      "The specs for this repository live in a spec hub, not here. The pull request description links the hub change folder espec/changes/<change-name>/. Its tech-proposal.md, delta specs under specs/, tasks.md and pull-request.md are the intended behaviour. When the reviewer pastes or attaches them, read them before explaining code.",
+      "Order the tour by the How to review section of the pull request description when it exists: entry points, then the core, then tests.",
+      "Flag code that differs from the tech proposal or the delta specs without a matching row in the Proposal versus implementation table of the pull request description.",
+      "Flag behaviour changes that no acceptance criterion (AC-n) or delta spec scenario describes, and acceptance criteria whose Verified by test is missing from the diff.",
+      "Flag changes to an interface other repositories consume that the tech proposal does not list with its versioning and release order."
+    ],
+    "findings": {
+      "categories": ["correctness", "security", "testing", "spec-drift"]
+    }
+  }
+}

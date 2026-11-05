@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="./VERSION"><img alt="Version: v1.0.14" src="https://img.shields.io/badge/version-v1.0.14-orange.svg?style=flat-square"></a>
+  <a href="./VERSION"><img alt="Version: v1.0.15" src="https://img.shields.io/badge/version-v1.0.15-orange.svg?style=flat-square"></a>
   <a href="./LICENSE.md"><img alt="License: Sustainable Use 1.0" src="https://img.shields.io/badge/License-Sustainable%20Use%201.0-blue.svg?style=flat-square"></a>
   <img alt="GitHub Copilot" src="https://img.shields.io/badge/Developers-GitHub%20Copilot-24292f?style=flat-square">
   <img alt="Rovo" src="https://img.shields.io/badge/Product-Rovo-0052cc?style=flat-square">
@@ -257,10 +257,10 @@ Copilot picks up the prompt files. Type `/espec-` in Copilot Chat to see the com
 Windows users run `bin\espec.ps1` with the same arguments.
 
 Your repo also gets its own copy of the validator in `espec/bin` and a GitHub Actions workflow that
-runs it on every pull request touching `espec/`, so format rules are checked without any dependency
+runs it on every pull request, so format rules are checked without any dependency
 on this toolkit. Then name your tech proposal approvers in CODEOWNERS
 ([engineering setup, step 5](docs/guides/setup-engineering.md#step-5-protect-approval-and-the-main-specs)).
-To pin a version, check out its tag (`git -C ~/espec checkout v1.0.14`) before `init` or `update`.
+To pin a version, check out its tag (`git -C ~/espec checkout v1.0.15`) before `init` or `update`.
 
 ### Product and design
 
@@ -296,12 +296,14 @@ proposal reads. Browse the [worked example](examples/) for a full change, phase 
 ```text
 your-repo/
 ├── .diffcompass.json                      # Code review tour settings: read the change folder first
+├── .markdownlint-cli2.yaml                # Optional markdownlint settings that skip the managed files
 ├── .github/
 │   ├── copilot-instructions.md            # Repo-wide rules for Copilot
-│   ├── prompts/espec-*.prompt.md          # The five commands, the assessment, two inspections and review
+│   ├── prompts/espec-*.prompt.md          # The five commands, the assessment, two inspections, review, design context
 │   ├── instructions/espec.instructions.md # Format rules applied to espec/**
-│   ├── workflows/espec-validate.yml       # CI: validates changes and specs on pull requests
-│   └── ISSUE_TEMPLATE/feature-definition.md
+│   ├── workflows/espec-validate.yml       # CI: validates changes and specs on every pull request
+│   ├── ISSUE_TEMPLATE/feature-definition.md
+│   └── PULL_REQUEST_TEMPLATE/espec-spec-change.md # For tech proposal and archive pull requests
 └── espec/
     ├── AGENTS.md                          # Conventions for humans and AI
     ├── LICENSE.md, .toolkit-version       # The toolkit's licence and the version you run
@@ -313,7 +315,7 @@ your-repo/
     │   └── inspections/                   # Saved inspection reports, only on request
     ├── changes/archive/                   # Finished changes and clean-up reports
     ├── templates/                         # Blank files the commands start from
-    └── bin/                               # espec validate · new · list · stamp · version, no toolkit needed
+    └── bin/                               # espec validate · new · list · stamp · repos · version, no toolkit needed
 ```
 
 ## Docs
@@ -323,6 +325,7 @@ your-repo/
 - [Commands](docs/commands.md) · every command, input and output
 - [Conventions](docs/conventions.md) · formats, delta operations, archive rules
 - [Roles and tools](docs/roles-and-tools.md) · setup per role
+- [Spec hub](docs/guides/setup-spec-hub.md) · specs in one repository, code in several, when they cannot live together
 - [FAQ](docs/faq.md)
 - [Worked example](examples/) · an invoice export, from ticket to archived spec
 - [Changelog](CHANGELOG.md) · what changed in each version, and what to do when you update
@@ -333,7 +336,7 @@ Questions, bugs and ideas go to [GitHub Issues](https://github.com/Mindera/Enter
 Pull requests are welcome. Keep the README simple and the prompts shorter than the documents they
 produce.
 
-The current version is **v1.0.14**, kept in [`VERSION`](VERSION). Every change bumps the last number
+The current version is **v1.0.15**, kept in [`VERSION`](VERSION). Every change bumps the last number
 (`vX.Y.Z` → `vX.Y.Z+1`) and adds an entry to the [changelog](CHANGELOG.md); every version merged to
 `main` is tagged and released. See [`AGENTS.md`](AGENTS.md) for the rules every contributor and every
 AI assistant follows.
