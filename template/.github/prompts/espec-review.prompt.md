@@ -39,6 +39,9 @@ Input: `${input:target:Pull request number or URL, branch or change name (leave 
    - `.espec.yaml` is not at `implemented`, or tasks are unchecked: say how many.
    - `pull-request.md` is missing or lacks a section: name it and point to `/espec:implementation`.
    - The pull request body differs from `pull-request.md`: say so. The description is the review's map.
+   - The **Security validation** section carries the alert: say how many findings sit in files the diff
+     touches. Each is a change request until fixed. Skipped: say why, so the reviewer knows no
+     assessment ran.
 
 5. **Launch the tour.** In the terminal, run `diffcompass pr <number> --open` for a pull request, or
    `diffcompass --base <review.base> --open` for a branch. It keeps running while the tour is open in
@@ -50,8 +53,8 @@ Input: `${input:target:Pull request number or URL, branch or change name (leave 
      "differs" row in **Proposal versus implementation**, and pick the three acceptance criteria in
      **Behaviour delivered** most likely to be wrong.
    - What the tour flags: code that differs from the tech proposal or the delta specs without a row,
-     behaviour no acceptance criterion or scenario describes, a named test missing from the diff, and
-     any edit to `espec/specs/`.
+     behaviour no acceptance criterion or scenario describes, a named test missing from the diff, any
+     edit to `espec/specs/`, and the security findings of `pull-request.md` the diff does not fix.
    - "Approve in the pull request. After the merge, run `/espec:archive <change-name>`."
 
 ## Guardrails

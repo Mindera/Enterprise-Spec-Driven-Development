@@ -5,7 +5,8 @@
       "Order the tour by the How to review section of pull-request.md when it exists: entry points, then the core, then tests.",
       "Flag code that differs from the tech proposal or the delta specs without a matching row in the Proposal versus implementation table of pull-request.md.",
       "Flag behaviour changes that no acceptance criterion (AC-n) or delta spec scenario describes, and acceptance criteria whose Verified by test is missing from the diff.",
-      "Flag edits to espec/specs/ outside an archive commit: main specs change only through /espec:archive and /espec:archive-clean."
+      "Flag edits to espec/specs/ outside an archive commit: main specs change only through /espec:archive and /espec:archive-clean.",
+      "When the Security validation section of pull-request.md lists findings, treat each cited file and line as a security finding and say whether the diff fixes it. A finding in a file the diff touches is a change request."
     ],
     "findings": {
       "categories": ["correctness", "security", "testing", "spec-drift"]

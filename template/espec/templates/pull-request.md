@@ -39,6 +39,13 @@
 
 <!-- Commands run and their result, QA verification results per Q.n with environment, manual checks. -->
 
+## Security validation
+
+<!-- One of three. Passed: "Security validation passed: <platforms>, <tool> <rubric version>, <date>".
+     Skipped: "Security validation skipped: <reason>" (no access to the tool, not a mobile app, security.tool
+     is none). Findings: the alert line "⚠️ Security findings: fix before merge", one row per finding and a
+     link to security-report.md. -->
+
 ## Rollout
 
 <!-- Flags and their default, migrations and their order, config changes, backward compatibility,
