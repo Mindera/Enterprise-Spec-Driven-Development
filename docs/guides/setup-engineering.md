@@ -74,7 +74,10 @@ headings. Cite paths." Then correct it. A wrong `project.md` is worse than an em
 | `tickets.jira.*` | Base URL, project key, the issue type that carries feature definitions |
 | `tickets.github.*` | `owner/repo` and the label the issue template applies |
 | `review.tool` | `diffcompass`, the default, once the team has [DiffCompass](https://github.com/Mindera/diffcompass) installed; the implementation step then prints the review commands. `none` until then, or to turn that off. |
-| `review.base` | The branch DiffCompass compares against before a pull request exists, usually `origin/main` |
+| `review.base` | The branch DiffCompass compares against before a pull request exists, usually `origin/main`. The security validation uses it too, to tell the files the change touches from the rest. |
+| `security.tool` | `mobile-security-assessment`, the default: the implementation step runs [AI Mobile Security Assessment](https://github.com/Mindera/AI-Mobile-Security-Assessment) on Android, iOS and Kotlin Multiplatform repositories, when the signed-in GitHub user can read its private repository. `none` to turn it off. A non-mobile repository is skipped on its own. |
+| `security.repo` | The tool's repository, `Mindera/AI-Mobile-Security-Assessment`. Change it only for a fork. |
+| `security.platforms` | `[android]`, `[ios]`, `[kmp]` or several. Empty: detected from the repository. |
 | `archive.clean.prune_archived_changes_older_than_days` | `0` to keep every archived change. A number of days to have old archive folders listed for pruning. |
 | `context` | Two sentences on the product, the stack, how to run tests. The prompts apply it; they do not paste it. |
 | `rules.*` | One line each. The place for house rules: API versioning policy, mandatory security review for changes touching authentication, test coverage per group. |
@@ -170,7 +173,20 @@ folder first and to flag drift from the tech proposal. Add project rules under
 `analysis.instructions`. Without DiffCompass, set `review.tool: none` and follow
 [the code review guide](07-code-review.md) by hand.
 
-## Step 10: tell product
+## Step 10: mobile security validation (optional)
+
+On a mobile app, the implementation step runs
+[AI Mobile Security Assessment](https://github.com/Mindera/AI-Mobile-Security-Assessment) before it
+writes the pull request description, and fixes the findings the change caused. The tool's repository
+is private: ask for access for each developer who runs implementation. Check with
+`gh repo view Mindera/AI-Mobile-Security-Assessment`. The run also needs Python 3.11,
+[`gitleaks`](https://github.com/gitleaks/gitleaks), [`osv-scanner`](https://github.com/google/osv-scanner)
+and LibreOffice on the developer's machine; the command asks before installing anything. Without
+access the step is skipped and the pull request says so. The report it saves, `security-report.md`,
+maps the app's weaknesses, so keep `security.tool: mobile-security-assessment` only in a repository
+private to the team, and `none` elsewhere.
+
+## Step 11: tell product
 
 Send the product and design leads to [the product setup guide](setup-product.md). Their agents and
 your repository share one format; neither side needs the other's tool.

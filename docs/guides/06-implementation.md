@@ -10,7 +10,7 @@ proposal and why, and how it was verified.
 | Command | `/espec-implementation <change-name>` |
 | Who | A developer. QA, in verification-only mode, for the `## QA verification` group. |
 | Input | An approved change folder on `main`, re-read from disk on every run |
-| Output | Application code and tests. `tasks.md` with tasks checked. `pull-request.md`. `.espec.yaml` at `in-progress`, then `implemented`. |
+| Output | Application code and tests. `tasks.md` with tasks checked. `pull-request.md`. On a mobile app with findings, `security-report.md`. `.espec.yaml` at `in-progress`, then `implemented`. |
 | Time | The feature's size. The prompt pauses often on purpose; budget time for the pauses. |
 | Rules | [AGENTS.md, Pull request description format](../../template/espec/AGENTS.md#pull-request-description-format-pull-requestmd) and [Guardrails for AI assistants](../../template/espec/AGENTS.md#guardrails-for-ai-assistants) |
 
@@ -87,6 +87,32 @@ failing scenario is a finding for the developer, surfaced as a pause, never a wo
 example [tasks.md](../../examples/changes/bill-142-invoice-csv-export/tasks.md) shows what the
 recorded lines look like.
 
+### Security validation (mobile apps)
+
+With `security.tool: mobile-security-assessment` in `config.yaml`, the default, the command runs
+[AI Mobile Security Assessment](https://github.com/Mindera/AI-Mobile-Security-Assessment) on the
+repository before it writes the pull request description. The tool's repository is private, so the
+command first checks that your signed-in GitHub user can read it (`gh repo view`); without access it
+prints "Security validation skipped: no access" and moves on. A repository with no Android, iOS or
+Kotlin Multiplatform code is skipped the same way. The tool needs Python 3.11, `gitleaks`,
+`osv-scanner` and LibreOffice; when `msa doctor` reports one missing, the command pauses and asks
+whether to install it or skip. Skipping is recorded as skipped, never as passed.
+
+Every finding cites a file and line. A finding in a file your change touches is yours: the command
+adds it as `S.n` under a `## Security` group in `tasks.md`, fixes it, runs the assessment again and
+checks the task when the finding is gone. A finding in a file the change did not touch is pre-existing
+and is reported, not fixed; it is work for another change. What is left goes on the pull request:
+
+| Outcome | What `pull-request.md` says | Attached |
+|---|---|---|
+| No findings | "Security validation passed: android, msa 1.0.0, 2026-11-05" | Nothing |
+| Findings left | "⚠️ Security findings: fix before merge", the scorecard, one row per finding (row, weakness, `File:LINE`, standard, in this change or pre-existing) | `security-report.md` in the change folder, the tool's full report |
+| Skipped | "Security validation skipped: <reason>" | Nothing |
+
+The report maps the app's weaknesses and its API, so commit it only in a repository private to the
+team. The command never probes the app's backend and never copies a secret value anywhere: the tool
+cites where a secret is, not what it is.
+
 ### The pull request description
 
 When every task is checked (or when you stop early and ask for one anyway), the command re-reads
@@ -98,8 +124,9 @@ When every task is checked (or when you stop early and ask for one anyway), the 
   is a conversation with the reviewer that has already happened.
 - **Behaviour delivered:** one row per acceptance criterion with the file a reviewer opens first and
   the test and `Q.n` that verify it.
-- **Deviations and deferred work**, **How to review**, **Verification**, **Rollout** as implemented,
-  and a **Release note** that archive reuses.
+- **Deviations and deferred work**, **How to review**, **Verification**, **Security validation**
+  (passed, skipped with the reason, or the alert), **Rollout** as implemented, and a **Release note**
+  that archive reuses.
 
 Then it sets `status: implemented`, prints the file, and prints the command to use it:
 
@@ -134,6 +161,8 @@ test to run or a task that is not really done.
 - `pull-request.md` has no "see code" and no "self-explanatory". A reviewer could decide where to
   look first from the Behaviour delivered table alone.
 - The Verification section names commands and results, and the QA table names environments.
+- On a mobile app, Security validation says passed after a run on every platform, or carries the alert
+  with no finding left in a file the change touches. "Skipped" names the reason.
 - The coverage report says Delivered on every acceptance criterion and gives a reason for every
   proposal item that differs. A Partial at the end of the change is a finding for you, not a note.
 
@@ -155,3 +184,5 @@ Open the pull request with `pull-request.md` as its body and go to [code review]
 | Tests fail for a reason outside the task | Flaky suite or an unrelated break | The pause is right. Fix the cause as its own commit, or record it in Deviations |
 | `pull-request.md` was edited by hand and drifted from the code | Manual edits after more commits | Re-run the command and ask for the pull request description again; it recompares with the proposal |
 | The change shipped in two pull requests | Normal for big features | Keep one `##` block per pull request in `pull-request.md`, newest first |
+| Security validation says skipped on a mobile app | The GitHub user cannot read the tool's private repository, or a scanner is missing | Ask for access to the repository, or run `msa doctor` and install what it names. Until then the pull request says skipped, which the reviewer sees |
+| The security run reports findings your change did not cause | Pre-existing weaknesses | They are listed as pre-existing in the alert. Open a change for them; do not fold them into this one |

@@ -145,6 +145,11 @@ Manual checks attached to this PR: VoiceOver recording on iPad Safari (button, t
 pass on desktop, screenshot of the "Invoice exports" panel on staging (5.1), and `GET /api/v1/flags` on staging
 showing `invoice-csv-export: true` for the internal organisation (5.5).
 
+## Security validation
+
+Security validation skipped: not a mobile app. Ledgerly is a Java and React web application, and the
+assessment covers Android, iOS and Kotlin Multiplatform code only.
+
 ## Rollout
 
 - **Flag:** `invoice-csv-export` in `FeatureFlagService`, default off (`ledgerly.flags.invoice-csv-export: false`),

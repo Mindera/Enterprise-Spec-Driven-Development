@@ -13,7 +13,7 @@ how to set each tool up. The underlying rules are in
 | 2 Tech proposal | Answers Questions for Product | Answers UI design questions | Writes | Writes the test strategy | Reviews and approves |
 | 3 Implementation | Available for questions | Reviews built screens | Implements, checks tasks | Runs QA verification | Decides on design pauses |
 | 4 Archive | Reads the release note, closes the ticket | | Runs archive and archive-clean | Confirms the note matches what was verified | Confirms clean verdicts |
-| Tool | Rovo or M365 Copilot | Rovo or M365 Copilot | GitHub Copilot | GitHub Copilot | GitHub Copilot, the PR review, DiffCompass |
+| Tool | Rovo or M365 Copilot | Rovo or M365 Copilot | GitHub Copilot, AI Mobile Security Assessment | GitHub Copilot | GitHub Copilot, the PR review, DiffCompass |
 
 ## Product Manager
 
@@ -157,6 +157,25 @@ repository, or the body in
 
 The instructions in `.github/instructions/espec.instructions.md` apply whenever Copilot edits a file
 under `espec/`, with or without a command.
+
+### AI Mobile Security Assessment (developers of mobile apps)
+
+[AI Mobile Security Assessment](https://github.com/Mindera/AI-Mobile-Security-Assessment) is the
+security validation `/espec-implementation` runs on an Android, iOS or Kotlin Multiplatform
+repository before it writes the pull request description: a static assessment against OWASP MASVS
+where every finding cites a file and line.
+
+1. The repository is private. Ask for read access for your GitHub user and check it with
+   `gh repo view Mindera/AI-Mobile-Security-Assessment`. Without access the step is skipped and the
+   pull request says so; the command never asks for credentials.
+2. Install the scanners it needs once: Python 3.11, `gitleaks`, `osv-scanner` and LibreOffice. The
+   command runs `msa doctor` and asks before installing anything.
+3. `security.tool: mobile-security-assessment` in `espec/config.yaml`, the template default, turns it
+   on; `none` turns it off. The command clones the tool outside your repository and runs it on the
+   provider you already use, with the same keys or signed-in CLI.
+4. Findings in files your change touches become `S.n` tasks and are fixed before the pull request.
+   The rest go on the pull request as an alert with `security-report.md`. Nothing is attached when
+   the run is clean.
 
 ### DiffCompass (reviewers, developers)
 
