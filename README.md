@@ -27,7 +27,7 @@
 ```
 
 <p align="center">
-  <img src="assets/espec-workflow.webp" alt="The espec workflow: Product defines the feature in Rovo or M365 Copilot, the ticket is the hand-off, and Engineering assesses, proposes, implements, reviews and archives in GitHub Copilot" width="800">
+  <img src="assets/espec-workflow.gif" alt="The espec workflow: Product defines the feature in Rovo or M365 Copilot, the ticket is the hand-off, and Engineering assesses, proposes, implements, reviews and archives in GitHub Copilot" width="800">
 </p>
 
 ## Built for the enterprise
