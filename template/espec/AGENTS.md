@@ -41,6 +41,11 @@ with a dash: `/espec-feature-definition`, `/espec-tech-proposal`, `/espec-implem
 `/espec-archive`, `/espec-archive-clean`, `/espec-inspect-feature-definition`, `/espec-assess`,
 `/espec-inspect-tech-proposal`, `/espec-review`, `/espec-design-context`. The colon form is the canonical name used in documentation.
 
+GitHub Copilot CLI does not load prompt files. For it, and for Claude Code, every prompt file has a thin
+command wrapper at `.claude/commands/espec-<name>.md`, typed the same way (`/espec-assess PROJ-123`).
+The wrapper reads and follows the prompt file, so the prompt stays the single source of each command.
+Wrappers run only when typed: the agent never loads one on its own.
+
 ## Directory layout
 
 ```
@@ -106,8 +111,9 @@ The tech proposal must review every `FT-n` and mark it **Accepted** or **Overrid
 
 ## Feature definition format (`feature.md`)
 
-The same text lives in the ticket description and in `changes/<change-name>/feature.md`. It begins with
-an HTML comment marker so tools and prompts can recognise it:
+The same document lives in the ticket description and in `changes/<change-name>/feature.md`.
+`feature.md` begins with an HTML comment marker, so tools and prompts can recognise it, and a header
+line:
 
 ```markdown
 <!-- espec:feature-definition v1 -->
@@ -170,6 +176,22 @@ an HTML comment marker so tools and prompts can recognise it:
 > Engineering reviews them in the tech proposal and may override them with a documented reason.
 - **FT-1:** <the note>. _Reason given: <why product insisted>_
 ```
+
+In the ticket:
+
+- **GitHub Issues** keep HTML comments, so the issue body is the whole document, marker and header line
+  included. An issue whose body starts with the marker is a feature definition.
+- **Jira** stores descriptions in Atlassian Document Format, which drops HTML comments, and already
+  holds the key, the reporter and the status in fields. The description starts at `# Feature:`, with
+  no marker and no header line. A Jira issue is a feature definition when it has the issue type set in
+  `tickets.jira.feature_issue_type` and its description has the `## Why`, `## What` and
+  `## Acceptance criteria` headings.
+- The import writes the marker and builds the header line from the ticket: the key, the reporter as
+  product owner unless the description names another, the designer named in **UI design** (or `none`
+  when it is marked not needed) and the status the readiness check gives. It asks for what it cannot
+  find. Writing back to a Jira ticket leaves both lines out.
+- Wherever espec compares the ticket and `feature.md`, or asks to keep them identical, it compares
+  from `# Feature:` down. On Jira the marker and the header line belong to `feature.md` alone.
 
 Rules:
 
@@ -792,6 +814,14 @@ teams can see where their AI credits go:
 Usage: <amount> <unit> (<tool>)
 ```
 
+`usage.report` in `config.yaml` decides when the line is printed. Read it before ending the reply:
+
+- `always` (the default, also when the setting is absent): print the line on every run.
+- `when-available`: print it only when the tool shows you a figure. Print nothing in its place.
+- `none`: never print it, and add no other note about usage.
+
+When the line is printed:
+
 - Report a figure only when the tool shows it to you, in the unit the tool uses: credits, premium
   requests, tokens or cost. For example `Usage: 3 premium requests (GitHub Copilot)`.
 - When the tool does not show usage to the agent, write `Usage: not available to the agent` and name
@@ -853,5 +883,5 @@ empty.
 - Implementation starts in a new chat or session, never in the one that wrote or discussed the
   proposal. The approved files are its only input; leftover conversation biases the code.
 - When a ticket system is reachable (an MCP server, a browser tool, or a pasted body), prefer the ticket
-  as the source of truth for `feature.md`. Keep the ticket and `feature.md` identical; when they differ,
-  show the diff and ask which one wins.
+  as the source of truth for `feature.md`. Keep the ticket and `feature.md` identical from `# Feature:`
+  down; when they differ, show the diff and ask which one wins.

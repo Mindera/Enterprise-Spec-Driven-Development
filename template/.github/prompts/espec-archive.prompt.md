@@ -89,4 +89,5 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
 - Keep `.espec.yaml` with the folder; it is the audit record.
 - A cancelled change keeps every file; nothing in it is deleted and nothing from it reaches
   `espec/specs/`.
-- End the reply with the usage line from the **Usage report** section of AGENTS.md.
+- End the reply with the usage line from the **Usage report** section of AGENTS.md, when
+  `usage.report` in config.yaml asks for it.

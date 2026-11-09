@@ -1,17 +1,19 @@
 # Jira · Feature definition description template
 
 Paste this into the description of the Story (or the issue type set in `espec/config.yaml`) when
-you start a feature by hand. The espec Feature Definition agent produces the same structure. Keep the
-first line: it is how engineering's tools recognise a feature definition.
+you start a feature by hand. The espec Feature Definition agent produces the same structure.
+
+The description starts at `# Feature:`. There is no marker line and no header line: Jira stores
+descriptions in Atlassian Document Format, which drops HTML comments, and it already holds the key,
+the reporter and the status in fields. Engineering's tools recognise a feature definition by the issue
+type and the `## Why`, `## What` and `## Acceptance criteria` headings, so keep those headings as they
+are. The import adds the marker and builds the header line in `feature.md` from the ticket.
 
 Tip: Jira admins can save this as a description template for the issue type so every new Story
 starts from it.
 
 ```markdown
-<!-- espec:feature-definition v1 -->
 # Feature: <title>
-
-**Ticket:** <this issue> · **Product owner:** <name> · **UI design:** <name or none> · **Status:** Draft
 
 ## Why
 
@@ -66,6 +68,7 @@ starts from it.
 | In progress | Implementation started | Engineering |
 | Done | Archived; release note posted as a comment | Engineering |
 
-The feature definition and `espec/changes/<change-name>/feature.md` in the repository stay identical.
+The feature definition and `espec/changes/<change-name>/feature.md` in the repository stay identical
+from `# Feature:` down.
 When product edits the ticket after engineering imported it, say so in a comment so the change can be
 re-imported.

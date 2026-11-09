@@ -17,6 +17,7 @@ quick reference.
 |---|---|---|
 | Documentation (canonical) | `/espec:<name>` | `/espec:tech-proposal` |
 | GitHub Copilot Chat (IDE or Terminal) | `/espec-<name>` | `/espec-tech-proposal BILL-142` |
+| GitHub Copilot CLI, Claude Code | `/espec-<name>`, from the wrapper in `.claude/commands/` that runs the prompt file | `/espec-tech-proposal BILL-142` |
 | Atlassian Rovo | An agent you @-mention in Rovo Chat or from a Jira issue. No slash commands. | `@Feature Definition define invoice CSV export` |
 | Microsoft 365 Copilot | An agent from Copilot agent builder, or the prompt pasted at the start of a chat. No slash commands. | `@Feature Definition define invoice CSV export` |
 
@@ -39,7 +40,9 @@ Only phase 1 runs in Rovo and M365 Copilot. Phases 2 to 4 need the repository an
 
 Every command ends with a usage line, such as `Usage: 3 premium requests (GitHub Copilot)`, so
 developers see what each run cost. When the tool does not show usage to the agent, the line says so
-and points to where the developer can check it. The agent never estimates the figure. See
+and points to where the developer can check it. The agent never estimates the figure. `usage.report`
+in `espec/config.yaml` turns it off (`none`) or keeps it only when the tool shows a figure
+(`when-available`, which prints nothing in GitHub Copilot). See
 [Usage report](../template/espec/AGENTS.md#usage-report).
 
 `/espec:tech-proposal` and `/espec:implementation` also end with a **coverage report**, printed just

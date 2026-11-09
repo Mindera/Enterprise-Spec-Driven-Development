@@ -12,6 +12,14 @@ try {
   Get-Content -Raw -LiteralPath (Join-Path $Work 'espec/templates/code-repo.diffcompass.json') | ConvertFrom-Json | Out-Null
   $prompts = @(Get-ChildItem -LiteralPath (Join-Path $Work '.github/prompts') -File)
   if ($prompts.Count -ne 10) { throw "expected 10 prompt files, got $($prompts.Count)" }
+  # Every prompt file has a command wrapper for GitHub Copilot CLI and Claude Code.
+  foreach ($p in $prompts) {
+    $wrapper = Join-Path $Work (".claude/commands/" + ($p.Name -replace '\.prompt\.md$', '.md'))
+    if (-not (Test-Path -LiteralPath $wrapper)) { throw "init did not copy $wrapper" }
+    if (-not (Select-String -LiteralPath $wrapper -Pattern '^disable-model-invocation: true$' -Quiet)) { throw "$wrapper lacks disable-model-invocation" }
+  }
+  $wrappers = @(Get-ChildItem -LiteralPath (Join-Path $Work '.claude/commands') -File)
+  if ($wrappers.Count -ne 10) { throw "expected 10 command wrappers, got $($wrappers.Count)" }
 
   Push-Location $Work
   try {
@@ -129,11 +137,13 @@ try {
     if ($LASTEXITCODE -eq 0) { throw 'expected update from inside a project to refuse' }
   } finally { Pop-Location }
 
-  # update from the toolkit is idempotent right after init.
+  # update from the toolkit is idempotent right after init, and restores a missing command wrapper.
+  Remove-Item -LiteralPath (Join-Path $Work '.claude/commands/espec-assess.md')
   $global:LASTEXITCODE = 1
   $upd = (& (Join-Path $Root 'bin/espec.ps1') update $Work) -join "`n"
   if ($LASTEXITCODE -ne 0) { throw "update from the toolkit failed:`n$upd" }
   if ($upd -notmatch 'unchanged') { throw "update did not report unchanged files:`n$upd" }
+  if ($upd -notmatch 'created    \.claude[/\\]commands[/\\]espec-assess\.md') { throw "update did not restore the espec-assess wrapper:`n$upd" }
 
   Write-Output 'PowerShell CLI smoke test passed'
 } catch {

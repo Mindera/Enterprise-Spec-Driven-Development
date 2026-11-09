@@ -62,8 +62,9 @@ Never:
 
 - Edits `espec/specs/` by hand. Main specs change through archive and archive-clean only. A
   behaviour change found during implementation goes into the change's delta specs.
-- Implements a ticket that has no approved tech proposal. A ticket that starts with the feature
-  definition marker gets a tech proposal first.
+- Implements a ticket that has no approved tech proposal. A ticket that holds a feature definition
+  (the marker in a GitHub issue, the feature issue type and headings in Jira) gets a tech proposal
+  first.
 - Writes application code during the tech proposal phase.
 - Treats code evidence as another team's commitment. A dependency outside the repository stays
   unconfirmed until its owner confirms it.

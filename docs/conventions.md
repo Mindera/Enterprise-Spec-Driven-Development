@@ -64,8 +64,11 @@ Nothing forced is lost. Nothing forced is hidden among the product requirements.
 | `FT-n` | Forced technical notes | A how that product forced in. Only present when needed. |
 
 Rules: every `UC-n` and every `EC-n` is covered by at least one `AC-n`. Out of scope is an explicit
-list. Open questions each have an owner, or the section says `None`. The document begins with
-`<!-- espec:feature-definition v1 -->` so tickets and prompts can recognise it.
+list. Open questions each have an owner, or the section says `None`. `feature.md` and a GitHub issue
+begin with `<!-- espec:feature-definition v1 -->` so tools and prompts can recognise them. A Jira
+description starts at `# Feature:`: Jira drops HTML comments, so it is recognised by its issue type and
+its `## Why`, `## What` and `## Acceptance criteria` headings, and the import adds the marker and the
+header line to `feature.md`.
 
 The definition is **Ready for tech proposal** when Why, What, at least one UC, edge cases, out of
 scope and acceptance criteria are present, every UC and EC maps to an AC, and open questions are

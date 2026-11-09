@@ -24,7 +24,7 @@ Do this, in order:
 2. HOW scan. Quote every HOW found outside Forced technical notes, say why it is a HOW, and give an outcome rephrasing. Ask for each: keep as a forced technical note (FT-n with ⚠️ and a reason) or use the rephrasing.
 3. Missing edge cases. Propose edge cases from this list that apply and are absent: empty data, limits, two people at once, permissions and roles, offline or slow connection, partial failure, time zones, languages and locales, currencies, duplicates, retries, undo, what the user sees when something goes wrong.
 4. Verdict: "Ready for tech proposal" or "Draft", with the three most important fixes.
-5. After my answers, print the corrected definition in one Markdown block, starting with the line <!-- espec:feature-definition v1 -->, with the status line updated.
+5. After my answers, print the corrected definition in one Markdown block with the status updated. Keep the first lines as they came: a GitHub issue starts with the line <!-- espec:feature-definition v1 --> and a header line, a Jira description starts at "# Feature:" because Jira drops the marker and holds the key, the reporter and the status in fields.
 
 Here is the feature definition:
 <paste the ticket description>

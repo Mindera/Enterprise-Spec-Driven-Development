@@ -72,8 +72,9 @@ acceptance criteria?
 
 ### Paste into the ticket
 
-Paste the whole document, marker line first, as the ticket description. Set the ticket status to
-match the status line. With Rovo and Jira actions enabled you can ask the agent to write the
+Paste the document as the ticket description. In a GitHub issue it starts with the marker line. In
+Jira the agent prints it from `# Feature:` down, because Jira drops the marker and holds the key, the
+reporter and the status in fields. Set the ticket status to match the readiness check. With Rovo and Jira actions enabled you can ask the agent to write the
 description; it asks before every write.
 
 ### The Designer's pass

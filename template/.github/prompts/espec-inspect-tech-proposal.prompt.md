@@ -19,7 +19,8 @@ Input: `${input:change:Change name under espec/changes/ (leave empty to pick fro
    `tasks.md`.
 
 2. **Compare the ticket with `feature.md`.** When a tool can reach the ticket named in `.espec.yaml`,
-   fetch it and compare section by section. Report "Identical", or each difference. A difference is
+   fetch it and compare section by section, from `# Feature:` down (a Jira description has no marker
+   and no header line). Report "Identical", or each difference. A difference is
    blocking until someone says which version wins. When the ticket is not reachable, say so and take
    `feature.md` as is.
 
@@ -68,4 +69,5 @@ Input: `${input:change:Change name under espec/changes/ (leave empty to pick fro
 - Do not re-decide the design. A decision you would have made differently is advisory at most, unless
   it breaks a constraint from `feature.md`.
 - One verdict. Approve only with zero blocking findings.
-- End the reply with the usage line from the **Usage report** section of AGENTS.md.
+- End the reply with the usage line from the **Usage report** section of AGENTS.md, when
+  `usage.report` in config.yaml asks for it.

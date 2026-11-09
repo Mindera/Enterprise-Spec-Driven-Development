@@ -17,9 +17,11 @@ Input: `${input:source:Ticket key or URL, a pasted feature definition, or a one-
 Pick the mode from the input. Say which mode you are in.
 
 - **Import.** The input is a ticket key, a ticket URL, or a pasted text that starts with
-  `<!-- espec:feature-definition v1 -->`. Fetch the ticket when a tool can reach it (an Atlassian or
-  GitHub MCP server, a fetch tool, or the GitHub CLI). When nothing can reach it, ask the user to paste
-  the ticket description. Then review it (below) and store it.
+  `<!-- espec:feature-definition v1 -->` or with `# Feature:` (Jira drops the marker). Fetch the ticket
+  when a tool can reach it (an Atlassian or GitHub MCP server, a fetch tool, or the GitHub CLI). When
+  nothing can reach it, ask the user to paste the ticket description. Then review it (below) and store
+  it. A Jira description has no marker and no header line: build them as AGENTS.md describes, from the
+  ticket's key and reporter, the designer named in UI design and the readiness check.
 - **Draft.** The input is a description or an idea. Interview the user, then write the definition.
 - **Review.** The input names an existing `espec/changes/<change-name>/feature.md`. Check it and
   report gaps.
@@ -80,15 +82,19 @@ The definition is **Ready for tech proposal** only when every item passes. Set t
 3. Write `espec/changes/<change-name>/.espec.yaml` from `espec/templates/espec.yaml` with
    `status: defined` when the definition is ready, otherwise leave the status line in `feature.md` as
    `Draft` and still write the file.
-4. Print the document once more in a single Markdown block so it can be pasted into the ticket.
-   When the ticket system is reachable through a tool and the user asks, update the ticket description
-   with it. Never update a ticket without being asked.
+4. Print the document once more in a single Markdown block so it can be pasted into the ticket. For
+   Jira (`tickets.system` in config.yaml), print it from `# Feature:` down, without the marker and the
+   header line: Jira drops the marker and holds the rest in fields. When the ticket system is reachable
+   through a tool and the user asks, update the ticket description with the same text. Never update a
+   ticket without being asked.
 
 ## Guardrails
 
 - Do not write a tech proposal, specs, tasks or application code. If asked, point to
   `/espec:tech-proposal` and stop.
 - Do not invent use cases, metrics or constraints. Ask, or mark them as open questions.
-- Keep the ticket and `feature.md` identical. When they differ, show the difference and ask which wins.
+- Keep the ticket and `feature.md` identical from `# Feature:` down. When they differ, show the
+  difference and ask which wins.
 - Do not paste `project.md` or `config.yaml` content into the document.
-- End the reply with the usage line from the **Usage report** section of AGENTS.md.
+- End the reply with the usage line from the **Usage report** section of AGENTS.md, when
+  `usage.report` in config.yaml asks for it.

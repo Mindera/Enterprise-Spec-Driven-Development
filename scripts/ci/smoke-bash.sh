@@ -13,6 +13,13 @@ test -f "$WORK/.github/workflows/espec-validate.yml"
 python3 -m json.tool "$WORK/.diffcompass.json" >/dev/null
 python3 -m json.tool "$WORK/espec/templates/code-repo.diffcompass.json" >/dev/null
 [ "$(ls "$WORK/.github/prompts" | wc -l)" -eq 10 ] || { echo "expected 10 prompt files"; exit 1; }
+# Every prompt file has a command wrapper for GitHub Copilot CLI and Claude Code.
+for p in "$WORK"/.github/prompts/espec-*.prompt.md; do
+  n=$(basename "$p" .prompt.md)
+  grep -q "^disable-model-invocation: true$" "$WORK/.claude/commands/$n.md" \
+    || { echo "expected .claude/commands/$n.md with disable-model-invocation"; exit 1; }
+done
+[ "$(ls "$WORK/.claude/commands" | wc -l)" -eq 10 ] || { echo "expected 10 command wrappers"; exit 1; }
 
 cd "$WORK"
 
@@ -99,7 +106,11 @@ if ./espec/bin/espec update . >/dev/null 2>&1; then
   echo "expected update from inside a project to refuse"; exit 1
 fi
 
-# update from the toolkit is idempotent right after init.
-"$ROOT/bin/espec" update . | grep 'unchanged' >/dev/null
+# update from the toolkit is idempotent right after init, and restores a missing command wrapper.
+rm .claude/commands/espec-assess.md
+out=$("$ROOT/bin/espec" update .)
+printf '%s\n' "$out" | grep 'unchanged' >/dev/null
+printf '%s\n' "$out" | grep 'created    .claude/commands/espec-assess.md' >/dev/null \
+  || { echo "expected update to restore the espec-assess wrapper"; exit 1; }
 
 echo "bash CLI smoke test passed"

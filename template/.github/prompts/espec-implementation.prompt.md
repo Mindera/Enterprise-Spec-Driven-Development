@@ -137,4 +137,5 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
 - Do not edit `espec/specs/` in this phase. Behaviour changes go in the change's delta specs, and
   that is a tech proposal update, which you propose and the user confirms. After editing a MODIFIED
   or REMOVED requirement, run `espec/bin/espec stamp <change-name>`.
-- End the reply with the usage line from the **Usage report** section of AGENTS.md.
+- End the reply with the usage line from the **Usage report** section of AGENTS.md, when
+  `usage.report` in config.yaml asks for it.
