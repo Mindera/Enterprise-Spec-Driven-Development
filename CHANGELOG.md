@@ -61,10 +61,6 @@ Feature definitions in Jira
 Docs:
 
 - The README workflow diagram is an animated GIF instead of a static WebP.
-- The diagram matches the current flow: assess is shown as the end of phase 1 and the tech proposal
-  as phase 2, the security check is shown as mobile only, the product readiness check is shown as the
-  agent's review mode (Rovo and M365 Copilot have no slash commands), and the archive card says the
-  release note is ready, not posted.
 
 ## v1.0.16 (2026-11-09)
 
