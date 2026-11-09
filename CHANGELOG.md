@@ -7,11 +7,19 @@ bumps to (see [AGENTS.md](AGENTS.md)). When a version is merged to `main`, the r
 To move a project to a version, check it out in the toolkit clone and run `espec update`:
 
 ```bash
-git -C ~/espec fetch --tags && git -C ~/espec checkout v1.0.19
+git -C ~/espec fetch --tags && git -C ~/espec checkout v1.0.20
 ~/espec/bin/espec update /path/to/your/repo
 ```
 
 Entries marked **Action** need something done in projects that update.
+
+## v1.0.20 (2026-11-09)
+
+Docs:
+
+- The README workflow diagram no longer shows the readiness check in the Product lane. It is run by a
+  developer in GitHub Copilot (`/espec-inspect-feature-definition`), so the diagram shows it as the
+  first step of the engineering assessment, after the ticket hand-off.
 
 ## v1.0.19 (2026-11-09)
 
