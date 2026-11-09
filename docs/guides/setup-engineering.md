@@ -280,7 +280,7 @@ espec/bin/espec validate
 |---|---|---|
 | `init and update run from the toolkit checkout` | You ran `espec/bin/espec init` from inside a project | Run `~/espec/bin/espec init <dir>` from the toolkit clone |
 | `/espec-` shows nothing | Prompt files disabled, wrong location, or the IDE was not restarted | Enable prompt files, confirm `.github/prompts/` exists on the branch, restart |
-| `/espec-` shows nothing in GitHub Copilot CLI | Copilot CLI does not load prompt files, and the wrappers in `.claude/commands/` are missing (a project set up before v1.0.18) | Run `espec update` from the toolkit and commit `.claude/commands/` |
+| `/espec-` shows nothing in GitHub Copilot CLI | Copilot CLI does not load prompt files, and the wrappers in `.claude/commands/` are missing (a project set up before v1.0.20) | Run `espec update` from the toolkit and commit `.claude/commands/` |
 | Every reply ends with `Usage: not available to the agent` | GitHub Copilot never shows usage to the agent | Set `usage.report` in `espec/config.yaml` to `when-available` or `none` |
 | A command only talks and never edits a file | Ask mode | Switch Copilot Chat to Agent mode |
 | `espec validate` fails on a fresh change | Template placeholders are still in `feature.md` | Expected. Fill the definition in, or keep the draft on a branch |

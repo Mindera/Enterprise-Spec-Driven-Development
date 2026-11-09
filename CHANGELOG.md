@@ -7,13 +7,13 @@ bumps to (see [AGENTS.md](AGENTS.md)). When a version is merged to `main`, the r
 To move a project to a version, check it out in the toolkit clone and run `espec update`:
 
 ```bash
-git -C ~/espec fetch --tags && git -C ~/espec checkout v1.0.18
+git -C ~/espec fetch --tags && git -C ~/espec checkout v1.0.20
 ~/espec/bin/espec update /path/to/your/repo
 ```
 
 Entries marked **Action** need something done in projects that update.
 
-## v1.0.18 (2026-11-09)
+## v1.0.20 (2026-11-09)
 
 Commands:
 
@@ -55,6 +55,15 @@ Feature definitions in Jira
   and the product prompts keep it for GitHub issues and leave it out for Jira.
 - **Action (optional):** paste the new Instructions block into your Rovo and M365 Copilot agents, and
   delete the marker and `**Ticket:**` lines from your Jira description template.
+
+## v1.0.19 (2026-11-09)
+
+Docs:
+
+- The README workflow diagram matches the current flow: the assessment is shown as the end of phase 1
+  and the tech proposal as phase 2, the security check as mobile only, the product readiness check as
+  the agent's review mode (Rovo and M365 Copilot have no slash commands), and the archive card says
+  the release note is ready, not posted.
 
 ## v1.0.17 (2026-11-09)
 

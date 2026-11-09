@@ -117,6 +117,6 @@ and product leads use it most.
 | The agent writes the document after the first answer | Instructions were shortened or paraphrased | Paste the Instructions block unchanged |
 | The agent accepts "use service X" without comment | Same | Same. The product boundary rules are in the block |
 | M365 agent builder rejects the instructions | Over 8,000 characters after edits | Use the file as is; it fits |
-| A Jira description starts with `<!-- espec:feature-definition v1 -->` or a `**Ticket:**` line | The agent or template is older than v1.0.18 | Delete both lines; the description starts at `# Feature:`. Update the agent's instructions |
+| A Jira description starts with `<!-- espec:feature-definition v1 -->` or a `**Ticket:**` line | The agent or template is older than v1.0.20 | Delete both lines; the description starts at `# Feature:`. Update the agent's instructions |
 | Engineering's inspect finds hows the agent missed | The readiness check is the agent's own opinion | Run the review prompt before handing over; trust the inspect verdict |
 | Ids restart at 1 after the Designer's pass | The Designer pasted an old version | Always paste the current ticket description; the agent numbers after the highest existing id |
