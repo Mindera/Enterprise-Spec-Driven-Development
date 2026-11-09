@@ -7,11 +7,17 @@ bumps to (see [AGENTS.md](AGENTS.md)). When a version is merged to `main`, the r
 To move a project to a version, check it out in the toolkit clone and run `espec update`:
 
 ```bash
-git -C ~/espec fetch --tags && git -C ~/espec checkout v1.0.16
+git -C ~/espec fetch --tags && git -C ~/espec checkout v1.0.17
 ~/espec/bin/espec update /path/to/your/repo
 ```
 
 Entries marked **Action** need something done in projects that update.
+
+## v1.0.17 (2026-11-09)
+
+Docs:
+
+- The README workflow diagram is an animated GIF instead of a static WebP.
 
 ## v1.0.16 (2026-11-09)
 
