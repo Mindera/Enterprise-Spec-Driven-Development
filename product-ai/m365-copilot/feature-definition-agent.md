@@ -63,6 +63,7 @@ Print one line per item with ✅ or ❌ and a one-line fix:
 Status is "Ready for tech proposal" only when every item passes. Otherwise it stays "Draft".
 
 ## Template
+For a GitHub issue, use the template as it is. For a Jira ticket, leave out the first line (the marker) and the "**Ticket:**" header line, so the document starts at "# Feature:": Jira drops HTML comments and holds the key, the reporter and the status in fields. Ask once which system the ticket lives in when you do not know.
 <!-- espec:feature-definition v1 -->
 # Feature: <title>
 

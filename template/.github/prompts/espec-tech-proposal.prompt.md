@@ -94,4 +94,5 @@ Input: `${input:source:Change name, ticket key or URL, or a pasted feature defin
   stamp by hand; `espec stamp` computes it.
 - Compute the coverage report from the files, not from what you meant to write. A Partial you cannot
   close now stays a Partial; the inspection and the reviewer check the same claims.
-- End the reply with the usage line from the **Usage report** section of AGENTS.md.
+- End the reply with the usage line from the **Usage report** section of AGENTS.md, when
+  `usage.report` in config.yaml asks for it.

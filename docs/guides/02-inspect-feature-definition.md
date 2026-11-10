@@ -27,7 +27,7 @@ and a comment ready to paste on the ticket.
 ```
 
 The command says which source it used and when it fetched it. If it cannot reach the ticket, it asks
-you to paste the description; paste the whole thing, marker line included.
+you to paste the description; paste the whole thing, marker line included in a GitHub issue.
 
 The report has seven parts:
 

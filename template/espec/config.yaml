@@ -31,6 +31,13 @@ security:
   repo: Mindera/AI-Mobile-Security-Assessment
   platforms: []                 # android | ios | kmp. Empty: detected from the repository
 
+usage:
+  # The usage line every espec command ends with (espec/AGENTS.md, "Usage report").
+  # always | when-available | none
+  # when-available prints it only when the tool shows the agent a figure. GitHub Copilot never does,
+  # so there it prints nothing. none never prints it.
+  report: always
+
 # Spec hub (optional). Leave empty when the specs live next to the code, which is the recommended setup.
 # In a spec hub this repository holds the specs only and the code lives in the repositories listed here.
 # `espec/bin/espec repos` clones them side by side under repos/ (add /repos/ to .gitignore), and the

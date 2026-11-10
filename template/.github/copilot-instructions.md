@@ -15,12 +15,16 @@ Commands in Copilot Chat: `/espec-feature-definition`, `/espec-tech-proposal`,
 `/espec-implementation`, `/espec-archive`, `/espec-archive-clean`. Read-only reviews:
 `/espec-inspect-feature-definition`, `/espec-assess` (the technical assessment that sits between
 the feature definition and the tech proposal), `/espec-inspect-tech-proposal`. Code review:
-`/espec-review` (a DiffCompass tour of the implementation pull request).
+`/espec-review` (a DiffCompass tour of the implementation pull request). GitHub Copilot CLI does not
+load prompt files: there the same commands run from the wrappers in `.claude/commands/`, which read
+and follow the prompt file.
 
 ## Rules that always apply
 
 - An issue or ticket whose body starts with `<!-- espec:feature-definition v1 -->` is a feature
-  definition. Do not implement it directly. Produce a tech proposal first, as a pull request that adds
+  definition. So is a Jira issue of the feature issue type in `espec/config.yaml` whose description
+  has the `## Why`, `## What` and `## Acceptance criteria` headings (Jira drops the marker). Do not
+  implement it directly. Produce a tech proposal first, as a pull request that adds
   `espec/changes/<change-name>/`, and wait for approval. Prompt files are not loaded for you
   automatically: open and follow `.github/prompts/espec-tech-proposal.prompt.md` step by step to write
   the proposal, and `.github/prompts/espec-implementation.prompt.md` once its status line says Approved.
@@ -32,5 +36,6 @@ the feature definition and the tech proposal), `/espec-inspect-tech-proposal`. C
 - End `/espec-tech-proposal` and `/espec-implementation` with the coverage report defined in
   `espec/AGENTS.md` (Coverage report), computed from the files on disk: every product id Covered,
   Partial or Missing, every acceptance criterion Delivered, Partial or Not delivered.
-- End every espec command with the usage line defined in `espec/AGENTS.md` (Usage report): the
-  credits, premium requests or tokens the run used when the tool shows them, never an estimate.
+- End every espec command with the usage line defined in `espec/AGENTS.md` (Usage report), as
+  `usage.report` in `espec/config.yaml` sets it: the credits, premium requests or tokens the run used
+  when the tool shows them, never an estimate.

@@ -82,4 +82,5 @@ optionally followed by the change name. Steps 1 to 5 below say what differs.
   request.
 - Do not review the diff yourself in the chat instead of the tour. When the tour cannot start, say why
   and point to the manual path.
-- End the reply with the usage line from the **Usage report** section of AGENTS.md.
+- End the reply with the usage line from the **Usage report** section of AGENTS.md, when
+  `usage.report` in config.yaml asks for it.

@@ -41,8 +41,8 @@ espec: spec-driven development helper (Enterprise Spec Driven Development)
 Usage: espec.ps1 <command> [arguments]
 
   init [dir]                 Copy the espec template into a repository (never overwrites existing files)
-  update [dir]               Refresh the managed files: prompts, instructions, workflow, AGENTS.md, templates, espec/bin,
-                             espec/LICENSE.md and espec/.toolkit-version
+  update [dir]               Refresh the managed files: prompts, command wrappers, instructions, workflow, AGENTS.md,
+                             templates, espec/bin, espec/LICENSE.md and espec/.toolkit-version
                              (init and update run from the toolkit checkout; the other commands work from espec/bin in a project)
   new <name> [options] [dir] Start a change under espec/changes/<name>
                              (options: --ticket KEY, --title "Title", --kind feature|bug)
@@ -122,7 +122,8 @@ Next steps:
   1. Edit espec/project.md and espec/config.yaml: product, stack, conventions, ticket system.
   2. Commit the new files. The workflow in .github/workflows/espec-validate.yml runs
      espec/bin/espec validate on every pull request; make it a required check.
-  3. Restart your IDE so GitHub Copilot picks up the prompt files in .github/prompts.
+  3. Restart your IDE so GitHub Copilot picks up the prompt files in .github/prompts. GitHub Copilot
+     CLI and Claude Code run the same commands from the wrappers in .claude/commands.
   4. Name the tech proposal approvers in CODEOWNERS and require code owner review on the default
      branch: docs/guides/setup-engineering.md, step 5, in the toolkit.
   5. Point product managers to the product-ai pack (Rovo and M365 Copilot) in $(Join-Path $ToolkitRoot 'product-ai')
@@ -147,6 +148,7 @@ function Get-ManagedFiles {
   $base = (Resolve-Path -LiteralPath $TemplateDir).Path
   $files = @()
   $files += @(Get-ChildItem -LiteralPath (Join-Path $base '.github/prompts') -File -Filter 'espec-*.prompt.md')
+  $files += @(Get-ChildItem -LiteralPath (Join-Path $base '.claude/commands') -File -Filter 'espec-*.md')
   $files += @(Get-ChildItem -LiteralPath (Join-Path $base '.github/instructions') -File -Filter 'espec.instructions.md')
   $files += @(Get-ChildItem -LiteralPath (Join-Path $base '.github/workflows') -File -Filter 'espec-*.yml')
   $files += @(Get-Item -LiteralPath (Join-Path $base 'espec/AGENTS.md'))

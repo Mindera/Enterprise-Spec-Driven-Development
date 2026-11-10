@@ -86,4 +86,5 @@ When the Figma server is not connected, say so, point to the engineering setup g
   use cases, edge cases or acceptance criteria; when the design shows behaviour the definition does
   not describe, list it as a question for Product instead.
 - Never post to or edit the ticket without a yes.
-- End the reply with the usage line from the **Usage report** section of AGENTS.md.
+- End the reply with the usage line from the **Usage report** section of AGENTS.md, when
+  `usage.report` in config.yaml asks for it.

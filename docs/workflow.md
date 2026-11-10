@@ -180,7 +180,7 @@ changes `espec/specs/` without archiving a change fails. See
 
 | Artifact | Ticket | Repository |
 |---|---|---|
-| Feature definition | Description. Product edits here. | `espec/changes/<change-name>/feature.md`, an identical copy |
+| Feature definition | Description. Product edits here. | `espec/changes/<change-name>/feature.md`, an identical copy from `# Feature:` down, plus the marker and header line on Jira |
 | Design notes | **UI design** section of the description | Same section of `feature.md` |
 | Forced technical notes | `## Forced technical notes` in the description | Same section of `feature.md`, reviewed in `tech-proposal.md` |
 | Technical assessment | Comment from engineering, with the outcome | Printed by `/espec:assess`. On request, `espec/changes/<change-name>/inspections/YYYY-MM-DD-assess.md` |

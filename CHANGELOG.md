@@ -7,11 +7,54 @@ bumps to (see [AGENTS.md](AGENTS.md)). When a version is merged to `main`, the r
 To move a project to a version, check it out in the toolkit clone and run `espec update`:
 
 ```bash
-git -C ~/espec fetch --tags && git -C ~/espec checkout v1.0.21
+git -C ~/espec fetch --tags && git -C ~/espec checkout v1.0.22
 ~/espec/bin/espec update /path/to/your/repo
 ```
 
 Entries marked **Action** need something done in projects that update.
+
+## v1.0.22 (2026-11-09)
+
+Commands:
+
+- The espec commands work in GitHub Copilot CLI, which does not load prompt files
+  ([#22](https://github.com/Mindera/Enterprise-Spec-Driven-Development/issues/22)). Every prompt file
+  has a thin wrapper at `.claude/commands/espec-<name>.md` that reads and follows it, so the prompt
+  stays the single source of each command. Type them as in Copilot Chat: `/espec-assess PROJ-123`.
+  Claude Code reads the same folder. The wrappers set `disable-model-invocation: true`, so they run
+  only when typed. The JetBrains Copilot plugin still lists each command once, because it does not
+  load `.claude/commands/` (not yet tested in VS Code). `espec update` (bash and PowerShell) creates and refreshes them, and toolkit CI
+  fails when a prompt file and its wrapper do not come in pairs.
+- **Action:** run `espec update` and commit `.claude/commands/`. If you wrote your own wrappers in
+  `.github/skills/` or `.claude/commands/`, delete them so each command is listed once.
+- The usage line is optional
+  ([#27](https://github.com/Mindera/Enterprise-Spec-Driven-Development/issues/27)). `usage.report` in
+  `config.yaml` is `always` (the default, also when the setting is absent), `when-available` (only
+  when the tool shows a figure, so nothing in GitHub Copilot) or `none`. The **Usage report** section
+  of `AGENTS.md`, every prompt and `copilot-instructions.md` read it.
+- **Action (optional):** to turn the line off, copy the `usage:` block from
+  `template/espec/config.yaml` into your `config.yaml`, since `update` leaves that file alone, and set
+  `report`. Remove any workaround rule from `.github/copilot-instructions.md`. That file is yours, so
+  also apply the new usage and Jira rules from `template/.github/copilot-instructions.md` by hand.
+
+Feature definitions in Jira
+([#26](https://github.com/Mindera/Enterprise-Spec-Driven-Development/issues/26)):
+
+- Jira stores descriptions in Atlassian Document Format, which drops the
+  `<!-- espec:feature-definition v1 -->` marker, and it already holds the key, the reporter and the
+  status in fields. A Jira description now starts at `# Feature:`, with no marker and no header line.
+  `feature.md` and GitHub issues keep both, and `espec validate` still requires the marker in
+  `feature.md`.
+- A Jira issue is recognised as a feature definition by the issue type in
+  `tickets.jira.feature_issue_type` and its `## Why`, `## What` and `## Acceptance criteria` headings.
+- `/espec:feature-definition` import writes the marker and builds the header line from the ticket
+  (key, reporter as product owner, the designer named in UI design, the readiness check). Writing back
+  to Jira leaves both lines out. Every comparison between the ticket and `feature.md` runs from
+  `# Feature:` down.
+- The Jira ticket template and the Rovo agent no longer ask for the first line. The M365 Copilot agent
+  and the product prompts keep it for GitHub issues and leave it out for Jira.
+- **Action (optional):** paste the new Instructions block into your Rovo and M365 Copilot agents, and
+  delete the marker and `**Ticket:**` lines from your Jira description template.
 
 ## v1.0.21 (2026-11-09)
 

@@ -67,9 +67,12 @@ from that file, or map them onto the statuses you have:
 `.github/ISSUE_TEMPLATE/feature-definition.md`, so "New issue, Feature definition" opens the skeleton
 with the `feature-definition` label applied.
 
-Keep the first line of the template, `<!-- espec:feature-definition v1 -->`. It is how engineering's
-tools recognise a feature definition. Jira shows it as plain text, which is fine. Check once that it
-survives a paste into your Jira editor and comes back when the description is fetched.
+In a GitHub issue, keep the first line of the template, `<!-- espec:feature-definition v1 -->`. It is
+how engineering's tools recognise a feature definition there. A Jira description has no such line:
+Jira drops HTML comments and already holds the key, the reporter and the status in fields, so the
+description starts at `# Feature:`. Engineering's tools recognise it by the issue type and the
+`## Why`, `## What` and `## Acceptance criteria` headings, and the import adds the marker and the
+header line to `feature.md`.
 
 ## Step 5: run one definition together
 
@@ -104,7 +107,7 @@ and product leads use it most.
   readiness lines ✅ in one sitting.
 - A Designer can paste that definition into the UI Design agent and get an UI design
   section plus new `EC-n` and `AC-n` entries numbered after the existing ones.
-- The pasted ticket starts with the marker line.
+- The pasted ticket starts with the marker line (GitHub) or with `# Feature:` (Jira).
 - Engineering runs `/espec-inspect-feature-definition` on that ticket and gets zero blocking findings.
 
 ## Common problems
@@ -114,6 +117,6 @@ and product leads use it most.
 | The agent writes the document after the first answer | Instructions were shortened or paraphrased | Paste the Instructions block unchanged |
 | The agent accepts "use service X" without comment | Same | Same. The product boundary rules are in the block |
 | M365 agent builder rejects the instructions | Over 8,000 characters after edits | Use the file as is; it fits |
-| Jira strips the marker line or renders it oddly | Editor conversion on paste | Paste as plain text, or add the marker line by hand as the first line. Confirm once that a fetch returns it |
+| A Jira description starts with `<!-- espec:feature-definition v1 -->` or a `**Ticket:**` line | The agent or template is older than v1.0.22 | Delete both lines; the description starts at `# Feature:`. Update the agent's instructions |
 | Engineering's inspect finds hows the agent missed | The readiness check is the agent's own opinion | Run the review prompt before handing over; trust the inspect verdict |
 | Ids restart at 1 after the Designer's pass | The Designer pasted an old version | Always paste the current ticket description; the agent numbers after the highest existing id |
