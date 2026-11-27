@@ -20,6 +20,9 @@ this step means **ready for technical investigation**, not ready for estimation 
 
 ## Before you start
 
+- The ticket is a feature. A bug needs no assessment: the tech proposal finds the root cause, so a
+  Ready bug report goes straight to [the tech proposal](04-tech-proposal.md). Assess a bug only when
+  its fix depends on another team.
 - [The inspection](02-inspect-feature-definition.md) ran and its comment is on the ticket. A Draft
   verdict is fine here when product is stuck and needs engineering input to go further; say so in
   the assessment.

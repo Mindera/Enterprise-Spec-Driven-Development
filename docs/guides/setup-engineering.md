@@ -28,6 +28,7 @@ Copilot commands, the formats and the validation, with nothing installed on thei
 | `.github/copilot-instructions.md` | Repository-wide rules, including for the Copilot coding agent | You, after init. Never overwritten. |
 | `.github/workflows/espec-validate.yml` | CI: validation on every pull request, `config.yaml` syntax, and main specs changed only by archive | The toolkit |
 | `.github/ISSUE_TEMPLATE/feature-definition.md` | New issue skeleton for GitHub Issues projects | You |
+| `.github/ISSUE_TEMPLATE/bug-report.md` | New issue skeleton for bug reports in GitHub Issues projects | You |
 | `.diffcompass.json` | Code review tour settings for DiffCompass | You, after init |
 
 ## Step 1: clone the toolkit and run init

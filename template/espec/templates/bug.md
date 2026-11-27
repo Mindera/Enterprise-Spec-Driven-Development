@@ -9,10 +9,13 @@
 
 ## What
 
-<!-- Expected behaviour versus actual behaviour, from the user's point of view. No solution.
+<!-- Expected behaviour versus actual behaviour, from the user's point of view. No cause, no fix.
      Name the main spec requirement the code breaks when there is one: capability › requirement › scenario. -->
 
 ## Steps to reproduce
+
+<!-- Numbered, from a known state: where (environment, version, device), who (role, account), which data.
+     Not reproducible at will: say how often it happens and what is known. -->
 
 1. <step>
 

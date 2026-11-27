@@ -134,6 +134,25 @@ The same command with a ticket key or URL runs Import mode: it fetches the ticke
 paste), reviews it and stores it. The tech proposal step does this on its own, so developers rarely
 need Import mode directly.
 
+### Reporting a bug
+
+Something broken is not a feature. Whoever found it (QA, support, a developer, you) says "Report a
+bug with me" to the same agent, or runs `/espec-feature-definition` with a description of what is
+broken. The interview is shorter: who is affected and how often, what you expected and what happened
+instead, the steps to reproduce from a known state, what this fix leaves out, and what must be true
+once it is fixed. There are no use cases, no edge cases and no Designer's pass.
+
+Two things to hold on to. A suspected cause or a proposed fix is a how: leave it out, engineering
+finds the root cause in the tech proposal. And expected behaviour the product never had is a feature,
+however small: define it as one. In GitHub Copilot the command looks for the main spec scenario that
+describes the expected behaviour and names it in the report.
+
+The result goes on the ticket like a feature definition, with its own seven-line readiness check. A
+bug skips the technical assessment: after [the inspection](02-inspect-feature-definition.md) it goes
+straight to [the tech proposal](04-tech-proposal.md). Format and rules:
+[AGENTS.md, Bug fixes](../../template/espec/AGENTS.md#bug-fixes). A worked report:
+[examples/changes/bill-171-fix-jpy-amounts-in-export/feature.md](../../examples/changes/bill-171-fix-jpy-amounts-in-export/feature.md).
+
 ## What good looks like
 
 - All nine readiness lines pass, and you agree with them.

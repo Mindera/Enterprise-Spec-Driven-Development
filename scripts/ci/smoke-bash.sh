@@ -41,6 +41,17 @@ grep -q '^# Bug:' espec/changes/proj-2-bug/feature.md
 grep -q '^kind: bug' espec/changes/proj-2-bug/.espec.yaml
 rm -rf espec/changes/proj-2-bug
 
+# The worked bug report validates as a bug: steps to reproduce, no use cases or edge cases.
+cp -R "$ROOT/examples/changes/bill-171-fix-jpy-amounts-in-export" espec/changes/
+./espec/bin/espec validate bill-171-fix-jpy-amounts-in-export >/dev/null
+# The same report is not a valid feature definition: without kind: bug, validate asks for use cases.
+sed 's/^kind: bug$/kind: feature/' espec/changes/bill-171-fix-jpy-amounts-in-export/.espec.yaml > espec.yaml.new
+mv espec.yaml.new espec/changes/bill-171-fix-jpy-amounts-in-export/.espec.yaml
+if ./espec/bin/espec validate bill-171-fix-jpy-amounts-in-export >/dev/null; then
+  echo "expected validate to ask a feature for use cases and edge cases"; exit 1
+fi
+rm -rf espec/changes/bill-171-fix-jpy-amounts-in-export
+
 # The worked example must pass against the main specs it was written for (its delta is stamped)...
 cp -R "$ROOT/examples/changes/bill-142-invoice-csv-export" espec/changes/
 cp -R "$ROOT/examples/specs-before/." espec/specs/

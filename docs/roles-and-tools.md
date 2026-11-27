@@ -121,7 +121,9 @@ Never:
    before it touches a ticket.
 5. Share the agents with the product team. Use the Jira issue type named in
    `espec/config.yaml` under `tickets.jira.feature_issue_type`. A description template is in
-   [product-ai/ticket-templates/jira-feature-definition.md](../product-ai/ticket-templates/jira-feature-definition.md).
+   [product-ai/ticket-templates/jira-feature-definition.md](../product-ai/ticket-templates/jira-feature-definition.md),
+   and the one for bug reports in
+   [product-ai/ticket-templates/jira-bug-report.md](../product-ai/ticket-templates/jira-bug-report.md).
 
 ### Microsoft 365 Copilot (Product Managers, Designers)
 
@@ -138,6 +140,8 @@ Never:
 The result is pasted into the ticket. For GitHub Issues, use the issue template that ships with the
 repository, or the body in
 [product-ai/ticket-templates/github-issue-feature-definition.md](../product-ai/ticket-templates/github-issue-feature-definition.md).
+A bug report has its own:
+[product-ai/ticket-templates/github-issue-bug-report.md](../product-ai/ticket-templates/github-issue-bug-report.md).
 
 ### GitHub Copilot (Product Managers, Designers)
 

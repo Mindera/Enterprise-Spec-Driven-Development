@@ -69,9 +69,15 @@ from that file, or map them onto the statuses you have:
 | In progress | Engineering | Implementation started |
 | Done | Engineering | Archived; the release note is the last comment |
 
+For bugs, save
+[ticket-templates/jira-bug-report.md](../../product-ai/ticket-templates/jira-bug-report.md) as the
+description template of the Bug issue type. A bug uses the same statuses without the three assessment
+ones.
+
 **GitHub Issues.** Nothing to do: the repository initialised by engineering carries
 `.github/ISSUE_TEMPLATE/feature-definition.md`, so "New issue, Feature definition" opens the skeleton
-with the `feature-definition` label applied.
+with the `feature-definition` label applied, and `bug-report.md`, so "New issue, Bug report" opens a
+bug report with the `bug` label.
 
 In a GitHub issue, keep the first line of the template, `<!-- espec:feature-definition v1 -->`. It is
 how engineering's tools recognise a feature definition there. A Jira description has no such line:

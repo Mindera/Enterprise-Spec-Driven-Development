@@ -27,12 +27,12 @@ Only phase 1 runs in Rovo and M365 Copilot. Phases 2 to 4 need the repository an
 
 | Command | Phase | Who | Input | Writes |
 |---|---|---|---|---|
-| `/espec:feature-definition` | 1 | PM, Designer, in Rovo, M365 Copilot or GitHub Copilot. A developer in-repo. | Idea, ticket key, URL or pasted definition | Ticket description. In-repo also `feature.md` and `.espec.yaml`, with the **UI design** section read from the Figma frames in the same run |
+| `/espec:feature-definition` | 1 | PM, Designer, in Rovo, M365 Copilot or GitHub Copilot. A developer in-repo. For a bug, whoever found it. | Idea or bug, ticket key, URL, or pasted definition or bug report | Ticket description. In-repo also `feature.md` and `.espec.yaml`, with the **UI design** section read from the Figma frames in the same run |
 | `/espec:tech-proposal` | 2 | Developer, QA | Ticket key, URL, change name or pasted definition | `tech-proposal.md`, `specs/`, `tasks.md`, `.espec.yaml` |
 | `/espec:implementation` | 3 | Developer, QA | Change name | Code, tests, `tasks.md`, `pull-request.md`, `.espec.yaml` |
 | `/espec:archive` | 4 | Developer | Change name | `espec/specs/`, the archived folder, a release note |
 | `/espec:archive-clean` | 4 | Developer | Optional capability name | `cleanup.md`, then confirmed edits to `espec/specs/` |
-| `/espec:inspect-feature-definition` | before 2 | Developer, QA, reviewer | Ticket key, URL, pasted definition or change name | Nothing. A report and a ticket comment in the chat |
+| `/espec:inspect-feature-definition` | before 2 | Developer, QA, reviewer | Ticket key, URL, pasted definition or bug report, or change name | Nothing. A report and a ticket comment in the chat |
 | `/espec:assess` | before 2 | Developer, with Product, Design, QA and the owning teams | Ticket key, URL, pasted definition or change name | Nothing. A report and a ticket comment in the chat |
 | `/espec:inspect-tech-proposal` | before 3 | QA, Engineering Manager, Architect | Change name | Nothing. A report and a ticket comment in the chat |
 | `/espec:review` | after 3 | Reviewer | Pull request number or URL, branch or change name. In a spec hub: code pull request URL and change name | Nothing. Launches the DiffCompass tour |
@@ -69,6 +69,7 @@ and the worked examples in [examples/coverage/](../examples/coverage/).
 | Writes | The feature definition, printed as one Markdown block to paste into the ticket. In-repo: `espec/changes/<change-name>/feature.md` and `.espec.yaml` with `status: defined` when the definition is ready. |
 | Pauses when | Interviewing, at most four questions per round. A how is stated: it quotes it, offers an outcome rephrasing, and asks once whether to force it. The change folder already exists: asks whether to update or create new. Figma frames are linked on an imported or existing definition: asks once whether to read them. The design shows behaviour the definition lacks: proposes an `EC-n` and `AC-n` for Product to confirm. Before updating a ticket: always asks. |
 | Output | The document, the review checklist as ✅ / ❌ lines with a one-line fix each, and the status: Draft or Ready for tech proposal. |
+| Bugs | The same command and modes write a bug report when the input describes something broken: it interviews for who is affected, expected versus actual behaviour and the steps to reproduce, names the main spec scenario that describes the expected behaviour, runs the bug readiness check, skips the design step and stores the report with `kind: bug`. |
 
 It never writes a tech proposal, specs, tasks or code. Asked to, it points to `/espec:tech-proposal`
 and stops.
@@ -147,6 +148,7 @@ a note asking for an owner, never Purge.
 | Writes | Nothing. On request, saves the report to `espec/changes/<change-name>/inspections/`. |
 | Checks | The readiness checklist, hows outside the forced notes, `UC`/`EC` coverage by `AC`, absent edge cases from the standard list, acceptance criteria that cannot be observed or measured. |
 | Output | The Feature definition inspection report: checklist, product boundary, coverage, edge cases to consider, testability, numbered findings marked Blocking or Advisory, the verdict (Ready for tech proposal, or Draft) and a comment to paste on the ticket. |
+| Bugs | A bug report gets the bug readiness check, one row per `AC-n` with the expected behaviour it proves and whether it fails today, no proposed edge cases, and a comparison of the expected behaviour with the main specs and the archive. A spec that describes the current behaviour as the intended one is blocking: the report asks for a feature. |
 
 ## /espec:assess
 
@@ -163,7 +165,8 @@ a note asking for an owner, never Purge.
 
 It makes no design decision: the choice and its reasons belong to the tech proposal. Code evidence
 never confirms another team's commitment, and an alternative is not a requirement until product
-accepts it in the ticket.
+accepts it in the ticket. A bug needs no assessment: given a bug report, the command says so and
+points to `/espec:tech-proposal`, and runs only when asked, for a fix that depends on another team.
 
 ## /espec:inspect-tech-proposal
 

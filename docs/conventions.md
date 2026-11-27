@@ -74,6 +74,11 @@ The definition is **Ready for tech proposal** when Why, What, at least one UC, e
 scope and acceptance criteria are present, every UC and EC maps to an AC, and open questions are
 answered or explicitly deferred by product.
 
+A bug carries a **bug report** in place of the feature definition: it starts at `# Bug:`, holds Why,
+What (expected versus actual behaviour), Steps to reproduce, Out of scope, Acceptance criteria and
+Open questions, uses `AC-n` only, and has its own readiness check. See
+[Bug fixes](../template/espec/AGENTS.md#bug-fixes).
+
 ## Tech proposal traceability
 
 The tech proposal has its own ids and two tables that tie it back to the feature definition.
@@ -282,6 +287,10 @@ report is saved under `espec/changes/<change-name>/inspections/`.
 | `/espec:inspect-feature-definition` | A ticket, a pasted definition or `feature.md` | Readiness checklist, Product boundary, Coverage, Edge cases to consider, Testability, Findings, Comment for the ticket | **Ready for tech proposal** or **Draft** |
 | `/espec:assess` | The feature definition against the code, the tests and the main specs | What exists today, Capabilities touched, Dependencies outside the repository, Alternatives for product, Criteria that cannot be met as written, Spikes, Findings, Comment for the ticket | **Ready for tech proposal** or **Further discovery required** |
 | `/espec:inspect-tech-proposal` | `tech-proposal.md`, `specs/` and `tasks.md` against `feature.md` and the live ticket | Ticket versus feature.md, Technical assessment, Traceability, Forced technical notes, Decisions, Constraints and non-functional requirements, Specs, Test strategy, Open questions, Findings, Comment for the ticket | **Approve** or **Not yet** |
+
+Given a bug report, `/espec:inspect-feature-definition` runs the bug readiness check, proposes no
+edge cases and compares the expected behaviour with the main specs: a spec that describes the current
+behaviour as the intended one is blocking, because the report then asks for a feature.
 
 Every finding is numbered and marked **Blocking** or **Advisory**. A finding is blocking when it would
 change scope or observable behaviour, leaves a product id without a scenario, task or test, or leaves a

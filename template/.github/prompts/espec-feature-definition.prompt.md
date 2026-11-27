@@ -1,6 +1,6 @@
 ---
 agent: agent
-description: "espec phase 1 · AI Assisted Feature Definition: write, import or review a feature definition (what and why, never how), read its Figma frames into the UI design section in the same run, and store it as feature.md."
+description: "espec phase 1 · AI Assisted Feature Definition: write, import or review a feature definition or a bug report (what and why, never how), read a feature's Figma frames into the UI design section in the same run, and store it as feature.md."
 ---
 
 # /espec:feature-definition
@@ -12,7 +12,7 @@ Read [espec/AGENTS.md](../../espec/AGENTS.md), [espec/project.md](../../espec/pr
 [espec/config.yaml](../../espec/config.yaml) before you start. Follow the **Feature definition format**
 and **The product boundary** sections exactly.
 
-Input: `${input:source:Ticket key or URL, a pasted feature definition, or a one-line description of the feature}`
+Input: `${input:source:Ticket key or URL, a pasted feature definition or bug report, or a one-line description of the feature or the bug}`
 
 ## Modes
 
@@ -27,6 +27,10 @@ Pick the mode from the input. Say which mode you are in.
 - **Draft.** The input is a description or an idea. Interview the user, then write the definition.
 - **Review.** The input names an existing `espec/changes/<change-name>/feature.md`. Check it and
   report gaps.
+
+A bug is defined with the same command and the same three modes. The input is a bug report when it
+starts at `# Bug:`, is a ticket of the tracker's bug type, or describes something broken rather than
+something new. Say so and follow **Bugs**, below. Ask once when it is not clear which it is.
 
 ## Draft: the interview
 
@@ -78,6 +82,24 @@ command.
   which, and continue. The UI design section stays as the interview left it, or "not needed" with the
   reason, and the review checklist judges it as it is. `/espec:design-context <change-name>` runs
   this same step on its own once the frames exist.
+
+## Bugs
+
+A bug report takes the place of the feature definition. Its format, the bug readiness check and what
+each later phase does differently are in **Bug fixes** in AGENTS.md. What changes here:
+
+- **Interview.** Ask for: who is affected, how often and what it costs them; what they expected and
+  what happened instead; the steps to reproduce from a known state (where, who, which data), or how
+  often it happens when it cannot be reproduced at will; nearby problems this fix leaves out; what
+  must be true once it is fixed, as `AC-n`. No use cases, no edge cases, no UI design, no design step.
+- **Expected behaviour.** Look under `espec/specs/` for the scenario that describes the expected
+  behaviour and name it in What (capability › requirement › scenario). When a spec describes the
+  actual behaviour as the intended one, say that this reads as a change of behaviour, a feature, and
+  ask how to continue.
+- **Boundary.** A suspected cause or a proposed fix is a how: guard it as above.
+- **Check.** Run the bug readiness check from AGENTS.md in place of the review checklist.
+- **Store.** As below, in the bug format, with `kind: bug` in `.espec.yaml`. For Jira, print it from
+  `# Bug:` down.
 
 ## Review checklist
 

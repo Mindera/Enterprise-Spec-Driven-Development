@@ -164,8 +164,7 @@ Approval covers the proposal as approved. A later change to a decision, the scop
 behaviour, in this phase or the next, sets the status line back to **In review** and the reviewer
 approves again.
 
-A bug runs through the same phases with a lighter definition and proposal: see
-[Bug fixes](../template/espec/AGENTS.md#bug-fixes).
+A bug runs through the same phases with less paper: see [Bugs](#bugs).
 
 ## Phase 3: Implementation
 
@@ -212,6 +211,25 @@ and a confirmed verdict. In CI, a pull request that
 changes `espec/specs/` without archiving a change fails. See
 [conventions.md](conventions.md#archive-merge-order-and-conflicts).
 
+## Bugs
+
+A bug is code that does not do what was intended. It runs through the same four phases with less
+paper. Behaviour that was never intended is a feature, however small, and takes a feature definition.
+
+| Step | What is different for a bug |
+|---|---|
+| Phase 1 | Whoever found it writes a **bug report** in place of the feature definition: who is affected and how often, expected versus actual behaviour, steps to reproduce, out of scope, acceptance criteria. No use cases, no edge cases, no UI design. The same tools write it: the Feature Definition agent in Rovo or M365 Copilot, or `/espec:feature-definition` in GitHub Copilot. A suspected cause or a proposed fix is a how and stays out. |
+| Inspection | `/espec:inspect-feature-definition` runs the bug readiness check and compares the expected behaviour with the main specs. When a spec describes the current behaviour as the intended one, the report asks for a feature, and that is blocking. |
+| Assessment | None. The tech proposal finds the root cause. |
+| Phase 2 | A shorter proposal: Context with the root cause, Approach, Traceability, Test strategy, Questions for Product. No delta when the main specs already describe the correct behaviour (`skip_specs: true`). |
+| Phase 3 | The first task writes a test that reproduces the bug and fails before the fix. |
+| Phase 4 | Unchanged. The archive is the record of why the behaviour changed. |
+
+Format and rules: [Bug fixes](../template/espec/AGENTS.md#bug-fixes). Ticket templates:
+[Jira](../product-ai/ticket-templates/jira-bug-report.md) and
+[GitHub Issues](../product-ai/ticket-templates/github-issue-bug-report.md). A worked report:
+[examples/changes/bill-171-fix-jpy-amounts-in-export/feature.md](../examples/changes/bill-171-fix-jpy-amounts-in-export/feature.md).
+
 ## Where things live
 
 | Artifact | Ticket | Repository |
@@ -243,7 +261,9 @@ The phases do not change. The hand-off does.
    [template/.github/ISSUE_TEMPLATE/feature-definition.md](../template/.github/ISSUE_TEMPLATE/feature-definition.md)
    opens a new issue with the feature definition skeleton and the `feature-definition` label
    already applied. Product writes the definition with M365 Copilot, Rovo or GitHub Copilot and
-   pastes the result into the body, or lets GitHub Copilot write it on a yes.
+   pastes the result into the body, or lets GitHub Copilot write it on a yes. A second template,
+   [bug-report.md](../template/.github/ISSUE_TEMPLATE/bug-report.md), opens a bug report with the
+   `bug` label.
 3. The body starts with `<!-- espec:feature-definition v1 -->`.
    [template/.github/copilot-instructions.md](../template/.github/copilot-instructions.md) tells
    GitHub Copilot that an issue with this marker is a feature definition and must not be
