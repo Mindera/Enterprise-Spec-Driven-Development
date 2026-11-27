@@ -96,6 +96,26 @@ section shows the freeze from the other side: the release manager had confirmed 
 still carried no date. Each report still quotes the
 text it inspected, so you can see what the command caught.
 
+## A bug report
+
+[`changes/bill-171-fix-jpy-amounts-in-export/feature.md`](changes/bill-171-fix-jpy-amounts-in-export/feature.md)
+is a second, much smaller change at its first step: a **bug report**, written by support two weeks after
+the export shipped. For a bug it takes the place of the feature definition: who is affected and how often,
+expected versus actual behaviour, steps to reproduce from a known state, and acceptance criteria, with no
+use cases, no edge cases and no UI design. Three things worth noticing:
+
+- **What** names the main spec scenario the code breaks, `invoice-export › Export file contents › Amounts
+  stay in the invoice currency`. The spec was right and the code was wrong, so the tech proposal will need
+  no delta.
+- It says nothing about the cause. Finding it is the tech proposal's first job, and the first task will
+  reproduce the bug in a failing test.
+- `AC-1` fails today. `AC-2` passes today and guards what the fix must not change. The open question has
+  an owner, which is what lets the report be Ready.
+
+Its [`.espec.yaml`](changes/bill-171-fix-jpy-amounts-in-export/.espec.yaml) says `kind: bug` and
+`status: defined`. No assessment follows: `/espec:tech-proposal` picks it up from here. The CI smoke test
+validates it as a bug, and checks that the same text fails as a feature definition.
+
 ## Coverage reports
 
 [`coverage/tech-proposal.md`](coverage/tech-proposal.md) and
@@ -132,15 +152,18 @@ written and stamped against. The CI smoke test validates the change against both
 examples/
 ├── README.md
 ├── changes/
-│   └── bill-142-invoice-csv-export/      # the change, implemented, not yet archived
-│       ├── .espec.yaml
-│       ├── feature.md                    # phase 1
-│       ├── tech-proposal.md              # phase 2
-│       ├── specs/
-│       │   ├── invoice-export/spec.md    # delta: new capability
-│       │   └── invoice-list/spec.md      # delta: one modified requirement of an existing capability
-│       ├── tasks.md                      # phase 2, tracked through phase 3
-│       └── pull-request.md               # phase 3: the PR body, proposal versus implementation
+│   ├── bill-142-invoice-csv-export/      # the change, implemented, not yet archived
+│   │   ├── .espec.yaml
+│   │   ├── feature.md                    # phase 1
+│   │   ├── tech-proposal.md              # phase 2
+│   │   ├── specs/
+│   │   │   ├── invoice-export/spec.md    # delta: new capability
+│   │   │   └── invoice-list/spec.md      # delta: one modified requirement of an existing capability
+│   │   ├── tasks.md                      # phase 2, tracked through phase 3
+│   │   └── pull-request.md               # phase 3: the PR body, proposal versus implementation
+│   └── bill-171-fix-jpy-amounts-in-export/ # a bug, reported and ready for its tech proposal
+│       ├── .espec.yaml                   # kind: bug
+│       └── feature.md                    # the bug report
 ├── specs/                                # espec/specs/ after /espec:archive
 │   ├── invoice-export/spec.md
 │   └── invoice-list/spec.md

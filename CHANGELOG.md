@@ -7,11 +7,50 @@ bumps to (see [AGENTS.md](AGENTS.md)). When a version is merged to `main`, the r
 To move a project to a version, check it out in the toolkit clone and run `espec update`:
 
 ```bash
-git -C ~/espec fetch --tags && git -C ~/espec checkout v1.0.25
+git -C ~/espec fetch --tags && git -C ~/espec checkout v1.0.26
 ~/espec/bin/espec update /path/to/your/repo
 ```
 
 Entries marked **Action** need something done in projects that update.
+
+## v1.0.26 (2026-11-27)
+
+Bugs get a first step: a bug report, with the tools and the checks to write it:
+
+- **Bug fixes** in `espec/AGENTS.md` holds the bug report format (`# Bug:`, Why, What as expected
+  versus actual behaviour, Steps to reproduce, Out of scope, Acceptance criteria, Open questions), how
+  it reads in Jira and in a GitHub issue, and a seven-line bug readiness check. A suspected cause or a
+  proposed fix is a how. Behaviour the product never had is a feature, not a bug.
+- `/espec:feature-definition` writes, imports and reviews bug reports with the same three modes: a
+  shorter interview, the main spec scenario that describes the expected behaviour named in What, the
+  bug readiness check, no design step, and `kind: bug` in `.espec.yaml`. `/espec:tech-proposal` imports
+  a bug ticket through it.
+- `/espec:inspect-feature-definition` inspects a bug report with a bug's rules, where it used to ask
+  for use cases and edge cases. It compares the expected behaviour with the main specs and the
+  archive: a spec that describes the current behaviour as the intended one is blocking, because the
+  report then asks for a feature. Specs that say nothing are advisory.
+- `/espec:assess` says that a bug needs no assessment and points to `/espec:tech-proposal`. It runs on
+  a bug only when asked, for a fix that depends on another team.
+- Product pack: the Feature Definition agents for Rovo and M365 Copilot, and the copy-paste prompt,
+  write a bug report when the person describes something broken ("Report a bug with me"). The review
+  prompt checks one. New ticket templates, each with the bug's shorter ticket workflow:
+  `product-ai/ticket-templates/jira-bug-report.md` and `github-issue-bug-report.md`.
+- `espec init` adds `.github/ISSUE_TEMPLATE/bug-report.md`: "New issue, Bug report", with the `bug`
+  label.
+- Worked example: `examples/changes/bill-171-fix-jpy-amounts-in-export/`, a bug report against the
+  invoice export. Both smoke tests validate it as a bug and check that the same text fails as a
+  feature definition.
+- Docs: a Bugs section in `docs/workflow.md`, guides 01 to 04, both setup guides, the FAQ, the
+  conventions page and the command reference.
+- **Action:** run `espec update`. Nothing new fails `espec validate`: the CLI and the validator are
+  unchanged.
+- **Action (GitHub Issues):** `espec update` does not manage issue templates. Copy
+  `template/.github/ISSUE_TEMPLATE/bug-report.md` from the toolkit into `.github/ISSUE_TEMPLATE/`.
+- **Action (Jira):** save `product-ai/ticket-templates/jira-bug-report.md` as the description
+  template of the Bug issue type.
+- **Action (Rovo and M365 Copilot):** paste the Instructions block of the Feature Definition agent
+  again, update its description and add the "Report a bug with me" starter. The UI Design agent is
+  unchanged.
 
 ## v1.0.25 (2026-11-27)
 

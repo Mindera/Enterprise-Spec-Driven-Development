@@ -28,7 +28,7 @@ comment for the ticket.
 
 | Command | Checks | Who | When |
 |---------|--------|-----|------|
-| `/espec:inspect-feature-definition` | A ticket, a pasted definition or `feature.md` against the feature definition rules | Developers, QA, reviewers. Product runs the same checks through the review prompt in the product pack | Before a tech proposal starts |
+| `/espec:inspect-feature-definition` | A ticket, a pasted definition or `feature.md` against the feature definition rules, or against the bug report rules when it is a bug | Developers, QA, reviewers. Product runs the same checks through the review prompt in the product pack | Before a tech proposal starts |
 | `/espec:assess` | The feature definition against the code, the tests and the main specs: what exists today, dependencies on other teams, alternatives for product, criteria that cannot be met as written, spikes | Developers, with Product, Design, QA and the owning teams answering what it raises | After the definition is Ready for tech proposal, before a tech proposal starts |
 | `/espec:inspect-tech-proposal` | `tech-proposal.md`, `specs/` and `tasks.md` against `feature.md` and the live ticket | QA, Engineering Managers, Architects | Before a tech proposal is approved |
 
@@ -549,6 +549,14 @@ scenario, task or test, or leaves a question open that product must answer. Ever
 The verdict is **Ready for tech proposal** only with zero blocking findings. A ❌ in the checklist and
 a how outside the forced notes are always blocking.
 
+For a bug report the title reads `# Inspection: bug report · <title> (<ticket>)`, and the checklist
+holds the bug readiness check from **Bug fixes** plus one row only the repository can answer:
+"Expected behaviour is the intended behaviour", with the main spec scenario that describes it, "no
+spec describes it" (advisory) or the spec or archived change that says otherwise (❌, blocking).
+Coverage has one row per `AC-n` with the expected behaviour it proves and whether it fails today or
+guards behaviour that must not change; a report in which no `AC-n` fails today has a gap. Edge cases
+to consider reads "Not applicable: bug report".
+
 ### Technical assessment report
 
 ```markdown
@@ -662,20 +670,94 @@ always blocking.
 ## Bug fixes
 
 A bug is code that does not do what was intended. It follows the same phases with less paper.
+Behaviour that was never intended is not a bug: it is a feature, however small, and takes a feature
+definition.
 
-- Start it with `espec/bin/espec new <change-name> --kind bug`. `.espec.yaml` gets `kind: bug` and
-  `feature.md` starts from `templates/bug.md`: Why (who is affected and how often), What (expected
-  versus actual behaviour, naming the main spec scenario the code breaks when there is one), Steps to
-  reproduce, Out of scope, Acceptance criteria (`AC-n` only, no `UC-n` or `EC-n`) and Open questions.
-  It keeps the feature definition marker, so every command recognises it.
-- The tech proposal needs only Context (the root cause, with paths), Approach, Traceability, Test
+### Bug report format
+
+The bug report takes the place of the feature definition. The same document lives in the ticket
+description and in `changes/<change-name>/feature.md`, and it keeps the feature definition marker, so
+every command recognises it.
+
+```markdown
+<!-- espec:feature-definition v1 -->
+# Bug: <title>
+
+**Ticket:** PROJ-123 · **Reported by:** <name> · **Status:** Draft | Ready for tech proposal
+
+## Why
+<!-- Who is affected, how often, and what it costs them. What happens if we do not fix it. -->
+
+## What
+<!-- Expected behaviour versus actual behaviour, from the user's point of view. No cause, no fix.
+     Name the main spec requirement the code breaks when there is one: capability › requirement › scenario. -->
+
+## Steps to reproduce
+<!-- Numbered, from a known state: where (environment, version, device), who (role, account), which data.
+     Not reproducible at will: say how often it happens and what is known. -->
+1. <step>
+
+## Out of scope
+<!-- Nearby problems this fix does not address. -->
+
+## Acceptance criteria
+### AC-1: <the bug no longer happens>
+- **GIVEN** <state>
+- **WHEN** <action>
+- **THEN** <observable result>
+
+## Open questions
+<!-- Each with an owner. Empty is a valid state and must be stated as "None". -->
+```
+
+Rules:
+
+- `AC-n` only: no `UC-n`, no `EC-n`, no UI design section. A screenshot or a recording is linked from
+  What or from the steps.
+- A suspected cause or a proposed fix is a how. It stays out of the report, or goes under
+  `## Forced technical notes` as `FT-n` when the reporter insists, as in a feature definition.
+- In the ticket it follows the feature definition's rules: a GitHub issue holds the whole document, a
+  Jira description starts at `# Bug:` with no marker and no header line. Wherever espec says "from
+  `# Feature:` down", read `# Bug:` for a bug.
+- A ticket is a bug report when its description starts at `# Bug:`. A ticket of the tracker's bug
+  type, or one that describes broken behaviour, that is not in the format yet is put into it by the
+  import, which asks for what is missing.
+- Whoever found the bug writes the report: QA, support, a developer, Product. In GitHub Copilot,
+  `/espec:feature-definition` drafts, imports and reviews it. Outside the repository, the product
+  pack's agents and its bug ticket templates do.
+
+The report is **Ready for tech proposal** when every item of the **bug readiness check** passes:
+
+- Why says who is affected, how often and what it costs.
+- What states expected versus actual behaviour from the user's point of view, with no cause and no fix.
+- Steps to reproduce are numbered and start from a known state, or the report says how often the bug
+  happens and what is known.
+- Out of scope is an explicit list.
+- At least one `AC-n` in GIVEN / WHEN / THEN that fails today and passes once the bug is fixed. An
+  `AC-n` that passes today may guard behaviour the fix must not change.
+- Open questions is "None" or every question has an owner.
+- No how outside Forced technical notes.
+
+### What each phase does differently
+
+- **Inspection.** `/espec:inspect-feature-definition` runs the bug readiness check in place of the
+  feature checklist, lists each `AC-n` with the expected behaviour it proves, proposes no edge cases,
+  and compares the expected behaviour with the main specs and the archive. A spec or an archived
+  change that describes the actual behaviour as the intended one makes the report a change of
+  behaviour, a feature: that is blocking. Specs that say nothing are advisory: the tech proposal
+  writes the delta.
+- **Assessment.** A bug needs none: the tech proposal finds the root cause. `/espec:assess` says so,
+  and runs only when asked, for a fix that depends on another team.
+- **Starting the change.** The import stores the report with `kind: bug` in `.espec.yaml`. By hand:
+  `espec/bin/espec new <change-name> --kind bug`, which starts `feature.md` from `templates/bug.md`.
+- **Tech proposal.** It needs only Context (the root cause, with paths), Approach, Traceability, Test
   strategy and Questions for Product. Add other sections when the fix touches them.
-- The first task writes a test that reproduces the bug and fails before the fix.
-- Specs: when the main specs already describe the correct behaviour, set `skip_specs: true` and name
-  that scenario in the Traceability table. When they do not, the intended behaviour was never
+- **Tasks.** The first task writes a test that reproduces the bug and fails before the fix.
+- **Specs.** When the main specs already describe the correct behaviour, set `skip_specs: true` and
+  name that scenario in the Traceability table. When they do not, the intended behaviour was never
   specified: write the delta (ADDED or MODIFIED) like any change.
-- Approval, implementation, review and archive are unchanged. A one-line fix still gets a change
-  folder: the archive is the record of why the behaviour changed.
+- **Everything else.** Approval, implementation, review and archive are unchanged. A one-line fix
+  still gets a change folder: the archive is the record of why the behaviour changed.
 
 ## Change lifecycle (`.espec.yaml`)
 
@@ -899,6 +981,8 @@ empty.
 ## Guardrails for AI assistants
 
 - Phase 1 writes product language only. Push back on how. Record forced hows under `FT-n`.
+- A bug report is not a shortcut around a feature definition, and a feature definition is not the
+  form for a bug. Say which one the input is, and ask once when it is not clear.
 - Phase 2 writes planning artifacts only. Never edit application code during a tech proposal.
 - Phase 2 builds on the technical assessment. Read it before writing, carry what it raised into the
   proposal, and never treat a dependency as confirmed because the code calls it.

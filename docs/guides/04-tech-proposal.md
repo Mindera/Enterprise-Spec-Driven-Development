@@ -42,8 +42,9 @@ change name (`bill-142-invoice-csv-export`). With a change name that already exi
 proposal in place; when that proposal was already Approved, it sets the status line back to
 **In review** first, because the reviewer has to approve the new version.
 
-For a bug, start the change with `espec/bin/espec new <name> --kind bug` and fill `feature.md` from
-the bug report, or give the command the bug ticket and it does that for you. The proposal is shorter
+For a bug, give the command the bug ticket: it imports the report in the bug format, with `kind: bug`
+in `.espec.yaml`, and skips the assessment step. To start by hand, run
+`espec/bin/espec new <name> --kind bug` and fill `feature.md` from the report. The proposal is shorter
 (Context with the root cause, Approach, Traceability, Test strategy, Questions for Product) and the
 first task reproduces the bug in a failing test. See [Bug fixes](../../template/espec/AGENTS.md#bug-fixes).
 

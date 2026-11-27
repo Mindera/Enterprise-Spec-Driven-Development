@@ -25,6 +25,10 @@ Input: `${input:source:Ticket key or URL, a pasted feature definition, or a chan
    When the ticket already carries an earlier assessment (a re-run after further discovery), read it
    and say in the comment for the ticket that this assessment supersedes it, and which of its blocking
    findings are now resolved and by what: an answer, a confirmation or a spike result.
+   A bug report (it starts at `# Bug:`, or `.espec.yaml` says `kind: bug`) needs no assessment: the
+   tech proposal finds the root cause. Say so, point to `/espec:tech-proposal` and stop. Continue only
+   when the user asks for one, for a fix that depends on another team; then the steps to reproduce
+   and every `AC-n` are what you search the code for.
 
 2. **Read the main specs.** Read every spec under `espec/specs/` whose capability the feature could
    touch. List each one under Capabilities touched with the requirement names involved and whether

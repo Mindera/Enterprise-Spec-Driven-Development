@@ -1,6 +1,6 @@
 ---
-description: "espec review · Inspect a feature definition: check a ticket or feature.md for missing information, hows, coverage gaps and untestable criteria. Read-only; prints a report and a ticket comment. Runs .github/prompts/espec-inspect-feature-definition.prompt.md (for GitHub Copilot CLI and Claude Code)."
-argument-hint: "<Ticket key or URL, a pasted feature definition, or a change name under espec/changes/>"
+description: "espec review · Inspect a feature definition or a bug report: check a ticket or feature.md for missing information, hows, coverage gaps and untestable criteria. Read-only; prints a report and a ticket comment. Runs .github/prompts/espec-inspect-feature-definition.prompt.md (for GitHub Copilot CLI and Claude Code)."
+argument-hint: "<Ticket key or URL, a pasted feature definition or bug report, or a change name under espec/changes/>"
 disable-model-invocation: true
 ---
 

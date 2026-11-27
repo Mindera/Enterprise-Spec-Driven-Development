@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="./VERSION"><img alt="Version: v1.0.25" src="https://img.shields.io/badge/version-v1.0.25-orange.svg?style=flat-square"></a>
+  <a href="./VERSION"><img alt="Version: v1.0.26" src="https://img.shields.io/badge/version-v1.0.26-orange.svg?style=flat-square"></a>
   <a href="./LICENSE.md"><img alt="License: Sustainable Use 1.0" src="https://img.shields.io/badge/License-Sustainable%20Use%201.0-blue.svg?style=flat-square"></a>
   <img alt="GitHub Copilot" src="https://img.shields.io/badge/Developers-GitHub%20Copilot-24292f?style=flat-square">
   <img alt="Rovo" src="https://img.shields.io/badge/Product-Rovo-0052cc?style=flat-square">
@@ -143,8 +143,9 @@ the code, so product decides scope with the facts before anyone designs.
 
 **Phase 2** is the deep dive: architecture, APIs, data model, technology decisions with alternatives,
 a traceability table from every product id to a spec scenario and a task, a test strategy for QA, and
-questions for product that go back on the ticket. Bugs take the same path with a lighter definition
-and proposal.
+questions for product that go back on the ticket. Bugs take the same path with less paper: a bug
+report in place of the definition, written by whoever found the bug, no assessment, and a shorter
+proposal that names the root cause.
 
 **Phase 3** generates the code from the tech proposal and specs, one task at a time, and never
 narrows scope silently. It ends with a pull request description a reviewer can read without opening
@@ -284,7 +285,7 @@ Your repo also gets its own copy of the validator in `espec/bin` and a GitHub Ac
 runs it on every pull request, so format rules are checked without any dependency
 on this toolkit. Then name your tech proposal approvers in CODEOWNERS
 ([engineering setup, step 5](docs/guides/setup-engineering.md#step-5-protect-approval-and-the-main-specs)).
-To pin a version, check out its tag (`git -C ~/espec checkout v1.0.25`) before `init` or `update`.
+To pin a version, check out its tag (`git -C ~/espec checkout v1.0.26`) before `init` or `update`.
 
 ### Product and design
 
@@ -298,7 +299,8 @@ Two ways to start, one ticket at the end:
   nothing: the ticket is the hand-off
   ([setup](docs/roles-and-tools.md#github-copilot-product-managers-designers)).
 
-Either way, add the ticket template from `product-ai/ticket-templates/` to Jira or GitHub. Done.
+Either way, add the ticket templates (feature definition and bug report) from
+`product-ai/ticket-templates/` to Jira or GitHub. Done.
 
 <details>
 <summary><strong>What do the specs look like?</strong></summary>
@@ -336,6 +338,7 @@ your-repo/
 │   ├── instructions/espec.instructions.md # Format rules applied to espec/**
 │   ├── workflows/espec-validate.yml       # CI: validates changes and specs on every pull request
 │   ├── ISSUE_TEMPLATE/feature-definition.md
+│   ├── ISSUE_TEMPLATE/bug-report.md
 │   └── PULL_REQUEST_TEMPLATE/espec-spec-change.md # For tech proposal and archive pull requests
 └── espec/
     ├── AGENTS.md                          # Conventions for humans and AI
@@ -369,7 +372,7 @@ Questions, bugs and ideas go to [GitHub Issues](https://github.com/Mindera/Enter
 Pull requests are welcome. Keep the README simple and the prompts shorter than the documents they
 produce.
 
-The current version is **v1.0.25**, kept in [`VERSION`](VERSION). Every change bumps the last number
+The current version is **v1.0.26**, kept in [`VERSION`](VERSION). Every change bumps the last number
 (`vX.Y.Z` → `vX.Y.Z+1`) and adds an entry to the [changelog](CHANGELOG.md); every version merged to
 `main` is tagged and released. See [`AGENTS.md`](AGENTS.md) for the rules every contributor and every
 AI assistant follows.

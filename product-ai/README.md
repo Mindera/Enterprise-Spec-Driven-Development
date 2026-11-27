@@ -13,10 +13,10 @@ Both ways end on the same ticket. The ticket templates here apply to both.
 
 | Folder | What is in it | Who uses it |
 |--------|---------------|-------------|
-| `rovo/` | Two Rovo Agent definitions: Feature Definition and UI Design. Name, description, starters and the full instructions to paste. | Rovo admins, then PMs and Designers |
+| `rovo/` | Two Rovo Agent definitions: Feature Definition, which also writes bug reports, and UI Design. Name, description, starters and the full instructions to paste. | Rovo admins, then PMs and Designers |
 | `m365-copilot/` | The same two agents for Microsoft 365 Copilot agent builder. | M365 admins, then PMs and Designers |
-| `prompts/` | Copy-paste prompts for any chat when creating an agent is not possible: define a feature, add the UI design, review a definition. | PMs, Designers, reviewers |
-| `ticket-templates/` | The feature definition as a Jira description template and as a GitHub issue template, plus the ticket workflow. | PMs, Jira and GitHub admins |
+| `prompts/` | Copy-paste prompts for any chat when creating an agent is not possible: define a feature or report a bug, add the UI design, review a definition or a bug report. | PMs, Designers, reviewers |
+| `ticket-templates/` | The feature definition and the bug report, each as a Jira description template and as a GitHub issue template, plus the ticket workflow. | PMs, Jira and GitHub admins |
 
 ## The one rule
 
@@ -30,7 +30,8 @@ you state a solution they ask you to rephrase it as an outcome, and if you insis
 2. Create the Feature Definition agent from the file. Paste the Instructions block as is.
 3. Create the UI Design agent the same way.
 4. Share both agents with the product and design teams.
-5. Add the ticket template to Jira or GitHub so every feature starts with the same structure.
+5. Add the ticket templates to Jira or GitHub so every feature and every bug starts with the same
+   structure.
 
 ## Using it
 
@@ -47,6 +48,19 @@ you state a solution they ask you to rephrase it as an outcome, and if you insis
 5. Once the assessment outcome is **Ready for tech proposal**, engineering picks the ticket up with
    `/espec:tech-proposal`. Their questions come back as a ticket comment. Answer them in the ticket;
    they re-import the definition.
+
+## Bugs
+
+A bug is something that does not do what was intended. Whoever found it (QA, support, a developer, a
+Product Manager) opens the Feature Definition agent and says "Report a bug with me". It asks who is
+affected and how often, what was expected and what happened instead, and the steps to reproduce, then
+prints a bug report with its own, shorter readiness check. Paste it into the ticket and set the status
+to **Ready for tech proposal**.
+
+A bug has no UI design pass and no technical assessment: engineering picks the ticket up with
+`/espec:tech-proposal`, finds the root cause, and starts the fix with a test that reproduces the bug.
+A suspected cause or a proposed fix is a how and stays out of the report. Asking for behaviour the
+product never had is a feature: define it as one.
 
 ---
 

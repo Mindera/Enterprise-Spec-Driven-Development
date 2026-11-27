@@ -19,13 +19,11 @@ Input: `${input:source:Change name, ticket key or URL, or a pasted feature defin
 
 1. **Resolve the change.**
    - A change name that exists under `espec/changes/` → use it. Announce "Using change: <name>".
-   - A ticket key, URL or pasted definition → run the Import mode of
+   - A ticket key, URL or pasted definition, of a feature or of a bug → run the Import mode of
      `/espec:feature-definition` first (fetch or ask for the text, review it, store
-     `feature.md` and `.espec.yaml`), then continue.
-   - A bug report (a ticket that describes broken behaviour rather than a feature) → create the
-     change with `espec/bin/espec new <name> --kind bug` (or `espec.ps1`), fill `feature.md` from the
-     report in the bug format of AGENTS.md, and continue. **Bug fixes** in AGENTS.md says what is
-     different from here on.
+     `feature.md` and `.espec.yaml`), then continue. It stores a bug report (a ticket that describes
+     broken behaviour rather than a feature) in the bug format with `kind: bug`; **Bug fixes** in
+     AGENTS.md says what is different from here on.
    - Nothing usable → ask for one of the above and stop.
 
    When `tech-proposal.md` already exists and its status line reads **Approved**, this run revises an
@@ -36,8 +34,9 @@ Input: `${input:source:Change name, ticket key or URL, or a pasted feature defin
    `.espec.yaml`, compare its description with `feature.md` from `# Feature:` down; when they differ,
    show the difference and ask which wins before going on: the ticket's text replaces `feature.md`, or
    `feature.md` is printed to put back on the ticket. Run the review checklist from the feature
-   definition prompt. When the definition is not Ready for tech proposal, list the gaps and ask whether
-   to continue anyway. When continuing, every gap becomes a line under **Questions for Product**.
+   definition prompt, or the bug readiness check from AGENTS.md for a bug. When the definition is not
+   Ready for tech proposal, list the gaps and ask whether to continue anyway. When continuing, every
+   gap becomes a line under **Questions for Product**.
 
 3. **Read the technical assessment.** A feature's proposal builds on `/espec:assess`. A bug
    (`kind: bug`) needs none: skip this step. Find the latest assessment: a file under

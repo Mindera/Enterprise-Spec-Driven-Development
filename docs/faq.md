@@ -44,14 +44,17 @@ behaviour, it is not a pure refactor: write the delta.
 
 ## What about bug fixes?
 
-Same phases, less paper. Start the change with `espec/bin/espec new <name> --kind bug`: `feature.md`
-comes from the bug template (who is affected, expected versus actual behaviour, steps to reproduce,
-acceptance criteria) and the tech proposal needs only Context with the root cause, Approach,
-Traceability, Test strategy and Questions for Product. The first task reproduces the bug in a failing
+Same phases, less paper. Whoever found the bug writes a bug report in place of the feature definition
+(who is affected, expected versus actual behaviour, steps to reproduce, acceptance criteria): with the
+Feature Definition agent, with `/espec:feature-definition`, or by hand from the bug ticket template.
+There is no technical assessment. Engineering gives the ticket to `/espec:tech-proposal`, or starts
+the change with `espec/bin/espec new <name> --kind bug`. The tech proposal needs only Context with the
+root cause, Approach, Traceability, Test strategy and Questions for Product. The first task reproduces the bug in a failing
 test. When the main specs already describe the correct behaviour, set `skip_specs: true` and name that
 scenario in the Traceability table; the code was wrong, not the spec. When they do not, the intended
-behaviour was never written down: write the delta like any change. See
-[Bug fixes](../template/espec/AGENTS.md#bug-fixes).
+behaviour was never written down: write the delta like any change. Asking for behaviour the product
+never had is a feature, not a bug: the inspection says so when a main spec describes the current
+behaviour as the intended one. See [Bug fixes](../template/espec/AGENTS.md#bug-fixes).
 
 ## Two changes edit the same requirement at the same time?
 

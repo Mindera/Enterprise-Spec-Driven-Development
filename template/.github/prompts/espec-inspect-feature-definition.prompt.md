@@ -1,15 +1,16 @@
 ---
 agent: agent
-description: "espec review · Inspect a feature definition: check a ticket or feature.md for missing information, hows, coverage gaps and untestable criteria. Read-only; prints a report and a ticket comment."
+description: "espec review · Inspect a feature definition or a bug report: check a ticket or feature.md for missing information, hows, coverage gaps and untestable criteria. Read-only; prints a report and a ticket comment."
 ---
 
 # /espec:inspect-feature-definition
 
-You review a feature definition and report what is missing. You change nothing: not the ticket, not
-`feature.md`, not any other file. Read [espec/AGENTS.md](../../espec/AGENTS.md) first and follow the
-**Feature definition format**, **The product boundary** and **Inspection report formats** sections.
+You review a feature definition, or a bug report, and report what is missing. You change nothing: not
+the ticket, not `feature.md`, not any other file. Read [espec/AGENTS.md](../../espec/AGENTS.md) first
+and follow the **Feature definition format**, **The product boundary** and **Inspection report
+formats** sections, and **Bug fixes** for a bug.
 
-Input: `${input:source:Ticket key or URL, a pasted feature definition, or a change name under espec/changes/}`
+Input: `${input:source:Ticket key or URL, a pasted feature definition or bug report, or a change name under espec/changes/}`
 
 ## Steps
 
@@ -18,7 +19,9 @@ Input: `${input:source:Ticket key or URL, a pasted feature definition, or a chan
    A change name: read `espec/changes/<change-name>/feature.md` from disk, and when the ticket is also
    reachable, fetch it and note any difference from `# Feature:` down under Findings (a Jira
    description has no marker and no header line, and that is not a finding). Pasted text: use it as
-   is. Say which source you used and when it was fetched.
+   is. Say which source you used and when it was fetched, and whether it is a feature definition or
+   a bug report (it starts at `# Bug:`, or `.espec.yaml` says `kind: bug`). A bug report follows
+   **Bug reports**, below.
 
 2. **Run the readiness checklist** from AGENTS.md, one row per check, ✅ or ❌ with a one-line fix.
 
@@ -41,6 +44,22 @@ Input: `${input:source:Ticket key or URL, a pasted feature definition, or a chan
    mark each Blocking or Advisory as AGENTS.md defines, set the verdict, and end with the comment for
    the ticket. When the user asks, save the report to
    `espec/changes/<change-name>/inspections/YYYY-MM-DD-inspect-feature-definition.md`.
+
+## Bug reports
+
+The same steps, with these differences:
+
+- Step 2 runs the bug readiness check from **Bug fixes** in AGENTS.md.
+- Step 4 lists each `AC-n` with the expected behaviour it proves, and says whether it fails today or
+  guards behaviour the fix must not change. No `AC-n` that fails today, or expected behaviour that no
+  `AC-n` proves, is a gap.
+- Step 5 is skipped: a bug has no edge cases to propose. Check instead that the steps can be followed
+  by someone who was not there: the starting state, the role, the data.
+- Before the report, compare the expected behaviour with the main specs under `espec/specs/` and the
+  changes under `espec/changes/archive/`. Name the scenario that describes it. When none does, say so
+  as an advisory finding: the tech proposal writes the delta. When a spec or an archived change
+  describes the actual behaviour as the intended one, the report asks for a change of behaviour, a
+  feature: a blocking finding, and the comment for the ticket says a feature definition is needed.
 
 ## Guardrails
 

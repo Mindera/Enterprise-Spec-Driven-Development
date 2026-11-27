@@ -42,6 +42,21 @@ try {
     if ((Get-Content -Raw -LiteralPath (Join-Path $Work 'espec/changes/proj-2-bug/.espec.yaml')) -notmatch '(?m)^kind: bug') { throw 'new --kind bug did not set kind' }
     Remove-Item -Recurse -Force (Join-Path $Work 'espec/changes/proj-2-bug')
 
+    # The worked bug report validates as a bug: steps to reproduce, no use cases or edge cases.
+    $bug = Join-Path $Work 'espec/changes/bill-171-fix-jpy-amounts-in-export'
+    Copy-Item -Recurse -LiteralPath (Join-Path $Root 'examples/changes/bill-171-fix-jpy-amounts-in-export') -Destination (Join-Path $Work 'espec/changes')
+    $global:LASTEXITCODE = 1
+    & $cli validate bill-171-fix-jpy-amounts-in-export | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw 'worked bug report failed validation' }
+    # The same report is not a valid feature definition: without kind: bug, validate asks for use cases.
+    $bugMeta = Join-Path $bug '.espec.yaml'
+    $text = [System.IO.File]::ReadAllText($bugMeta)
+    [System.IO.File]::WriteAllText($bugMeta, ($text -replace '(?m)^kind: bug(\r?)$', 'kind: feature$1'))
+    $global:LASTEXITCODE = 0
+    & $cli validate bill-171-fix-jpy-amounts-in-export | Out-Null
+    if ($LASTEXITCODE -eq 0) { throw 'expected validate to ask a feature for use cases and edge cases' }
+    Remove-Item -Recurse -Force $bug
+
     # The worked example must pass against the main specs it was written for (its delta is stamped).
     Copy-Item -Recurse -LiteralPath (Join-Path $Root 'examples/changes/bill-142-invoice-csv-export') -Destination (Join-Path $Work 'espec/changes')
     Get-ChildItem -LiteralPath (Join-Path $Root 'examples/specs-before') -Directory | ForEach-Object {

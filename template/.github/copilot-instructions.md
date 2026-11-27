@@ -25,8 +25,9 @@ and follow the prompt file.
 
 - An issue or ticket whose body starts with `<!-- espec:feature-definition v1 -->` is a feature
   definition. So is a Jira issue of the feature issue type in `espec/config.yaml` whose description
-  has the `## Why`, `## What` and `## Acceptance criteria` headings (Jira drops the marker). Do not
-  implement it directly. Produce a tech proposal first, as a pull request that adds
+  has the `## Why`, `## What` and `## Acceptance criteria` headings (Jira drops the marker). A bug
+  report in the espec format, starting at `# Bug:`, follows the same rule. Do not implement it
+  directly. Produce a tech proposal first, as a pull request that adds
   `espec/changes/<change-name>/`, and wait for approval. Prompt files are not loaded for you
   automatically: open and follow `.github/prompts/espec-tech-proposal.prompt.md` step by step to write
   the proposal, and `.github/prompts/espec-implementation.prompt.md` once its status line says Approved.

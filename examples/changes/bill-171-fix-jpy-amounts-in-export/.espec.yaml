@@ -1,0 +1,10 @@
+ticket: BILL-171
+title: Exported yen amounts carry two decimals
+kind: bug
+status: defined                  # defined | proposed | in-progress | implemented | archived | cancelled
+created: 2026-11-09
+owners:
+  product: Mariana Costa
+  engineering: Priya Raghavan
+  qa: Daniel Okafor
+skip_specs: false                # true only when the main specs need no change (see AGENTS.md)

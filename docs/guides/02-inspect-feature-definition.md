@@ -75,6 +75,22 @@ Ask, and the command saves the report to
 `espec/changes/<change-name>/inspections/YYYY-MM-DD-inspect-feature-definition.md`. Useful when the
 ticket goes back and forth more than once; otherwise the ticket comment is the record.
 
+### Inspecting a bug report
+
+Give the command a bug ticket and it says so, then runs the same inspection with a bug's rules: the
+seven checks of the bug readiness check in place of the nine, one row per `AC-n` with the expected
+behaviour it proves, and no proposed edge cases. It adds one check only the repository can make: it
+compares the expected behaviour with the main specs and the archive.
+
+| What it finds | Result |
+|---|---|
+| A main spec scenario describes the expected behaviour | ✅ The code is wrong, not the spec. The tech proposal names that scenario and needs no delta |
+| No spec describes it | Advisory. The intended behaviour was never written down; the tech proposal writes the delta |
+| A spec or an archived change describes the current behaviour as the intended one | Blocking. This is a change of behaviour, a feature: it goes back for a feature definition |
+
+A Ready bug report goes straight to [the tech proposal](04-tech-proposal.md). A bug has no technical
+assessment.
+
 ## What good looks like
 
 - The verdict is Ready and you agree with each advisory being advisory.
