@@ -74,6 +74,7 @@ espec/
 │   │   │   └── <capability>/
 │   │   │       └── spec.md
 │   │   ├── tasks.md              # Phase 2 output, tracked in Phase 3
+│   │   ├── inspections/          # The assessment the proposal builds on; other reports on request
 │   │   └── pull-request.md       # Phase 3: PR description, proposal versus implementation
 │   └── archive/                  # Finished changes and clean-up logs
 │       ├── YYYY-MM-DD-<change-name>/
@@ -225,7 +226,9 @@ separate `design.md` or `ui-design.md`.
 **Feature:** [feature.md](feature.md) · **Ticket:** PROJ-123 · **Author:** <name> · **Status:** Draft | In review | Approved
 
 ## Context
-<!-- Current state of the code that this change touches. Observed, with file references. Not the why. -->
+<!-- Opens with the technical assessment this builds on: date, outcome, where it is, what resolved each
+     blocking finding. Then the current state of the code that this change touches. Observed, with
+     file references. Not the why. -->
 
 ## Approach
 <!-- The chosen solution in one or two paragraphs. -->
@@ -279,6 +282,14 @@ separate `design.md` or `ui-design.md`.
 Rules:
 
 - Ground the Context section in the real code. Read before writing. Cite paths.
+- Context opens by naming the technical assessment the proposal builds on: its date, its outcome and
+  where it is (`inspections/YYYY-MM-DD-assess.md`, which the tech proposal files from the ticket
+  comment when it is not there yet), or says that none was run and why. A bug needs none.
+- What the assessment raised does not stop at the ticket. A blocking finding is named with what
+  resolved it. Every dependency outside the repository appears where the proposal relies on it, as
+  confirmed and by whom, or stays under **Risks and trade-offs** with its owner, and is a blocking
+  Question for Product when scope depends on it. A spike's result is cited, or the spike is a task.
+  The assumptions it left visible stay visible.
 - Decisions list alternatives. "We always do it this way" is an alternative, not a reason.
 - The traceability table is complete: every `UC-n`, `EC-n` and `AC-n` from `feature.md` appears.
   When something cannot be traced, say so in **Questions for Product**.
@@ -486,7 +497,9 @@ repository with no mobile platform. `security.platforms` names the platforms; em
 ## Inspection report formats
 
 Inspect commands and the technical assessment print a report in the chat and never edit anything. On
-request they save it to `espec/changes/<change-name>/inspections/YYYY-MM-DD-<command>.md`. A finding is
+request they save it to `espec/changes/<change-name>/inspections/YYYY-MM-DD-<command>.md`. The tech
+proposal files the assessment it builds on there without being asked, so the proposal is reviewed
+next to its evidence. A finding is
 **Blocking** when it would change scope or observable behaviour, leaves a product id without a
 scenario, task or test, or leaves a question open that product must answer. Everything else is
 **Advisory**.
@@ -600,6 +613,12 @@ and turns no alternative into a requirement: the ticket description stays the ag
 ## Ticket versus feature.md
 <!-- "Identical (ticket fetched YYYY-MM-DD)", "Ticket not reachable, feature.md taken as is", or the differences section by section. An unresolved difference is blocking. -->
 
+## Technical assessment
+<!-- The assessment the proposal's Context names: date, outcome, where it was read. One row per blocking finding, dependency outside the repository, criterion that could not be met and spike. "None on record" and "Not readable" are advisory findings. A bug needs none. -->
+| Item in the assessment | Then | In the proposal | Finding |
+|------------------------|------|-----------------|---------|
+| Dependency 4: a slot in the release train | Unconfirmed | Confirmed by the release manager (Context). Rollout and migration | |
+
 ## Traceability
 | Id | Scenario | Tasks | QA line | Gap |
 |----|----------|-------|---------|-----|
@@ -636,7 +655,9 @@ and turns no alternative into a requirement: the ticket description stays the ag
 
 The verdict is **Approve** only with zero blocking findings. An untraced `UC-n`, `EC-n` or `AC-n`, an
 `FT-n` without a verdict, an acceptance criterion without a scenario, an unresolved ticket difference,
-an open blocking Question for Product and a constraint with no home are always blocking.
+an open blocking Question for Product, a constraint with no home, a blocking finding of the technical
+assessment that nothing resolved and a dependency scope depends on that is still unconfirmed are
+always blocking.
 
 ## Bug fixes
 
@@ -879,6 +900,8 @@ empty.
 
 - Phase 1 writes product language only. Push back on how. Record forced hows under `FT-n`.
 - Phase 2 writes planning artifacts only. Never edit application code during a tech proposal.
+- Phase 2 builds on the technical assessment. Read it before writing, carry what it raised into the
+  proposal, and never treat a dependency as confirmed because the code calls it.
 - Phase 3 implements what the specs and tasks say. When a task needs more than the spec describes,
   or you are tempted to narrow, defer or simplify specified behaviour, stop and surface it. Never
   silently reduce scope. Only check a task when its behaviour is fully implemented and verified.
@@ -897,4 +920,7 @@ empty.
   proposal. The approved files are its only input; leftover conversation biases the code.
 - When a ticket system is reachable (an MCP server, a browser tool, or a pasted body), prefer the ticket
   as the source of truth for `feature.md`. Keep the ticket and `feature.md` identical from `# Feature:`
-  down; when they differ, show the diff and ask which one wins.
+  down; when they differ, show the diff and ask which one wins. The comparison runs wherever a command
+  starts from `feature.md`: the tech proposal, its inspection, the start of every implementation run,
+  the code review and the archive. Scope that changed on the ticket after approval is a tech proposal
+  update, reviewed again, never something to build from a comment.

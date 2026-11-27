@@ -16,7 +16,7 @@ Input: `${input:change:Change name under espec/changes/ (leave empty to pick fro
 1. **Select the change.** Use the name given, infer it from the conversation, auto-select when exactly
    one active change has a `tech-proposal.md`, otherwise ask. Announce "Inspecting change: <name>".
    Read from disk: `.espec.yaml`, `feature.md`, `tech-proposal.md`, every file under `specs/`,
-   `tasks.md`.
+   `tasks.md`, and the assessment under `inspections/` when there is one.
 
 2. **Compare the ticket with `feature.md`.** When a tool can reach the ticket named in `.espec.yaml`,
    fetch it and compare section by section, from `# Feature:` down (a Jira description has no marker
@@ -24,23 +24,33 @@ Input: `${input:change:Change name under espec/changes/ (leave empty to pick fro
    blocking until someone says which version wins. When the ticket is not reachable, say so and take
    `feature.md` as is.
 
-3. **Trace every product id.** For each `UC-n`, `EC-n` and `AC-n` in `feature.md`: the scenario in
+3. **Check the technical assessment.** Read the assessment the proposal's Context names: the file
+   under `inspections/`, or the ticket comment when a tool can reach it. For each of its blocking
+   findings, dependencies outside the repository, criteria that could not be met as written and
+   spikes, find what the proposal did with it: resolved and by what, confirmed and by whom, a
+   decision, a task, a risk with an owner, a Question for Product. A blocking finding nothing resolved
+   is blocking. A dependency still unconfirmed is blocking when scope depends on it and advisory
+   otherwise; one the proposal does not mention is a finding either way. When Context names no
+   assessment, or the one it names cannot be read, say so as an advisory finding and take the proposal
+   as is. A bug (`kind: bug`) needs none.
+
+4. **Trace every product id.** For each `UC-n`, `EC-n` and `AC-n` in `feature.md`: the scenario in
    `specs/` that specifies it, the tasks that build it, and the `Q.n` line that verifies it. Use the
    proposal's Traceability table as a claim and verify it against the actual spec and task files. A
    missing scenario, task or QA line is a gap. An id missing from the Traceability table is a gap.
 
-4. **Check the forced technical notes.** Every `FT-n` in `feature.md` has a row in the proposal's
+5. **Check the forced technical notes.** Every `FT-n` in `feature.md` has a row in the proposal's
    review with Accepted or Overridden and a reason. An overridden note must say how the need behind it
    is met.
 
-5. **Check the decisions.** Every `D-n` lists alternatives and why they lost. A decision that restates
+6. **Check the decisions.** Every `D-n` lists alternatives and why they lost. A decision that restates
    the choice as its reason is a finding.
 
-6. **Check constraints and metrics.** Every item under Constraints and Success metrics in `feature.md`
+7. **Check constraints and metrics.** Every item under Constraints and Success metrics in `feature.md`
    is addressed somewhere in the proposal: non-functional requirements, rollout, test strategy or
    architecture. One with no home is blocking.
 
-7. **Check the specs.** Every acceptance criterion maps to at least one scenario. Scenarios use
+8. **Check the specs.** Every acceptance criterion maps to at least one scenario. Scenarios use
    `#### Scenario:` and are testable. MODIFIED blocks are whole. Existing capability paths under
    `espec/specs/` are reused rather than duplicated. New capabilities carry a `## Purpose`. Every
    MODIFIED and REMOVED requirement carries a base stamp that still matches the main spec: run
@@ -49,14 +59,14 @@ Input: `${input:change:Change name under espec/changes/ (leave empty to pick fro
    `skip_specs: true` has no `specs/` folder and no behaviour change in its proposal, or is a bug
    (`kind: bug`) whose Traceability names the main spec scenarios that already describe the fix.
 
-8. **Check the test strategy and tasks.** Every `EC-n` has a test at a named level. The
+9. **Check the test strategy and tasks.** Every `EC-n` has a test at a named level. The
    `## QA verification` group has one `Q.n` per `AC-n`. Non-functional checks exist for the constraints.
    Each task group lands its own tests. No task says "explore" or "decide".
 
-9. **Check open questions.** A blocking Question for Product that is still open is blocking. An
+10. **Check open questions.** A blocking Question for Product that is still open is blocking. An
    engineering question that would change specs or tasks is blocking; one that can wait is advisory.
 
-10. **Report.** Print the report in the Tech proposal inspection format: the tables, the numbered
+11. **Report.** Print the report in the Tech proposal inspection format: the tables, the numbered
     findings with Blocking or Advisory, the verdict, and the comment for the ticket. When the user asks,
     save it to `espec/changes/<change-name>/inspections/YYYY-MM-DD-inspect-tech-proposal.md`.
 

@@ -40,6 +40,12 @@ archive anyway; a yes records the reason in the release note and in `.espec.yaml
 `archived_with_open_tasks`. Archiving early is allowed and visible, never silent. A missing
 `tech-proposal.md`, or missing `specs/` without `skip_specs: true`, is a warning and a question.
 
+When Copilot can reach the ticket, it compares the description with `feature.md` before going on. A
+difference is a pause. What the ticket now asks for beyond `feature.md` was not built: the release
+note names it as not part of this change, and it needs a change of its own. A ticket that is simply
+stale is updated from `feature.md`, when you say yes. Either way the ticket is not closed on a
+description that differs from what shipped without someone having seen it.
+
 When the change will not ship, say so here. The command asks for the reason, records
 `status: cancelled` with the date and reason, skips the sync, moves the folder and writes a ticket
 note saying what was cancelled and why. The deltas of a cancelled change are never applied, and the
@@ -131,4 +137,5 @@ specs. On a rhythm, [archive clean](09-archive-clean.md).
 | A bad archive reached `main` | Wrong delta, or the wrong change | Revert the archive commit (it holds both the spec edits and the folder move), fix the delta, archive again |
 | The folder already exists under archive with today's date | A previous run moved it | Nothing to do, unless the sync did not happen: check the main spec, then move on |
 | Archive ran before the implementation merged | Order mistake | Revert the archive commit on `main`; run again after the merge |
+| Archive pauses: the ticket differs from `feature.md` | The description was edited after approval | Decide with product. New scope becomes a new change and a line in the release note; a mistake is corrected on the ticket |
 | The change will not ship | Scope dropped or superseded | Run `/espec-archive` and say so: it cancels the change with the reason and touches no spec. Do not delete the folder |

@@ -4,7 +4,9 @@
 
 ## Context
 
-<!-- Current state of the code this change touches. Observed, with file references. -->
+<!-- Open with the technical assessment this builds on: date, outcome, where it is, what resolved each
+     blocking finding. Then the current state of the code this change touches. Observed, with file
+     references. -->
 
 ## Approach
 

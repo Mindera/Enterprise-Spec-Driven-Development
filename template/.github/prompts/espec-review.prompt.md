@@ -50,6 +50,9 @@ optionally followed by the change name. Steps 1 to 5 below say what differs.
    - `.espec.yaml` is not at `implemented`, or tasks are unchecked: say how many.
    - `pull-request.md` is missing or lacks a section: name it and point to `/espec:implementation`.
    - The pull request body differs from `pull-request.md`: say so. The description is the review's map.
+   - The ticket's description differs from `feature.md`, when a tool can reach the ticket: say so and
+     where. The code was built against `feature.md`; scope that moved on the ticket is a question for
+     the author before approval.
    - The **Security validation** section carries an alert: say how many findings sit in files the diff
      touches. Each is a change request until fixed. An alert that says "pre-existing, not from this
      change" while a finding sits in a touched file is wrong: say so. Skipped: say why, so the reviewer

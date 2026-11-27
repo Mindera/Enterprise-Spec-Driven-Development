@@ -49,7 +49,8 @@ With DiffCompass, in Copilot Chat:
 /espec-review 1234
 ```
 
-It checks that `pull-request.md` is complete and matches the pull request body, then runs
+It checks that `pull-request.md` is complete and matches the pull request body, compares the ticket
+with `feature.md` when it can reach it, then runs
 `diffcompass pr 1234 --open`; you can also run that command yourself. The tour opens in a local
 browser. `.diffcompass.json` tells its agent to read the change folder
 before explaining code, to order the tour by **How to review**, and to flag: code that differs from
@@ -73,6 +74,7 @@ Then grep the diff for `espec/specs/`: any hit is a change request.
 | A security finding in a file the diff touches, still open | Request changes. The author fixes it as an `S.n` task and re-runs the validation |
 | Security validation skipped on a mobile app without a reason you accept | Request changes, or ask the author to get access to the tool and run it |
 | A task checked without its verification | Request changes. Uncheck, verify, re-check |
+| The ticket description differs from `feature.md` | Ask the author before approving. Scope product changed after approval goes back through the tech proposal; a stale ticket is corrected |
 | Design you would have done differently, within the approved proposal | Comment, approve. The proposal was the place for that review |
 
 Approve in the pull request. Merge. The change is at `implemented` on `main`.

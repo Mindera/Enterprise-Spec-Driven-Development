@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="./VERSION"><img alt="Version: v1.0.24" src="https://img.shields.io/badge/version-v1.0.24-orange.svg?style=flat-square"></a>
+  <a href="./VERSION"><img alt="Version: v1.0.25" src="https://img.shields.io/badge/version-v1.0.25-orange.svg?style=flat-square"></a>
   <a href="./LICENSE.md"><img alt="License: Sustainable Use 1.0" src="https://img.shields.io/badge/License-Sustainable%20Use%201.0-blue.svg?style=flat-square"></a>
   <img alt="GitHub Copilot" src="https://img.shields.io/badge/Developers-GitHub%20Copilot-24292f?style=flat-square">
   <img alt="Rovo" src="https://img.shields.io/badge/Product-Rovo-0052cc?style=flat-square">
@@ -96,6 +96,7 @@ Copilot:          Supersedes the earlier assessment: FT-1 decided by product, de
 
 Dev:              /espec-tech-proposal BILL-142
 Copilot:          Imported BILL-142 → espec/changes/bill-142-invoice-csv-export/feature.md
+                  Builds on the assessment: FT-1 decided, 4 dependencies confirmed by name.
                   ✓ tech-proposal.md   architecture, APIs, data model, 3 decisions
                   ✓ specs/invoice-export/spec.md   6 requirements, 11 scenarios
                   ✓ tasks.md           14 tasks in 5 groups
@@ -166,7 +167,7 @@ owner to ask, alternatives with their consequences for product, criteria that ca
 written, and the spikes worth running. It ends with Ready for tech proposal or Further discovery
 required. `/espec:inspect-tech-proposal` checks a proposal against its ticket before approval: every
 product id traced to a scenario, a task and a QA line, every forced note answered, every constraint
-with a home, no blocking question open. All three end with a verdict and a comment ready to paste on
+with a home, everything the assessment raised followed up, no blocking question open. All three end with a verdict and a comment ready to paste on
 the ticket.
 
 In GitHub Copilot the commands are typed with a dash (`/espec-tech-proposal`), because prompt file
@@ -283,7 +284,7 @@ Your repo also gets its own copy of the validator in `espec/bin` and a GitHub Ac
 runs it on every pull request, so format rules are checked without any dependency
 on this toolkit. Then name your tech proposal approvers in CODEOWNERS
 ([engineering setup, step 5](docs/guides/setup-engineering.md#step-5-protect-approval-and-the-main-specs)).
-To pin a version, check out its tag (`git -C ~/espec checkout v1.0.24`) before `init` or `update`.
+To pin a version, check out its tag (`git -C ~/espec checkout v1.0.25`) before `init` or `update`.
 
 ### Product and design
 
@@ -344,7 +345,7 @@ your-repo/
     ├── specs/<capability>/spec.md         # The system as it is today
     ├── changes/<change-name>/             # feature.md · tech-proposal.md · specs/ · tasks.md · pull-request.md
     │   ├── security-report.md             # Mobile apps: the security findings, only when there are some
-    │   └── inspections/                   # Saved inspection reports, only on request
+    │   └── inspections/                   # The assessment the proposal builds on; other reports on request
     ├── changes/archive/                   # Finished changes and clean-up reports
     ├── templates/                         # Blank files the commands start from
     └── bin/                               # espec validate · new · list · stamp · repos · version, no toolkit needed
@@ -368,7 +369,7 @@ Questions, bugs and ideas go to [GitHub Issues](https://github.com/Mindera/Enter
 Pull requests are welcome. Keep the README simple and the prompts shorter than the documents they
 produce.
 
-The current version is **v1.0.24**, kept in [`VERSION`](VERSION). Every change bumps the last number
+The current version is **v1.0.25**, kept in [`VERSION`](VERSION). Every change bumps the last number
 (`vX.Y.Z` → `vX.Y.Z+1`) and adds an entry to the [changelog](CHANGELOG.md); every version merged to
 `main` is tagged and released. See [`AGENTS.md`](AGENTS.md) for the rules every contributor and every
 AI assistant follows.

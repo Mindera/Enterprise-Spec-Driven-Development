@@ -21,7 +21,8 @@ is planning artifacts only: `tech-proposal.md`, delta specs and `tasks.md`.
   continue on a definition with gaps; "yes" turns every gap into a Question for Product, which is
   honest but slower than fixing the definition first.
 - [The technical assessment](03-technical-assessment.md) is on the ticket and scope decisions are in
-  the description.
+  the description. The command reads it, asks what resolved each blocking finding, and files it in the
+  change folder under `inspections/`. Without one it asks whether to run `/espec-assess` first.
 - You are on a branch. The proposal is reviewed as a pull request that adds the change folder and
   nothing else.
 
@@ -46,15 +47,22 @@ the bug report, or give the command the bug ticket and it does that for you. The
 (Context with the root cause, Approach, Traceability, Test strategy, Questions for Product) and the
 first task reproduces the bug in a failing test. See [Bug fixes](../../template/espec/AGENTS.md#bug-fixes).
 
-It then works through nine steps and announces each. Where to pay attention:
+It then works through ten steps and announces each. Where to pay attention:
 
 1. **Resolve and check readiness.** It prints the checklist again. If something is ❌, decide now
-   whether to continue.
-2. **Explore the code.** It reads `project.md`, then the modules, tests and configuration the
+   whether to continue. With a change name it also compares the ticket with `feature.md` and asks
+   which wins when they differ.
+2. **Read the technical assessment.** It takes the report under `inspections/`, or the comment on the
+   ticket, or asks you to paste it. When the outcome was Further discovery required, it lists the
+   blocking findings and asks what resolved each: an answer on the ticket, an owner's confirmation, a
+   spike result. Answer precisely, with names and dates: the proposal's **Context** opens with this,
+   and the inspection checks it. A dependency nobody confirmed stays under **Risks and trade-offs**
+   with its owner; code that calls a service is not a confirmation.
+3. **Explore the code.** It reads `project.md`, then the modules, tests and configuration the
    feature touches, and the main specs that already cover part of the behaviour. The **Context**
    section it writes must cite paths and separate observed facts from assumptions. Open three of
    the cited paths. If one is wrong, say so and have it re-explore before it designs on top.
-3. **Write `tech-proposal.md`.** Read it in this order:
+4. **Write `tech-proposal.md`.** Read it in this order:
    - **Technology decisions.** Every `D-n` lists alternatives and why they lost. "We always do it
      this way" is an alternative, not a reason. Push: "what would make option B the right one?"
    - **Forced technical notes review.** One row per `FT-n`, Accepted or Overridden with a reason.
@@ -65,7 +73,7 @@ It then works through nine steps and announces each. Where to pay attention:
    - **Test strategy.** Written for QA: how each scenario is verified, at which level, with what data,
      in which environment. Hand this section to QA now, not at review.
    - **Questions for Product.** Pasteable as a ticket comment. Mark each blocking or not.
-4. **Write the delta specs.** One file per capability under `specs/<capability>/spec.md`. New
+5. **Write the delta specs.** One file per capability under `specs/<capability>/spec.md`. New
    capability: `## Purpose` plus `ADDED` requirements. Existing capability: the exact path of the
    main spec, and `MODIFIED` blocks that carry the **whole** requirement, every scenario included.
    Check that capability names match `espec/specs/` and describe durable behaviour
@@ -74,18 +82,18 @@ It then works through nine steps and announces each. Where to pay attention:
    `espec/bin/espec stamp <change-name>`, which writes a base stamp under every `MODIFIED` and
    `REMOVED` heading: the version of the main spec the delta was written against. When Copilot cannot
    run commands, run it yourself. See [Base stamps](../conventions.md#base-stamps).
-5. **Write `tasks.md`.** Groups ordered by dependency, each landing its own tests. Every task says
+6. **Write `tasks.md`.** Groups ordered by dependency, each landing its own tests. Every task says
    how it is verified and cites the `AC-n` and `EC-n` it satisfies. The final `## QA verification`
    group has one `Q.n` per acceptance criterion plus the non-functional checks. No task says
    "explore" or "decide": that work happens now.
-6. **Update `.espec.yaml`** to `proposed` with the engineering and QA owners.
-7. **Assess coverage.** It re-reads what it wrote and prints a coverage report: one row per `UC-n`,
+7. **Update `.espec.yaml`** to `proposed` with the engineering and QA owners.
+8. **Assess coverage.** It re-reads what it wrote and prints a coverage report: one row per `UC-n`,
    `EC-n` and `AC-n` with the scenario, tasks and `Q.n` it found on disk and a status of Covered,
    Partial or Missing; one row per constraint, metric, UI design item and forced note with where the
    proposal addresses it; a match figure such as `13 of 13 product ids covered (100%)`; and a short
    judgement. Read the Partial and Missing rows first. A gap it could close, it closed before
    printing; what is left is a Question for Product or a decision for you.
-8. **Report.** Files written, Questions for Product ready to paste, and the next command.
+9. **Report.** Files written, Questions for Product ready to paste, and the next command.
 
 Iterate by talking to it: "D-2 restates the choice as its reason; give the real trade-off",
 "task 2.5 produces the file, so it covers AC-1 too". Re-running the command with the change name
@@ -115,7 +123,10 @@ proposals (named in `project.md`) and QA. The pull request touches `espec/`, so 
 
 ## What good looks like
 
-- Context cites real paths and says what was assumed. A reviewer can open each path and nod.
+- Context names the assessment it builds on and what resolved each blocking finding, cites real
+  paths and says what was assumed. A reviewer can open each path and nod.
+- Every dependency the assessment listed is in the proposal: confirmed, with a name, or a risk with
+  an owner.
 - Each decision could be argued the other way, and the proposal says why it was not.
 - Every forced note has a verdict and a reason that product would recognise as fair.
 - The traceability table has no gaps and no row the specs and tasks do not back up. Read it from
@@ -141,6 +152,8 @@ the reviewer. Approval is the reviewer setting the status line in `tech-proposal
 | Symptom | Cause | Fix |
 |---|---|---|
 | The AI started writing application code | It drifted out of the planning rule | Stop it. Discard the code. The prompt forbids it; remind it and continue |
+| The proposal ignores what the assessment raised | The assessment stayed on the ticket and the command could not read it | Paste the assessment when the command asks, or save it under `inspections/` first. Re-run with the change name |
+| A dependency is "confirmed" with no name next to it | The AI took the code as the commitment | Ask who confirmed it and when. Nobody: it goes back under Risks with the owner to ask |
 | Context cites files that do not exist | Hallucinated exploration | "Open each path you cited and correct the Context section." Verify three yourself |
 | A `MODIFIED` block carries only the changed scenario | Partial content | Have it copy the whole requirement from the main spec first, then edit. Archive would lose the other scenarios |
 | Capability names do not match `espec/specs/` | It invented a new folder for an existing behaviour | Point it at the existing path. One behaviour, one capability |
