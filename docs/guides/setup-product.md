@@ -4,6 +4,11 @@ How to give Product Managers and Designers the espec Feature Definition and UI D
 the tool they already have, Atlassian Rovo or Microsoft 365 Copilot, and the ticket template that
 engineering's tools recognise. Nothing here touches a code repository.
 
+Product people who have GitHub Copilot can skip the agents: they run the espec commands in a local
+copy of the repository instead. See
+[GitHub Copilot for Product Managers and Designers](../roles-and-tools.md#github-copilot-product-managers-designers).
+The ticket template (step 4 onwards) still applies, because the ticket is the hand-off either way.
+
 | | |
 |---|---|
 | Who | A Rovo or M365 Copilot admin to create and share the agents (fifteen minutes). A Jira or GitHub admin for the ticket template (ten minutes). Then every PM and Designer. |
@@ -18,6 +23,7 @@ Everything to paste lives in [product-ai/](../../product-ai/README.md).
 |---|---|---|
 | Atlassian Rovo | [rovo/](../../product-ai/rovo/feature-definition-agent.md) | The agent can read and, when asked, write the Jira description through Jira actions |
 | Microsoft 365 Copilot | [m365-copilot/](../../product-ai/m365-copilot/feature-definition-agent.md) | The agent writes the document; the PM pastes it into the ticket. The Instructions field takes 8,000 characters; the text fits |
+| GitHub Copilot and read access to the repository | [`/espec-feature-definition` and `/espec-design-context`](../roles-and-tools.md#github-copilot-product-managers-designers) | No agents to create. Commands run in a local copy of the repository; Product commits nothing and writes the ticket |
 | Neither, or no permission to create agents | [prompts/](../../product-ai/prompts/feature-definition.prompt.md) | Paste the prompt at the start of any chat. Same output, no setup |
 
 ## Step 2: create the Feature Definition agent

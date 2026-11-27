@@ -1,8 +1,13 @@
 # Workflow
 
 espec takes a feature from an idea to a living specification in four phases. Product owns phase 1.
-Engineering owns phases 2 to 4. The two sides use different AI tools, so the hand-off between them
-is a ticket written in a fixed format that any assistant can read and any human can review.
+Engineering owns phases 2 to 4. The two sides may use different AI tools, so the hand-off between
+them is a ticket written in a fixed format that any assistant can read and any human can review.
+
+Product starts in one of two ways. Without GitHub Copilot, Product Managers and Designers use the
+agents in Rovo or M365 Copilot. With GitHub Copilot, they run the espec commands in a local copy of
+the repository and commit nothing. Both streams end with the definition on the ticket and join at the
+readiness check, which a developer runs. From there the flow is the same.
 
 The formats and rules live in [template/espec/AGENTS.md](../template/espec/AGENTS.md). This page
 explains how the phases connect across roles and tools. For the commands see
@@ -13,11 +18,20 @@ each step, with setup and common problems, see [guides/README.md](guides/README.
 
 ```mermaid
 flowchart TB
-  subgraph Product["Product · Rovo or M365 Copilot"]
+  subgraph Product["Product · two ways to start"]
+  subgraph ProductA["Without GitHub Copilot · Rovo or M365"]
     direction TB
-    PM["Product Manager<br/>Phase 1: AI Assisted Feature Definition<br/>what and why, never how"]
-    DS["Designer<br/>UI design section"]
-    PM --> DS
+    PMA["Product Manager<br/>@espec Feature Definition<br/>what and why, never how"]
+    DSA["Designer<br/>@espec UI Design, from the Figma frames"]
+    PMA --> DSA
+  end
+
+  subgraph ProductB["With GitHub Copilot · nothing committed"]
+    direction TB
+    PMB["Product Manager<br/>/espec:feature-definition<br/>what and why, never how"]
+    DSB["Product or Designer<br/>/espec:design-context<br/>Figma frames, then an interview"]
+    PMB --> DSB
+  end
   end
 
   subgraph Ticket["Ticket · Jira or GitHub Issue"]
@@ -30,25 +44,27 @@ flowchart TB
 
   subgraph Eng["Engineering · GitHub Copilot"]
     direction TB
+    RC["Readiness check: /espec:inspect-feature-definition<br/>both streams join here"]
     AS["Phase 1, developer assessment: /espec:assess<br/>what exists, dependencies, alternatives, spikes"]
     TP["Phase 2: Tech Proposal<br/>tech-proposal.md, delta specs, tasks.md"]
     IM["Phase 3: Implementation<br/>code and tests, tasks checked off"]
     AR["Phase 4: Archive<br/>deltas folded into main specs"]
     MS[("espec/specs/<br/>the system as it is today")]
     AC["archive-clean<br/>keep / update / purge with evidence"]
-    AS --> TP --> IM --> AR
+    RC --> AS --> TP --> IM --> AR
     AR -->|"RENAMED, REMOVED,<br/>MODIFIED, ADDED"| MS
     MS -->|"read before writing deltas"| TP
     MS <--> AC
   end
 
-  DS -->|"paste as description"| TK
-  TK -->|"assess against the code"| AS
+  DSA -->|"paste as description"| TK
+  DSB -->|"write or paste the description"| TK
+  TK -->|"check, then assess against the code"| RC
   AS -.->|"Ready, or Further discovery required"| TA
-  TA -.->|"scope decisions, confirmations"| PM
+  TA -.->|"scope decisions, confirmations"| Product
   TK -->|"import as feature.md"| TP
   TP -.->|"blocking questions"| TQ
-  TQ -.->|"answers, description updated"| PM
+  TQ -.->|"answers, description updated"| Product
   AR -.->|"what shipped, what was deferred"| TR
 ```
 
@@ -63,19 +79,32 @@ Three things to notice:
 ## Phase 1: AI Assisted Feature Definition
 
 Product owns this phase. It has two steps: product writes the feature definition, then a developer
-assesses it against the repository before the tech proposal starts.
+checks and assesses it against the repository before the tech proposal starts.
 
 ### Product writes the feature definition
 
 | | |
 |---|---|
 | Command | `/espec:feature-definition` |
-| Who | The Product Manager writes. The Designer fills the UI design section. QA reviews edge cases and acceptance criteria. |
-| Tool | Rovo or M365 Copilot, with the agents in [product-ai/](../product-ai/README.md). GitHub Copilot in-repo when a developer starts a feature: `/espec-feature-definition`. |
+| Who | The Product Manager writes. The Designer fills the UI design section from the Figma frames. QA reviews edge cases and acceptance criteria. |
+| Tool | Without GitHub Copilot: Rovo or M365 Copilot, with the agents in [product-ai/](../product-ai/README.md). With GitHub Copilot: `/espec-feature-definition` and `/espec-design-context` in a local copy of the repository (see below). A developer who starts a feature uses the same commands. |
 | Inputs | The idea, the research, the available UI designs, the business why, known uncertainties. |
-| Outputs | The ticket description in the feature definition format, with the readiness checklist all ✅ and the status line set to Ready for tech proposal. In-repo, also `espec/changes/<change-name>/feature.md`. |
+| Outputs | The ticket description in the feature definition format, with the readiness checklist all ✅ and the status line set to Ready for tech proposal. In GitHub Copilot, also a local `espec/changes/<change-name>/feature.md` that Product does not commit. |
 | Exit criteria | **Ready for tech proposal** on the ticket: Why, What, at least one UC, edge cases, out of scope and acceptance criteria are present, every UC and EC maps to an AC, open questions are answered or accepted as deferred, and no how sits outside the forced notes. `/espec:inspect-feature-definition` returns Ready for tech proposal. |
 | Hand-off | The ticket. Product hands it to engineering when it is sufficiently specified for technical assessment, or when they cannot progress further without engineering input, for example because the desired behaviour depends on capabilities or constraints they cannot assess. |
+
+#### Two ways to start
+
+| | Without GitHub Copilot | With GitHub Copilot |
+|---|---|---|
+| Define | `@espec Feature Definition` agent in Rovo or M365 Copilot | `/espec-feature-definition` (Draft, or Import from the ticket) in a local copy of the repository |
+| Design | `@espec UI Design` agent, from the Figma frames | `/espec-design-context <change-name>`: reads the Figma frames, then interviews Product or Design on how the design behaves and which use cases and edge cases each screen serves |
+| Ticket | Pasted, or written by the Rovo agent through Jira actions | Written through the Atlassian or GitHub MCP server on a yes, or pasted |
+| Repository | Untouched | Untouched: the change folder is a local working copy, deleted once the ticket holds the final text |
+| Join | A developer runs `/espec-inspect-feature-definition` on the ticket, then `/espec-assess` | The same |
+
+The streams join at the readiness check because both hand over the same thing: the ticket. Engineering
+imports from the ticket in either case, so nothing downstream depends on which tool Product used.
 
 This hand-off means **ready for technical investigation**, not necessarily ready for estimation or
 implementation. The Product Owner is not expected to establish technical feasibility or identify every
@@ -206,14 +235,14 @@ The phases do not change. The hand-off does.
 2. The issue template at
    [template/.github/ISSUE_TEMPLATE/feature-definition.md](../template/.github/ISSUE_TEMPLATE/feature-definition.md)
    opens a new issue with the feature definition skeleton and the `feature-definition` label
-   already applied. Product writes the definition with M365 Copilot or Rovo and pastes the result
-   into the body.
+   already applied. Product writes the definition with M365 Copilot, Rovo or GitHub Copilot and
+   pastes the result into the body, or lets GitHub Copilot write it on a yes.
 3. The body starts with `<!-- espec:feature-definition v1 -->`.
    [template/.github/copilot-instructions.md](../template/.github/copilot-instructions.md) tells
    GitHub Copilot that an issue with this marker is a feature definition and must not be
    implemented directly.
-4. A developer runs `/espec-assess <issue URL>` in Copilot Chat and posts the assessment as an
-   issue comment. Product decides on what it raises; the issue body stays the agreed scope.
+4. A developer runs `/espec-inspect-feature-definition <issue URL>`, then
+   `/espec-assess <issue URL>` in Copilot Chat, and posts the assessment as an issue comment. Product decides on what it raises; the issue body stays the agreed scope.
 5. When the outcome is Ready for tech proposal, a developer runs `/espec-tech-proposal <issue URL>`
    in Copilot Chat, or the issue is assigned to the Copilot coding agent. Either way the first output
    is a pull request that adds `espec/changes/<change-name>/` with the tech proposal, delta specs and

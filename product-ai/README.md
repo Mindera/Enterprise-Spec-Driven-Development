@@ -5,6 +5,12 @@ with the tools they have: Atlassian Rovo or Microsoft 365 Copilot. Nothing here 
 repository. It lives wherever your product team keeps its working material (Confluence, SharePoint,
 a shared drive).
 
+Product Managers and Designers who have GitHub Copilot do not need this pack: they run
+`/espec-feature-definition` and `/espec-design-context` in a local copy of the repository, commit
+nothing, and write the result to the ticket. See
+[GitHub Copilot for Product Managers and Designers](../docs/roles-and-tools.md#github-copilot-product-managers-designers).
+Both ways end on the same ticket. The ticket templates here apply to both.
+
 | Folder | What is in it | Who uses it |
 |--------|---------------|-------------|
 | `rovo/` | Two Rovo Agent definitions: Feature Definition and Design Notes. Name, description, starters and the full instructions to paste. | Rovo admins, then PMs and Designers |

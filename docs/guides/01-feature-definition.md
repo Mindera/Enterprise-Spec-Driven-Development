@@ -5,8 +5,9 @@ Product writes the **what** and the **why** of a feature with an AI agent that r
 
 | | |
 |---|---|
-| Command | `/espec:feature-definition`. In Rovo or M365 Copilot, the `espec Feature Definition` agent. In the repository, `/espec-feature-definition`. |
+| Command | `/espec:feature-definition`. In Rovo or M365 Copilot, the `espec Feature Definition` agent. In GitHub Copilot, `/espec-feature-definition`, then `/espec-design-context` for the UI design. |
 | Who | The Product Manager. Then the Designer for the UI design section. A developer when the work has no product owner. |
+| Two ways to start | Without GitHub Copilot, the agents in Rovo or M365 Copilot. With GitHub Copilot, the commands in a local copy of the repository, never committed ([below](#in-github-copilot)). Both end on the ticket and join at [the inspection](02-inspect-feature-definition.md). |
 | Input | An idea, a problem, a draft, or an existing ticket |
 | Output | The feature definition, pasted as the ticket description, status line **Ready for tech proposal** |
 | Time | Thirty to ninety minutes for a feature of normal size, in one or two sittings |
@@ -18,7 +19,9 @@ Product writes the **what** and the **why** of a feature with an AI agent that r
   If you cannot, the interview will stall at the first question. Talk to the users first.
 - The ticket exists, or you know which project it will go in. The ticket key goes into the
   definition.
-- The agent is set up and shared ([product setup](setup-product.md)).
+- The agent is set up and shared ([product setup](setup-product.md)), or you have GitHub Copilot and
+  a local copy of the repository with the Figma and ticket MCP servers connected
+  ([setup](../roles-and-tools.md#github-copilot-product-managers-designers)).
 - You have thirty minutes without interruptions. The agent asks in rounds and the answers build on
   each other.
 
@@ -85,6 +88,28 @@ the **UI design** section and proposes new `EC-n` and `AC-n` entries numbered af
 highest existing ones. The Designer pastes the section into the ticket and adds the new entries to
 their sections. The PM re-reads the acceptance criteria: a new state is a new thing to test.
 
+### In GitHub Copilot
+
+A Product Manager or Designer with GitHub Copilot runs the same steps as commands, in a local copy of
+the repository:
+
+```text
+/espec-feature-definition BILL-142
+/espec-design-context bill-142-invoice-csv-export
+```
+
+1. `/espec-feature-definition` runs the same interview (Draft mode), or imports the ticket when it
+   already has a draft (Import mode). It writes `espec/changes/<change-name>/feature.md` locally.
+2. `/espec-design-context` reads the Figma frames linked from the definition, then interviews you, the
+   PM or the Designer, on what the frames cannot show: what each action does, what the user sees when
+   something is empty, slow or fails, and which use case or edge case each screen serves. It writes
+   the **UI design** section and proposes new `EC-n` and `AC-n` entries for behaviour the design shows
+   but the definition lacks. The PM confirms or rejects each one.
+3. Let Copilot write the ticket description when it asks (an Atlassian or GitHub MCP server must be
+   connected), or paste the printed text yourself.
+4. Delete the local change folder. Do not commit it: the ticket is the hand-off, and engineering
+   imports from it exactly as it does from the Rovo or M365 stream.
+
 ### A developer starting in the repository
 
 A developer with an idea and no product owner yet runs, in Copilot Chat:
@@ -116,9 +141,10 @@ need Import mode directly.
 
 ## Hand-off
 
-The ticket description is the source of truth from here on. Engineering runs
-[the inspection](02-inspect-feature-definition.md), then [the technical assessment](03-technical-assessment.md),
-and imports the description into the repository. When engineering's Questions for Product arrive as a
+The ticket description is the source of truth from here on, whichever tool product used. Both
+streams join here: engineering runs [the inspection](02-inspect-feature-definition.md), then
+[the technical assessment](03-technical-assessment.md), and imports the description into the
+repository. When engineering's Questions for Product arrive as a
 comment, answer in the ticket and **update the description**, then say so in a comment. Engineering
 re-imports from the description. A change that only lives in a comment is lost.
 

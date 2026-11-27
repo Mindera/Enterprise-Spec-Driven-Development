@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="./VERSION"><img alt="Version: v1.0.22" src="https://img.shields.io/badge/version-v1.0.22-orange.svg?style=flat-square"></a>
+  <a href="./VERSION"><img alt="Version: v1.0.23" src="https://img.shields.io/badge/version-v1.0.23-orange.svg?style=flat-square"></a>
   <a href="./LICENSE.md"><img alt="License: Sustainable Use 1.0" src="https://img.shields.io/badge/License-Sustainable%20Use%201.0-blue.svg?style=flat-square"></a>
   <img alt="GitHub Copilot" src="https://img.shields.io/badge/Developers-GitHub%20Copilot-24292f?style=flat-square">
   <img alt="Rovo" src="https://img.shields.io/badge/Product-Rovo-0052cc?style=flat-square">
@@ -27,24 +27,25 @@
 ```
 
 <p align="center">
-  <img src="assets/espec-workflow.gif" alt="The espec workflow: Product defines the feature in Rovo or M365 Copilot, the ticket is the hand-off, and Engineering assesses, proposes, implements, reviews and archives in GitHub Copilot" width="800">
+  <img src="assets/espec-workflow.gif" alt="The espec workflow: Product defines the feature in Rovo or M365 Copilot, or in GitHub Copilot, the ticket is the hand-off where both streams join, and Engineering checks, assesses, proposes, implements, reviews and archives in GitHub Copilot" width="800">
 </p>
 
 ## Built for the enterprise
 
-In a large organisation AI access is not uniform. Product Managers and Designers get Atlassian Rovo
-or Microsoft 365 Copilot. Developers and QA get GitHub Copilot. Nobody has one assistant that spans
-Confluence, Jira and the codebase, and nobody is going to.
+In a large organisation AI access is not uniform. Developers and QA get GitHub Copilot. Product
+Managers and Designers often get Atlassian Rovo or Microsoft 365 Copilot instead, and sometimes
+GitHub Copilot too. Nobody has one assistant that spans Confluence, Jira and the codebase.
 
 **Enterprise Spec Driven Development**, `espec` for short, accepts that. Each function uses the AI it has, and the work moves
-between them as a **ticket** written in a fixed format any assistant can read. Product writes the
+between them as a **ticket** written in a fixed format any assistant can read. Product starts in
+either tool; both streams join on the ticket, where engineering takes over. Product writes the
 *what* and the *why*. Engineering writes the *how*, builds it, and folds the result into a living set
 of specs that the next feature starts from.
 
 | Role | AI tool | What they produce |
 |------|---------|-------------------|
-| Product Manager | Rovo or M365 Copilot | Feature definition in a Jira or GitHub ticket |
-| Designer | Rovo or M365 Copilot | UI design section of that ticket |
+| Product Manager | Rovo, M365 Copilot or GitHub Copilot | Feature definition in a Jira or GitHub ticket |
+| Designer | Rovo, M365 Copilot or GitHub Copilot | UI design section of that ticket, from Figma |
 | Developer | GitHub Copilot | Tech proposal, specs, tasks, code |
 | QA | GitHub Copilot | Test strategy input, verified scenarios |
 
@@ -61,6 +62,14 @@ Agent:          Noted as ⚠️ FT-1 with your reason. Now, the second use case.
                 ...
                 Readiness check: all ✅. Status: Ready for tech proposal.
                 Paste this into BILL-142.
+
+Or, with GitHub Copilot, the same interview as a command in a local clone:
+PM:               /espec-feature-definition BILL-142
+Designer:         /espec-design-context bill-142-invoice-csv-export
+Copilot:          Read 3 Figma frames. The export dialog shows progress, but no frame shows
+                  a failed export. What does the user see? Proposed EC-10 and AC-14. Confirm?
+                  ...
+                  Write the description to BILL-142? The local change folder is not committed.
 
 Dev:              /espec-inspect-feature-definition BILL-142
 Copilot:          Readiness 9/9 ✅. No how outside the forced notes. Every UC and EC has an AC.
@@ -226,13 +235,19 @@ Copilot:          Security validation: android detected. Running msa assess on t
 
 ```mermaid
 flowchart LR
-  subgraph product [Product · Rovo or M365 Copilot]
-    PM[Product Manager] -->|defines what and why| FD[Feature definition]
-    DS[Designer] -->|adds experience| FD
+  subgraph productA [Product · Rovo or M365 Copilot]
+    PMA[Product Manager] -->|defines what and why| FDA[Feature definition agent]
+    DSA[Designer] -->|adds experience from Figma| FDA
   end
-  FD -->|ticket| T[(Jira / GitHub issue)]
+  subgraph productB [Product · GitHub Copilot, nothing committed]
+    PMB[Product Manager] -->|/espec:feature-definition| FDB[Local feature.md]
+    DSB[Designer or PM] -->|/espec:design-context| FDB
+  end
+  FDA -->|ticket| T[(Jira / GitHub issue)]
+  FDB -->|ticket| T
   subgraph eng [Engineering · GitHub Copilot]
-    T -->|/espec:assess| AS[Technical assessment]
+    T -->|/espec:inspect-feature-definition| RC[Readiness check, streams join]
+    RC -->|/espec:assess| AS[Technical assessment]
     AS -->|/espec:tech-proposal| TP[Tech proposal + specs + tasks]
     TP -->|/espec:implementation| CODE[Code and tests]
     CODE -->|/espec:archive| SPECS[(espec/specs)]
@@ -265,13 +280,20 @@ Your repo also gets its own copy of the validator in `espec/bin` and a GitHub Ac
 runs it on every pull request, so format rules are checked without any dependency
 on this toolkit. Then name your tech proposal approvers in CODEOWNERS
 ([engineering setup, step 5](docs/guides/setup-engineering.md#step-5-protect-approval-and-the-main-specs)).
-To pin a version, check out its tag (`git -C ~/espec checkout v1.0.22`) before `init` or `update`.
+To pin a version, check out its tag (`git -C ~/espec checkout v1.0.23`) before `init` or `update`.
 
 ### Product and design
 
-Open [`product-ai/`](product-ai/), pick `rovo/` or `m365-copilot/`, and create the two agents from
-the files there. Each file holds the name, description, starters and the instructions to paste.
-Add the ticket template from `product-ai/ticket-templates/` to Jira or GitHub. Done.
+Two ways to start, one ticket at the end:
+
+- **Rovo or M365 Copilot.** Open [`product-ai/`](product-ai/), pick `rovo/` or `m365-copilot/`, and
+  create the two agents from the files there. Each file holds the name, description, starters and the
+  instructions to paste.
+- **GitHub Copilot.** Clone the repository engineering set up and run `/espec-feature-definition` and
+  `/espec-design-context`. Commit nothing: the ticket is the hand-off
+  ([setup](docs/roles-and-tools.md#github-copilot-product-managers-designers)).
+
+Either way, add the ticket template from `product-ai/ticket-templates/` to Jira or GitHub. Done.
 
 <details>
 <summary><strong>What do the specs look like?</strong></summary>
@@ -341,7 +363,7 @@ Questions, bugs and ideas go to [GitHub Issues](https://github.com/Mindera/Enter
 Pull requests are welcome. Keep the README simple and the prompts shorter than the documents they
 produce.
 
-The current version is **v1.0.22**, kept in [`VERSION`](VERSION). Every change bumps the last number
+The current version is **v1.0.23**, kept in [`VERSION`](VERSION). Every change bumps the last number
 (`vX.Y.Z` → `vX.Y.Z+1`) and adds an entry to the [changelog](CHANGELOG.md); every version merged to
 `main` is tagged and released. See [`AGENTS.md`](AGENTS.md) for the rules every contributor and every
 AI assistant follows.
