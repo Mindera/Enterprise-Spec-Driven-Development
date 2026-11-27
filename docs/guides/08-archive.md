@@ -105,11 +105,28 @@ It then reads the Success metrics of `feature.md` and asks for a date wherever t
 none. The latest date goes to `.espec.yaml` as `metrics_review_due`.
 [Archive clean](09-archive-clean.md) lists the change when that date has passed.
 
+### Where it is live
+
+Merged is not live. The command reads the Rollout section of `pull-request.md` and asks where the
+change stands now, then writes `rollout` and `rollout_note` to `.espec.yaml`:
+
+| `rollout` | Means |
+|---|---|
+| `pending` | Merged, available to nobody yet: the flag is off, the store release is in review, the release train has not left |
+| `partial` | Available to some: a staged rollout, some markets, some app versions |
+| `live` | Available to everyone it is meant for |
+
+The main specs are updated either way: they describe the code on the main branch, not what a given
+user sees today. A rollout flag is not behaviour and stays out of the specs. A lasting condition (a
+plan, a role, a market) is behaviour and belongs in the requirement.
+[Archive clean](09-archive-clean.md) lists the changes that are not `live` yet and asks where they
+stand.
+
 ### The release note
 
 It starts from the `## Release note` section of `pull-request.md` and updates it for anything that
 changed since: what shipped, which capabilities changed (added, modified, removed requirements by
-name), what was deferred and why, who accepted the result, and a "To check after release" list with
+name), what was deferred and why, who accepted the result, where it is live, and a "To check after release" list with
 each success metric, its date and who reads it. Paste it as the closing comment on the ticket and move the ticket
 to Done. When Copilot can reach the ticket and you ask, it posts the comment and transitions the
 ticket; it never does so unasked.
@@ -133,7 +150,8 @@ delta did, nothing more. Merge.
 - The archived folder still holds everything: `feature.md`, the proposal, the deltas, `tasks.md` with
   QA's recorded results, `pull-request.md`, any saved inspection reports, and `.espec.yaml` as the
   audit record.
-- `.espec.yaml` names who accepted the result and when, and the date its success metrics are due.
+- `.espec.yaml` names who accepted the result and when, where the change is live, and the date its
+  success metrics are due.
 - The ticket's last comment is the release note, and its status is Done.
 
 See the main specs after archive in [examples/specs/](../../examples/README.md).
@@ -142,6 +160,20 @@ See the main specs after archive in [examples/specs/](../../examples/README.md).
 
 Nothing per feature. The next tech proposal that touches these capabilities reads the updated main
 specs. On a rhythm, [archive clean](09-archive-clean.md).
+
+## When a change is rolled back
+
+What to do depends on what was undone. In no case is `espec/specs/` edited by hand.
+
+| What happened | Do |
+|---|---|
+| **Turned off, code stays.** A flag switched off, a rollout halted, a store release pulled | Nothing in the specs: they still describe the code. In the archived change's `.espec.yaml`, set `rollout: withdrawn` and say why in `rollout_note`. Comment on the ticket. Back on later: `partial` or `live` again. Never coming back: remove the code with a change of its own, whose delta holds the REMOVED requirements |
+| **Code reverted before the archive.** The implementation pull request was reverted and the change folder is still active | The delta was never applied, so the specs are right. Uncheck the tasks the revert undid and set `status: proposed`. The approval stands, unless the cause changes the design: then the proposal goes back to In review. Not coming back: run `/espec-archive` and cancel it |
+| **Code reverted after the archive, nothing built on it.** No later change touched the same requirements | Revert the archive commit in the same pull request as the code. The specs return to what they were and the folder returns to `espec/changes/`. CI accepts it: a reverted archive is a change to `espec/specs/` it recognises. Then treat the change as in the row above |
+| **Code reverted after the archive, later changes built on it** | A plain revert would undo their spec edits too. Write a new change whose delta removes or modifies the requirements, like any change; use the [urgent lane](lanes.md#the-urgent-lane) when production is the reason. In the archived change, set `rollout: reverted` and name the new change in `rollout_note` |
+
+The change that was rolled back keeps its folder: it is the record of what was tried. When its
+success metrics come up for review, record them as not measured, with the reason.
 
 ## Common problems
 
@@ -156,4 +188,5 @@ specs. On a rhythm, [archive clean](09-archive-clean.md).
 | The folder already exists under archive with today's date | A previous run moved it | Nothing to do, unless the sync did not happen: check the main spec, then move on |
 | Archive ran before the implementation merged | Order mistake | Revert the archive commit on `main`; run again after the merge |
 | Archive pauses: the ticket differs from `feature.md` | The description was edited after approval | Decide with product. New scope becomes a new change and a line in the release note; a mistake is corrected on the ticket |
+| The feature was switched off, or its code was reverted | Production problem, or a decision | See [When a change is rolled back](#when-a-change-is-rolled-back) |
 | The change will not ship | Scope dropped or superseded | Run `/espec-archive` and say so: it cancels the change with the reason and touches no spec. Do not delete the folder |

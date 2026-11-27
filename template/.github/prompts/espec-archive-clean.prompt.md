@@ -26,7 +26,9 @@ Input: `${input:scope:Capability name to limit the run, or leave empty for all s
    - Deprecation markers in the requirement text ("deprecated", "sunset", "until", "legacy") whose
      date has passed.
    Also check `.espec.yaml` files of active changes: a requirement about to be removed by an active
-   change is **Keep** for now, with a note.
+   change is **Keep** for now, with a note. Code behind a flag that is off is still code: Keep. A
+   requirement whose archived change says `rollout: reverted` and whose code is gone is a Purge, with
+   that change as the evidence.
 
 3. **Classify** every requirement as **Keep**, **Update** (give the corrected requirement text in full,
    scenarios included) or **Purge**, each with its evidence. Flag separately:
@@ -37,6 +39,8 @@ Input: `${input:scope:Capability name to limit the run, or leave empty for all s
    - Archived changes whose `.espec.yaml` has a `metrics_review_due` of today or earlier and no
      `metrics_reviewed`. List each with its ticket, the product owner and the items under Success
      metrics in its `feature.md`. Never list one of these for pruning.
+   - Archived changes whose `rollout` is `pending`, `partial` or `withdrawn`. List each with its
+     `rollout_note` and its date, oldest first. Never list one of these for pruning either.
 
 4. **Write the report** to `espec/changes/archive/YYYY-MM-DD-archive-clean/cleanup.md` from
    `espec/templates/cleanup.md`, with the summary counts, one table per capability, and the other
@@ -52,6 +56,10 @@ Input: `${input:scope:Capability name to limit the run, or leave empty for all s
      archived `.espec.yaml`, and print a comment for the ticket: each metric, the number, the
      outcome, and for a metric that was not met the question of what follows. Without an answer,
      change nothing: the change is listed again on the next run.
+   - Rollout: for each change the user says where it stands now, set `rollout` and `rollout_note` in
+     its archived `.espec.yaml`. A change that was turned off for good, or one reverted while later
+     changes built on it, needs a change of its own: say so and point to **Rolling back** in
+     AGENTS.md. Never edit `espec/specs/` to undo a change.
    Keep every untouched line exactly as it was. Re-check after each capability that every remaining
    requirement still has a scenario and that names are unique.
 
@@ -65,7 +73,7 @@ Input: `${input:scope:Capability name to limit the run, or leave empty for all s
 - Never rewrite a requirement's meaning under Update; fix what the evidence shows is wrong.
 - Never touch `espec/changes/<active-change>/` folders.
 - The report is the audit trail. Do not apply anything that is not in it.
-- Never invent a metric's number or outcome. Only the product owner, or whoever reads the number, can
-  give it. Recording an outcome is the only edit this command makes to an archived change.
+- Never invent a metric's number or outcome, or where a change is live. Only the people who know can
+  say. Recording those answers is the only edit this command makes to an archived change.
 - End the reply with the usage line from the **Usage report** section of AGENTS.md, when
   `usage.report` in config.yaml asks for it.

@@ -198,7 +198,7 @@ approval.
 | Tool | GitHub Copilot: `/espec-archive <change-name>` and `/espec-archive-clean [capability]`. |
 | Inputs | An implemented change, merged and accepted by product on the ticket. For clean: every main spec, the archive, the code and the tests. |
 | Outputs | Archive: main specs updated from the deltas, the change folder moved to `espec/changes/archive/YYYY-MM-DD-<change-name>/`, a release note. Clean: `cleanup.md` with keep / update / purge verdicts and evidence, applied only on confirmation. |
-| Exit criteria | **Archived**: `.espec.yaml` says `archived`, names who accepted the result and when (or why it was archived without acceptance), and holds the date the success metrics are due. No delta headings remain in the main specs, every requirement still has a scenario. |
+| Exit criteria | **Archived**: `.espec.yaml` says `archived`, names who accepted the result and when (or why it was archived without acceptance), says where the change is live (`rollout`), and holds the date the success metrics are due. No delta headings remain in the main specs, every requirement still has a scenario. |
 | Hand-off | The release note is pasted as a ticket comment: what shipped, which specs changed, what was deferred, who accepted, and the success metrics to check after release with their dates. The ticket is closed. |
 
 Archive runs after the implementation pull request is merged, either as its own short pull request
@@ -210,7 +210,13 @@ closed on a description that differs from what shipped. It then looks for produc
 pauses without one: a merged pull request is not an acceptance. Each success metric of the definition
 gets a review date, and archive-clean, on its rhythm, lists the archived changes whose date has
 passed and asks for the numbers, so the definition's "how we will know it worked" gets an answer.
-Archive-clean never deletes without evidence and a confirmed verdict. In CI, a pull request that
+Archive-clean never deletes without evidence and a confirmed verdict.
+
+Merging is not releasing. The main specs describe the code on the main branch; whether users have it
+yet (a flag still off, a staged rollout, a store release in review) is recorded with the change as
+`rollout`: pending, partial or live. Archive-clean lists the changes that are not live yet and asks
+where they stand. A change that is turned off or reverted has a recipe, and it is never a hand edit
+of the specs: see [When a change is rolled back](guides/08-archive.md#when-a-change-is-rolled-back). In CI, a pull request that
 changes `espec/specs/` without archiving a change fails. See
 [conventions.md](conventions.md#archive-merge-order-and-conflicts).
 

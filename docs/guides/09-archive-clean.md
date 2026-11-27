@@ -73,6 +73,12 @@ ticket. It never fills in a number itself, and a change still waiting for its re
 for pruning. A metric that was not met is a product decision, not a defect: the comment asks what
 follows.
 
+The same goes for rollouts. The report lists the archived changes whose `rollout` is `pending`,
+`partial` or `withdrawn`, oldest first, each with its note. Ask whoever runs the release where each
+one stands and tell the command: it updates `rollout` and `rollout_note` in the archived
+`.espec.yaml`. A change that has sat at `pending` for months is a finding in itself: its behaviour is
+in the specs and on the main branch, and no user has it.
+
 The report is written to `espec/changes/archive/YYYY-MM-DD-archive-clean/cleanup.md` and shown in
 the chat. Then it stops.
 

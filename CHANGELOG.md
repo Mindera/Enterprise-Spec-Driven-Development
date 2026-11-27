@@ -7,11 +7,43 @@ bumps to (see [AGENTS.md](AGENTS.md)). When a version is merged to `main`, the r
 To move a project to a version, check it out in the toolkit clone and run `espec update`:
 
 ```bash
-git -C ~/espec fetch --tags && git -C ~/espec checkout v1.0.28
+git -C ~/espec fetch --tags && git -C ~/espec checkout v1.0.29
 ~/espec/bin/espec update /path/to/your/repo
 ```
 
 Entries marked **Action** need something done in projects that update.
+
+## v1.0.29 (2026-11-27)
+
+Merged is not live, and a rolled back change has a recipe:
+
+- **Specs follow the code, the change records the rollout.** `espec/AGENTS.md` has a new section,
+  **Merged, live and rolled back**: the main specs describe the code on the main branch, a rollout
+  flag stays out of requirements, and where a change is live is recorded in its `.espec.yaml` as
+  `rollout` (`pending`, `partial`, `live`, `withdrawn` or `reverted`) with a `rollout_note`.
+- `/espec:archive` asks where the change is live and records it, and says it in the release note. It
+  no longer archives as shipped a change whose code was reverted.
+- `/espec:archive-clean` lists the archived changes that are not live for everyone yet and records
+  where each stands now. Code behind a flag that is off still counts as evidence for Keep. A
+  requirement whose change was reverted and whose code is gone is a Purge.
+- `/espec:tech-proposal` names in Context any archived change on the same capability that is not live
+  yet: its behaviour is in the specs and on the main branch, and not in front of users.
+- **Rolling back** has four recipes, by what was undone: turned off with the code in place, code
+  reverted before the archive, code reverted after the archive with nothing built on it, and code
+  reverted after later changes built on it. None is a hand edit of `espec/specs/`. They are in
+  `AGENTS.md` and in the archive guide.
+- **Fix, validate workflow:** the step "Main specs change only through archive or archive-clean"
+  failed a pull request that reverted an archive commit, which is what the archive guide tells you to
+  do after a bad archive. It now accepts a pull request that adds or removes files under
+  `espec/changes/archive/`, and still fails a hand edit.
+- Where QA can only verify after the merge, the pull request merges with those `Q.n` lines open and
+  named under Deviations and deferred work, the change stays `in-progress`, and the archive waits.
+- Docs: the workflow, guides 06, 08 and 09, the command reference, the conventions page, the README
+  and two FAQ entries. The worked acceptance request shows the rollout recorded at archive.
+- No CLI or validator change.
+- **Action:** run `espec update`: it replaces the validate workflow. Changes archived before this
+  version have no `rollout` line. Nothing lists them; add `rollout: live`, or the state they are in,
+  to the ones still rolling out.
 
 ## v1.0.28 (2026-11-27)
 

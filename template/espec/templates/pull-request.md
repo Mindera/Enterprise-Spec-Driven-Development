@@ -50,7 +50,8 @@
 ## Rollout
 
 <!-- Flags and their default, migrations and their order, config changes, backward compatibility,
-     rollback. As implemented, not as proposed. -->
+     rollback. As implemented, not as proposed. Say who has the change once this merges: nobody yet,
+     some users, or everyone it is meant for. -->
 
 ## Release note
 
