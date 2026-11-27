@@ -175,7 +175,10 @@ definition and everything from phase 2 onward is identical. See
 
 ## What happens when the ticket and feature.md differ?
 
-The AI shows the difference and asks which one wins. Usually the ticket wins, because product edits
-there. The losing copy is overwritten so the two are identical again. Never let them drift silently:
+The AI shows the difference and asks which one wins. The comparison runs wherever a command starts
+from `feature.md` and a tool can reach the ticket: the tech proposal, its inspection, the start of
+every implementation run, the code review and the archive. Usually the ticket wins, because product
+edits there. After approval that is a scope change: implementation stops and the proposal goes back
+to In review. The losing copy is overwritten so the two are identical again. Never let them drift silently:
 a tech proposal written against a stale `feature.md` traces to acceptance criteria that no longer
 exist.

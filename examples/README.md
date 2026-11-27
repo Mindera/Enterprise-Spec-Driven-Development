@@ -26,11 +26,14 @@ Follow the phases in order.
    before writing anything: for every acceptance criterion and constraint, what the code already did and
    where, the main spec the feature touches, four dependencies on other teams listed as unconfirmed with
    an owner to ask, the two ways to resolve `FT-1` with what product gains and gives up under each, one
-   spike, and the outcome. It decides nothing; the tech proposal does.
+   spike, and the outcome. It decides nothing; the tech proposal does. In a repository the tech
+   proposal files this report in the change folder, as `inspections/2026-10-21-assess.md`; here it sits
+   with the other reports.
 
 3. **Phase 2, tech proposal.**
    [`tech-proposal.md`](changes/bill-142-invoice-csv-export/tech-proposal.md) is what engineering produced
-   with `/espec:tech-proposal`: the observed code context, the approach, a sequence diagram, the API and data
+   with `/espec:tech-proposal`: the assessment it builds on, with what resolved its blocking finding
+   and who confirmed each dependency, the observed code context, the approach, a sequence diagram, the API and data
    model, three decisions with the alternatives that lost, and the review of `FT-1` (overridden, with the
    reason and how the underlying need is still met). The **Traceability** table is the heart of it: every
    `UC`, `EC` and `AC` maps to spec scenarios and task numbers.
@@ -88,7 +91,9 @@ proposal came back **Not yet** with two blocking findings: the list of exports o
 hours, so the Expired state that the UI design and the spec promise could never appear, and the Q4 2026 code
 freeze from the Constraints, which the assessment had flagged, still had no home in the proposal. The
 `tech-proposal.md` in this folder is the version after both were fixed (a 48-hour list window, and a
-Timing bullet under Rollout), which is why its status line says Approved. Each report still quotes the
+Timing bullet under Rollout), which is why its status line says Approved. Its Technical assessment
+section shows the freeze from the other side: the release manager had confirmed the slot, and Rollout
+still carried no date. Each report still quotes the
 text it inspected, so you can see what the command caught.
 
 ## Coverage reports

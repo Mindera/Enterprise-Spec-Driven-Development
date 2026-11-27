@@ -45,6 +45,14 @@ The command checks `.espec.yaml` (`proposed` or `in-progress`) and that `tech-pr
 prints progress: `N/M tasks complete`, the next pending tasks and their group. The files are its only
 input, so you can stop and restart at any time in a new session, and it picks up from `tasks.md`.
 
+On every run, when Copilot can reach the ticket, the gate also compares its description with
+`feature.md`. Identical: it says so and goes on. Different: it shows the difference and stops. If
+product changed the scope after approval, that is a tech proposal update: run
+`/espec-tech-proposal <change-name>`, which takes the ticket's text, revises the proposal and sets it
+back to In review. If the ticket is stale or was edited by mistake, put the text of `feature.md` back
+on the ticket and tell the command that `feature.md` stands. Without a connection it says the ticket
+was not reachable and continues: compare once by eye before a long session.
+
 ### One task at a time
 
 For each pending task it says which task it is on, makes the smallest change that satisfies the task
@@ -179,6 +187,7 @@ Open the pull request with `pull-request.md` as its body and go to [code review]
 
 | Symptom | Cause | Fix |
 |---|---|---|
+| The command stops: the ticket differs from `feature.md` | Product edited the description after approval, or someone changed it by mistake | Read the difference. A real scope change goes through `/espec-tech-proposal` and a new approval; a mistake is corrected on the ticket. Do not build from the new text directly |
 | A task is checked but the test it names does not exist | The AI checked early | Uncheck it, say "run the verification named in task N.M before checking it". Audit the group |
 | The AI keeps "simplifying" an acceptance criterion | Scope pressure | Say no. The criterion is product's; a change to it is a Question for Product on the ticket |
 | Long session, quality drops | Context drift | Stop. Commit. Start a new chat and run the command again; it re-reads from disk |

@@ -24,6 +24,14 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
    `/espec:inspect-tech-proposal` and the reviewer named in `project.md`, and stop. A blocking
    **Question for Product** that is still open in `tech-proposal.md` is a pause: show it and ask
    whether product has answered it.
+   Then compare the ticket, on every run. When a tool can reach the ticket named in `.espec.yaml`,
+   fetch its description and compare it with `feature.md` from `# Feature:` down (a Jira description
+   has no marker and no header line). Identical: say so, with the date. Different: show the
+   difference and pause. When product changed the scope after approval, stop and point to
+   `/espec:tech-proposal <change-name>`: it takes the ticket's text, revises the proposal and sets it
+   back to In review. When the ticket is stale or was edited by mistake, print the text of
+   `feature.md` to put back and continue only once the user says `feature.md` stands. Ticket not
+   reachable: say so and continue.
 
 3. **Start from a new session.** Implementation runs in a new chat or session, so the conversation
    that wrote or discussed the proposal does not steer the code: the files are the only input. When

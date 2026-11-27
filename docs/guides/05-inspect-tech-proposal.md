@@ -2,7 +2,8 @@
 
 A read-only review of the proposal against the ticket it implements. It takes the proposal's
 traceability table as a claim and verifies it against the actual scenario headings in `specs/` and
-the task numbers in `tasks.md`, checks every forced note has a verdict, every decision has
+the task numbers in `tasks.md`, checks that what the technical assessment raised was followed up,
+every forced note has a verdict, every decision has
 alternatives, every constraint has a home, the test strategy covers every edge case, and no blocking
 question is open. It ends with a verdict and a comment for the ticket.
 
@@ -30,26 +31,31 @@ question is open. It ends with a verdict and a comment for the ticket.
 /espec-inspect-tech-proposal bill-142-invoice-csv-export
 ```
 
-The report has nine parts:
+The report has ten parts:
 
 1. **Ticket versus feature.md.** When Copilot can reach the ticket it fetches it and compares
    section by section. A difference is blocking until someone says which version wins. When the
    ticket is not reachable it says so and takes `feature.md` as is; the reviewer then compares by
    eye once.
-2. **Traceability.** One row per `UC-n`, `EC-n` and `AC-n`: the scenarios in `specs/` that specify
+2. **Technical assessment.** It reads the assessment the proposal's Context names, from
+   `inspections/` or from the ticket, and lists each blocking finding, dependency on another team,
+   criterion that could not be met and spike with what the proposal did about it. A blocking finding
+   nothing resolved is blocking. So is a dependency still unconfirmed when scope depends on it. No
+   assessment on record is an advisory finding; a bug needs none.
+3. **Traceability.** One row per `UC-n`, `EC-n` and `AC-n`: the scenarios in `specs/` that specify
    it, the tasks that build it, the `Q.n` line that verifies it, and the gap if any. Every name is
    checked against the files. A scenario named in the table that does not exist under that name is
    a gap.
-3. **Forced technical notes.** Each `FT-n` with its verdict and whether the reason holds.
-4. **Decisions.** Each `D-n` with whether real alternatives are listed.
-5. **Constraints and non-functional requirements.** Every constraint and success metric from
+4. **Forced technical notes.** Each `FT-n` with its verdict and whether the reason holds.
+5. **Decisions.** Each `D-n` with whether real alternatives are listed.
+6. **Constraints and non-functional requirements.** Every constraint and success metric from
    `feature.md` with where the proposal addresses it. One with no home is blocking.
-6. **Specs.** Every acceptance criterion has a scenario; four-hash scenarios; `MODIFIED` blocks are
+7. **Specs.** Every acceptance criterion has a scenario; four-hash scenarios; `MODIFIED` blocks are
    whole; existing capability paths reused; new capabilities carry a Purpose.
-7. **Test strategy.** Every edge case has a test at a named level; one `Q.n` per `AC-n`;
+8. **Test strategy.** Every edge case has a test at a named level; one `Q.n` per `AC-n`;
    non-functional checks exist; test data and environments are named.
-8. **Open questions.** A blocking Question for Product still open is blocking.
-9. **Findings and the comment for the ticket.**
+9. **Open questions.** A blocking Question for Product still open is blocking.
+10. **Findings and the comment for the ticket.**
 
 The worked example report in
 [examples/inspections/tech-proposal.md](../../examples/inspections/tech-proposal.md) came back
@@ -102,7 +108,7 @@ run that produced Approve, so the archive carries the evidence.
 Merge the proposal pull request. Then [implementation](06-implementation.md) starts from `main`,
 in a new chat or session, with `/espec-implementation <change-name>`. The implementation gate checks
 `.espec.yaml`, the presence of `tech-proposal.md` and `tasks.md`, and that the proposal's status line reads Approved; it stops on
-Draft or In review. `espec validate` also fails a change that is in progress on an unapproved proposal.
+Draft or In review. On every run it also compares the ticket with `feature.md` and stops on a difference. `espec validate` also fails a change that is in progress on an unapproved proposal.
 Set the line when you approve, or implementation will not start.
 
 ## Common problems
@@ -114,4 +120,4 @@ Set the line when you approve, or implementation will not start.
 | The reviewer re-designs the proposal in the review | Taste, not constraints | Advisory unless it breaks a constraint or a forced note. Record the alternative under the decision and move on |
 | The report finds a constraint with no home, the author says "it is obvious" | Obvious to the author | Write the line. Rollout, non-functional or test strategy; one sentence is enough |
 | Approve, but a product question is open and marked non-blocking | Judgement call | Fine when a yes would be a separate change, as in the worked example. Say the date by which it must be answered |
-| The proposal was approved, then product changed the ticket | Scope change | Re-import, re-run the inspection, re-approve. The proposal pull request can be reopened or a follow-up opened |
+| The proposal was approved, then product changed the ticket | Scope change | The implementation command stops on the difference. Re-import, re-run the inspection, re-approve. The proposal pull request can be reopened or a follow-up opened |

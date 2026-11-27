@@ -49,7 +49,9 @@ has a fixed shape; see the [worked example](../../examples/inspections/assess.md
 | Comment for the ticket | Ready to paste |
 
 Ask it to save the report with "save it" when you want it in the change folder later
-(`espec/changes/<change-name>/inspections/YYYY-MM-DD-assess.md`).
+(`espec/changes/<change-name>/inspections/YYYY-MM-DD-assess.md`). The tech proposal files the
+assessment it builds on there in any case, from the comment on the ticket, so post the whole report
+when the tables matter to whoever writes the proposal.
 
 ### Check the evidence
 
@@ -111,7 +113,8 @@ The comment thread is the record of how the feature got from "not yet" to "ready
 
 ## Hand-off
 
-Ready: [the tech proposal](04-tech-proposal.md), which imports the updated description. Further
+Ready: [the tech proposal](04-tech-proposal.md), which imports the updated description, reads this
+assessment and carries what it raised into the proposal. Further
 discovery: the loop above, until the outcome is Ready.
 
 ## Common problems

@@ -281,7 +281,7 @@ report is saved under `espec/changes/<change-name>/inspections/`.
 |---|---|---|---|
 | `/espec:inspect-feature-definition` | A ticket, a pasted definition or `feature.md` | Readiness checklist, Product boundary, Coverage, Edge cases to consider, Testability, Findings, Comment for the ticket | **Ready for tech proposal** or **Draft** |
 | `/espec:assess` | The feature definition against the code, the tests and the main specs | What exists today, Capabilities touched, Dependencies outside the repository, Alternatives for product, Criteria that cannot be met as written, Spikes, Findings, Comment for the ticket | **Ready for tech proposal** or **Further discovery required** |
-| `/espec:inspect-tech-proposal` | `tech-proposal.md`, `specs/` and `tasks.md` against `feature.md` and the live ticket | Ticket versus feature.md, Traceability, Forced technical notes, Decisions, Constraints and non-functional requirements, Specs, Test strategy, Open questions, Findings, Comment for the ticket | **Approve** or **Not yet** |
+| `/espec:inspect-tech-proposal` | `tech-proposal.md`, `specs/` and `tasks.md` against `feature.md` and the live ticket | Ticket versus feature.md, Technical assessment, Traceability, Forced technical notes, Decisions, Constraints and non-functional requirements, Specs, Test strategy, Open questions, Findings, Comment for the ticket | **Approve** or **Not yet** |
 
 Every finding is numbered and marked **Blocking** or **Advisory**. A finding is blocking when it would
 change scope or observable behaviour, leaves a product id without a scenario, task or test, or leaves a
@@ -291,13 +291,16 @@ only with zero blocking findings; the counts appear next to it, as in `Not yet (
 Some findings are always blocking: a ❌ in the readiness checklist, a how outside the forced notes, an
 untraced `UC-n`, `EC-n` or `AC-n`, an `FT-n` without a verdict, an acceptance criterion without a
 scenario, an unresolved difference between the ticket and `feature.md`, an open blocking Question for
-Product, and a constraint with no home in the proposal. In the assessment, a criterion that cannot be
+Product, a constraint with no home in the proposal, a blocking finding of the technical assessment
+that nothing resolved, and a dependency scope depends on that is still unconfirmed. In the assessment, a criterion that cannot be
 met as written with no agreed rephrasing, a forced note that conflicts with an outcome in the
 definition, and a spike a credible proposal cannot be written without are always blocking; an
 unconfirmed dependency is blocking only when scope depends on the answer.
 
 The tech proposal inspection treats the proposal's own Traceability table as a claim and verifies it
-against the scenario headings in `specs/` and the task numbers in `tasks.md`. The assessment cites a
+against the scenario headings in `specs/` and the task numbers in `tasks.md`. It also reads the
+assessment the proposal's Context names (the tech proposal files it under `inspections/`) and checks
+what the proposal did with each blocking finding, dependency and spike. The assessment cites a
 file path for every claim about the code, makes no design decision, and never takes code evidence as
 another team's commitment. The exact formats are in `AGENTS.md`; filled-in reports over the worked
 example, including a **Further discovery required** with one blocking finding and a **Not yet** with

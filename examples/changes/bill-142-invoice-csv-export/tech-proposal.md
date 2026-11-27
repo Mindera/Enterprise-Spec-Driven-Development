@@ -4,6 +4,16 @@
 
 ## Context
 
+Builds on the technical assessment of 2026-10-21 (`inspections/2026-10-21-assess.md`), whose outcome was Further
+discovery required with one blocking finding: FT-1 against the 10-second outcome. Product settled it on BILL-142
+the same day by accepting an override, as long as exports show on the same Ops dashboard (see Forced technical
+notes review). Its four dependencies were confirmed in refinement on 2026-10-21: by the platform team (export
+links are served from the EU only), by the finance operations lead (a panel next to the nightly batch panel
+meets the need behind FT-1), by the owner of the audit log (export and download entries at close-week volume)
+and by the release manager (a slot in the Q4 2026 release train). Its one spike, the 50,000-row streaming read
+under close-week load, runs as task 5.3 before rollout; until then the 2-minute outcome is the assumption stated
+at the end of this section.
+
 Observed in the repository on 2026-10-21 (main at `c41f9e2`).
 
 - **Invoice list API.** `src/main/java/com/ledgerly/invoices/InvoiceController.java` serves

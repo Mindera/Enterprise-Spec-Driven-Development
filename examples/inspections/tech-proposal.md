@@ -7,6 +7,24 @@
 Identical (ticket BILL-142 fetched 2026-10-22). Compared section by section, Forced technical notes and the
 resolved open question included.
 
+## Technical assessment
+
+Read from `inspections/2026-10-21-assess.md`, the assessment the proposal's Context names: 2026-10-21, Further
+discovery required (1 blocking, 4 advisory), against main at `c41f9e2`.
+
+| Item in the assessment | Then | In the proposal | Finding |
+|------------------------|------|-----------------|---------|
+| Finding 1: FT-1 against AC-1, AC-2 and close week performance | Blocking | Resolved on BILL-142 on 2026-10-21: product accepted the override (Context). Forced technical notes review: Overridden, with the need met on the Ops dashboard | None |
+| Dependency 1: export links served from the EU only | Unconfirmed, platform team | Confirmed by the platform team (Context). D-3, Non-functional › Privacy, Test strategy › Data residency, task 5.4, Q.15 | None |
+| Dependency 2: an "Invoice exports" panel meets the need behind FT-1 | Unconfirmed, finance operations lead | Confirmed by the finance operations lead (Context). Tasks 5.1 and 5.2, the walkthrough in Rollout, Q.16 | None |
+| Dependency 3: the audit log keeps export and download entries at close-week volume | Unconfirmed, owner of the audit log | Confirmed by the owner of the audit log (Context). APIs › Jobs and events, tasks 2.1 and 3.3 | None beyond finding 6 |
+| Dependency 4: a slot in the Q4 2026 release train before the 5 December freeze | Unconfirmed, release manager | Confirmed by the release manager (Context), but Rollout carries no date | Blocking (finding 2) |
+| Criterion: AC-10, "exactly as stored" against the formula guard | Advisory | Non-functional requirements › Security states the guard | Advisory (finding 5) |
+| Spike 1: a 50,000-row streaming read under close-week load | Proposed, not blocking | Carried as an assumption in Context and as the first risk; task 5.3 runs it before rollout; Q.15 | None |
+
+The assessment's other advisory findings stay visible: database headroom as the assumption in Context and the
+read replica under Open engineering questions, data residency for serving in D-3 and the URL host test.
+
 ## Traceability
 
 Read from `specs/invoice-export/spec.md` (7 ADDED requirements, 23 scenarios), `specs/invoice-list/spec.md`
@@ -129,7 +147,7 @@ integration test but no QA line (finding 6).
 ## Comment for the ticket
 
 **espec inspection of the tech proposal, 2026-10-22: Not yet (2 blocking, 5 advisory).** The ticket and
-feature.md are identical. Every UC, EC and AC is traced to named scenarios, tasks and a QA line, FT-1 is
+feature.md are identical. The assessment's blocking finding is resolved and its four dependencies are confirmed. Every UC, EC and AC is traced to named scenarios, tasks and a QA line, FT-1 is
 overridden with its need met on the Ops dashboard, the three decisions list their alternatives, and the test
 strategy covers every edge case at a named level. Two points to settle before approval:
 

@@ -70,7 +70,9 @@ flowchart TB
 Three things to notice:
 
 - The ticket description and `feature.md` are the same text. Product edits the ticket. Engineering
-  imports it. When they differ, the AI shows the diff and asks which one wins.
+  imports it. When they differ, the AI shows the diff and asks which one wins. The comparison runs at
+  the tech proposal, its inspection, the start of every implementation run, the code review and the
+  archive, so a ticket edited after approval is seen before it is built on or closed.
 - Engineering never edits `espec/specs/` by hand. Main specs change only when a change is archived,
   or when archive-clean runs and the user confirms its verdicts.
 - The next tech proposal starts by reading the main specs. That loop is what keeps the specs true.
@@ -148,9 +150,9 @@ the old one and says which blocking findings were resolved and how.
 | Command | `/espec:tech-proposal` |
 | Who | Developer writes. QA contributes the test strategy. Engineering Manager or Architect reviews. |
 | Tool | GitHub Copilot: `/espec-tech-proposal <ticket key, URL or change name>`. |
-| Inputs | The ticket (fetched through an Atlassian or GitHub MCP server, or pasted), `espec/project.md`, `espec/config.yaml`, the main specs in `espec/specs/`, and the code. |
-| Outputs | `espec/changes/<change-name>/` holding `feature.md` (imported), `tech-proposal.md`, delta specs under `specs/<capability>/spec.md`, `tasks.md`, and `.espec.yaml` with `status: proposed`. In the chat, a coverage report: how much of the feature definition the proposal covers, id by id. |
-| Exit criteria | **Approved**: the reviewer sets the status line in `tech-proposal.md` to Approved. Every `FT-n` is marked Accepted or Overridden. The traceability table covers every UC, EC and AC. No blocking Question for Product is open. Every MODIFIED and REMOVED requirement carries a base stamp (`espec stamp`). `/espec:inspect-tech-proposal` returns Approve. |
+| Inputs | The ticket (fetched through an Atlassian or GitHub MCP server, or pasted), the technical assessment (its saved report, or the comment on the ticket), `espec/project.md`, `espec/config.yaml`, the main specs in `espec/specs/`, and the code. |
+| Outputs | `espec/changes/<change-name>/` holding `feature.md` (imported), `tech-proposal.md`, delta specs under `specs/<capability>/spec.md`, `tasks.md`, the assessment it builds on under `inspections/`, and `.espec.yaml` with `status: proposed`. In the chat, a coverage report: how much of the feature definition the proposal covers, id by id. |
+| Exit criteria | **Approved**: the reviewer sets the status line in `tech-proposal.md` to Approved. Every `FT-n` is marked Accepted or Overridden. The traceability table covers every UC, EC and AC. Every blocking finding of the technical assessment is resolved and every dependency it listed has a home in the proposal. No blocking Question for Product is open. Every MODIFIED and REMOVED requirement carries a base stamp (`espec stamp`). `/espec:inspect-tech-proposal` returns Approve. |
 | Hand-off | **Questions for Product** are pasted as a ticket comment. Product answers in the ticket and updates the description. Engineering re-imports and revises. |
 
 The proposal is reviewed where the project says, usually a pull request that adds the change
@@ -172,12 +174,16 @@ A bug runs through the same phases with a lighter definition and proposal: see
 | Command | `/espec:implementation` |
 | Who | Developer implements. QA runs the `## QA verification` group. |
 | Tool | GitHub Copilot: `/espec-implementation <change-name>`. |
-| Inputs | The approved change folder, re-read from disk every time, in a new chat or session so the proposal conversation does not steer the code. |
+| Inputs | The approved change folder, re-read from disk every time, in a new chat or session so the proposal conversation does not steer the code. The ticket, compared with `feature.md` before any task starts. |
 | Outputs | Code and tests. `tasks.md` with a task checked off only after its verification passed. `pull-request.md`: the pull request description, readable without the code, with a proposal-versus-implementation table. `.espec.yaml` moves to `in-progress` after the first check and `implemented` after the last. In the chat, a coverage report: how much of the proposal and the feature definition the code delivers, criterion by criterion. |
 | Security | On a mobile app, before the pull request description: [AI Mobile Security Assessment](https://github.com/Mindera/AI-Mobile-Security-Assessment) against OWASP MASVS, run only when the signed-in GitHub user can read its private repository. Findings in files the change touches are fixed as `S.n` tasks; the rest go on the pull request with `security-report.md`, under "⚠️ Security findings: pre-existing, not from this change", or under "⚠️ Security findings: fix before merge" while a finding remains in a touched file. No findings: "Security validation passed". No access: skipped, and the pull request says so. |
 | Exit criteria | **All tasks complete**: every checkbox in `tasks.md` is `[x]`, including the QA verification group. |
 | Hand-off | The pull request, whose description is `pull-request.md`. It links to the ticket, and its Release note section becomes the ticket comment at archive. |
 | Code review | The reviewer reads `pull-request.md`, then runs `/espec:review <number>` to walk the diff with [DiffCompass](https://github.com/Mindera/diffcompass). `.diffcompass.json` points its agent at the change folder, so the tour follows **How to review** and flags drift from the tech proposal and the delta specs. |
+
+Every run starts by comparing the ticket with `feature.md`, when a tool can reach it. A difference
+stops the run: scope that product changed after approval goes back through the tech proposal, and a
+stale ticket is corrected, before any more code is written.
 
 The AI pauses when a task is unclear, needs work the specs do not describe, or would reduce specified
 behaviour. It never narrows scope silently. A design problem found here becomes a tech proposal
@@ -200,7 +206,9 @@ Archive runs after the implementation pull request is merged, either as its own 
 or as the last commit of the implementation pull request (see
 [the guides](guides/README.md#pull-requests-along-the-way)). Archive stops on any conflict before
 moving anything, including a base stamp that shows another change edited the same requirement first.
-Archive-clean never deletes without evidence and a confirmed verdict. In CI, a pull request that
+Before the release note, archive compares the ticket with `feature.md` once more, so a ticket is not
+closed on a description that differs from what shipped. Archive-clean never deletes without evidence
+and a confirmed verdict. In CI, a pull request that
 changes `espec/specs/` without archiving a change fails. See
 [conventions.md](conventions.md#archive-merge-order-and-conflicts).
 
@@ -211,7 +219,7 @@ changes `espec/specs/` without archiving a change fails. See
 | Feature definition | Description. Product edits here. | `espec/changes/<change-name>/feature.md`, an identical copy from `# Feature:` down, plus the marker and header line on Jira |
 | UI design | **UI design** section of the description | Same section of `feature.md` |
 | Forced technical notes | `## Forced technical notes` in the description | Same section of `feature.md`, reviewed in `tech-proposal.md` |
-| Technical assessment | Comment from engineering, with the outcome | Printed by `/espec:assess`. On request, `espec/changes/<change-name>/inspections/YYYY-MM-DD-assess.md` |
+| Technical assessment | Comment from engineering, with the outcome | Printed by `/espec:assess`. Filed by the tech proposal as `espec/changes/<change-name>/inspections/YYYY-MM-DD-assess.md`, or saved there on request |
 | Questions for Product | Comment from engineering | `## Questions for Product` in `tech-proposal.md` |
 | Answers from product | Comment, then the description is updated | `feature.md` updated to match |
 | Tech proposal | Optional link to the pull request | `tech-proposal.md` |

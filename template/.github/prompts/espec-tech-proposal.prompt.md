@@ -32,17 +32,42 @@ Input: `${input:source:Change name, ticket key or URL, or a pasted feature defin
    approved proposal: set the status line to **In review** before changing anything, and say so in
    the report. The reviewer approves again; implementation stops until they do.
 
-2. **Check readiness.** Re-read `feature.md` from disk. Run the review checklist from the feature
+2. **Check readiness.** Re-read `feature.md` from disk. When a tool can reach the ticket named in
+   `.espec.yaml`, compare its description with `feature.md` from `# Feature:` down; when they differ,
+   show the difference and ask which wins before going on: the ticket's text replaces `feature.md`, or
+   `feature.md` is printed to put back on the ticket. Run the review checklist from the feature
    definition prompt. When the definition is not Ready for tech proposal, list the gaps and ask whether
    to continue anyway. When continuing, every gap becomes a line under **Questions for Product**.
 
-3. **Explore the code before writing.** Read `project.md`, then the modules, tests, configuration and
+3. **Read the technical assessment.** A feature's proposal builds on `/espec:assess`. A bug
+   (`kind: bug`) needs none: skip this step. Find the latest assessment: a file under
+   `espec/changes/<change-name>/inspections/` whose name ends in `-assess.md`, otherwise the newest
+   ticket comment that holds one, when a tool can read the ticket's comments, otherwise ask the user to
+   paste it or to say that none was run.
+   - None was run: say so and ask whether to run `/espec:assess` first or to continue without one.
+     Continuing, Context says "No technical assessment" and why.
+   - Its outcome is **Further discovery required**: list its blocking findings and ask what resolved
+     each: an answer or a description change on the ticket, an owner's confirmation, a spike result.
+     One that nothing resolved is a pause. Continuing, it becomes a blocking Question for Product.
+   - Carry it into the proposal. What exists today is where Context starts, checked again against
+     the code as it is now. Each dependency outside the repository is confirmed, by a named owner, or
+     stays under Risks and trade-offs with the owner to ask, and is a blocking Question for Product
+     when scope depends on it. An alternative product accepted is in the description; the others
+     feed the alternatives of your `D-n`. A spike's result is cited, or the spike becomes a task.
+     Advisory findings stay visible under Risks and trade-offs or Open engineering questions.
+   - It came from the ticket or a paste: save it unchanged as
+     `espec/changes/<change-name>/inspections/YYYY-MM-DD-assess.md`, with its own date, so the reviewer
+     and the inspection read what the proposal was built on.
+
+4. **Explore the code before writing.** Read `project.md`, then the modules, tests, configuration and
    documentation that the feature touches. Record what you observed with file paths; distinguish
    observed facts from assumptions. Check `espec/specs/` for capabilities that already cover part of
    the behaviour and reuse their exact names and paths.
 
-4. **Write `tech-proposal.md`** from `espec/templates/tech-proposal.md`, following the Tech proposal
+5. **Write `tech-proposal.md`** from `espec/templates/tech-proposal.md`, following the Tech proposal
    format in AGENTS.md. In particular:
+   - Context opens with the technical assessment it builds on: date, outcome, where it is, and what
+     resolved each of its blocking findings.
    - Every `D-n` decision lists alternatives and why they lost.
    - Review every `FT-n` from `feature.md` as Accepted or Overridden with a reason. Omit the section
      when there are none.
@@ -51,7 +76,7 @@ Input: `${input:source:Change name, ticket key or URL, or a pasted feature defin
    - The test strategy is written for QA: how each scenario is verified, at which level, with what data.
    - Questions for Product are written so they can be pasted as a ticket comment.
 
-5. **Write the delta specs.** One file per capability at `specs/<capability>/spec.md`, from
+6. **Write the delta specs.** One file per capability at `specs/<capability>/spec.md`, from
    `espec/templates/spec.md`, following the Delta spec format. New capability → include `## Purpose`.
    Existing capability → copy the whole requirement block from `espec/specs/<capability>/spec.md`
    before editing it under `## MODIFIED Requirements`. Every acceptance criterion maps to at least one
@@ -65,21 +90,22 @@ Input: `${input:source:Change name, ticket key or URL, or a pasted feature defin
    reports that a requirement changed in the main spec, re-read it, merge the new text into the delta,
    and run `stamp <change-name> --rebase`.
 
-6. **Write `tasks.md`** from `espec/templates/tasks.md`, following the Tasks format. Each task states
+7. **Write `tasks.md`** from `espec/templates/tasks.md`, following the Tasks format. Each task states
    its verification. Each group lands its own tests. Tasks cite the `AC-n` and `EC-n` they satisfy.
    The `## QA verification` group has one line per acceptance criterion plus the non-functional checks
    from the test strategy.
 
-7. **Update `.espec.yaml`**: `status: proposed`, engineering owner, and a `qa` owner when known.
+8. **Update `.espec.yaml`**: `status: proposed`, engineering owner, and a `qa` owner when known.
 
-8. **Assess coverage.** Re-read `feature.md`, `tech-proposal.md`, every file under `specs/` and
+9. **Assess coverage.** Re-read `feature.md`, `tech-proposal.md`, every file under `specs/` and
    `tasks.md` from disk. For every `UC-n`, `EC-n` and `AC-n`, find the scenario, the tasks and the
    `Q.n` line under the names you used; for every constraint, success metric, UI design item and `FT-n`,
    find where the proposal addresses it. Close the gaps you can now: write the missing scenario, task
    or `Q.n` line, give a homeless constraint a home. What you cannot close becomes a Question for
    Product. Then print the report in the **Tech proposal coverage** format of AGENTS.md.
 
-9. **Report.** List the files written, the open Questions for Product (ready to paste), and stop with:
+10. **Report.** List the files written, the assessment the proposal builds on and what is still
+   unconfirmed from it, the open Questions for Product (ready to paste), and stop with:
    "Review the tech proposal. When approved, start a new chat or session and run
    `/espec:implementation <change-name>` there, so this conversation does not steer the code."
 

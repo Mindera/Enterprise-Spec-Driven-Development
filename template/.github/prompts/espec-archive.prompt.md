@@ -22,6 +22,11 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
      release note and in `.espec.yaml` under `archived_with_open_tasks: <reason>`.
    - Missing `tech-proposal.md` or (without `skip_specs: true`) missing `specs/`: warn and ask.
    - Missing `pull-request.md`: warn; the release note is then written from scratch in step 7.
+   - When a tool can reach the ticket, compare its description with `feature.md` from `# Feature:`
+     down. A difference is a pause: show it and ask. What the ticket asks for beyond `feature.md` was
+     not built: name it in the release note as not part of this change, which needs a change of its
+     own. A stale ticket: offer to update its description from `feature.md`, on yes only. The ticket
+     is never closed on a description that differs from what shipped without someone having seen it.
    - The user says the change will not ship, or `.espec.yaml` already says `status: cancelled`: ask
      for the reason, set `status: cancelled`, `cancelled: YYYY-MM-DD` and `cancelled_reason: <reason>`,
      skip steps 3 to 5, move the folder as in step 6, and write the ticket note in step 7 as what was

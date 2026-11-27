@@ -7,11 +7,40 @@ bumps to (see [AGENTS.md](AGENTS.md)). When a version is merged to `main`, the r
 To move a project to a version, check it out in the toolkit clone and run `espec update`:
 
 ```bash
-git -C ~/espec fetch --tags && git -C ~/espec checkout v1.0.24
+git -C ~/espec fetch --tags && git -C ~/espec checkout v1.0.25
 ~/espec/bin/espec update /path/to/your/repo
 ```
 
 Entries marked **Action** need something done in projects that update.
+
+## v1.0.25 (2026-11-27)
+
+The assessment reaches the proposal, and the ticket is read again after approval:
+
+- `/espec:tech-proposal` reads the technical assessment before it explores the code: the report under
+  `inspections/`, otherwise the comment on the ticket, otherwise a paste. Without one it asks whether
+  to run `/espec:assess` first. When the outcome was Further discovery required it asks what resolved
+  each blocking finding, and one that nothing resolved becomes a blocking Question for Product. It
+  files the assessment it used as `inspections/YYYY-MM-DD-assess.md`, so the proposal is reviewed next
+  to its evidence. A bug needs no assessment.
+- `tech-proposal.md`: **Context** opens with the assessment the proposal builds on: date, outcome,
+  where it is, what resolved each blocking finding. Every dependency the assessment listed appears as
+  confirmed, with a name, or stays under Risks and trade-offs with its owner.
+- `/espec:inspect-tech-proposal` has a **Technical assessment** part: one row per blocking finding,
+  dependency, unmet criterion and spike, with what the proposal did about it. A blocking finding
+  nothing resolved, and a dependency scope depends on that is still unconfirmed, are blocking. No
+  assessment on record is an advisory finding.
+- `/espec:implementation` compares the ticket with `feature.md` on every run and stops on a
+  difference: scope product changed after approval goes back through `/espec:tech-proposal` and a new
+  approval, and a stale ticket is corrected. `/espec:tech-proposal` run with a change name,
+  `/espec:review` and `/espec:archive` make the same comparison. Archive names what the ticket asks
+  for beyond `feature.md` in the release note as not part of the change. Without a tool that reaches
+  the ticket, each command says so and continues.
+- The worked example shows both: its proposal names the assessment and who confirmed each dependency,
+  and its inspection report has the new part.
+- **Action:** run `espec update`. Nothing new fails `espec validate`. For a proposal still in review,
+  add the opening lines to **Context** naming its assessment, or the inspection reports "none on
+  record" as an advisory finding.
 
 ## v1.0.24 (2026-11-27)
 
