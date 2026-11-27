@@ -45,8 +45,9 @@ Usage: espec.ps1 <command> [arguments]
                              templates, espec/bin, espec/LICENSE.md and espec/.toolkit-version
                              (init and update run from the toolkit checkout; the other commands work from espec/bin in a project)
   new <name> [options] [dir] Start a change under espec/changes/<name>
-                             (options: --ticket KEY, --title "Title", --kind feature|bug)
-  list [dir]                 Show active changes with status, ticket and task progress
+                             (options: --ticket KEY, --title "Title", --kind feature|bug,
+                             --lane small|urgent, --declared-by NAME for the urgent lane)
+  list [dir]                 Show active changes with status, ticket, task progress and lane
   validate [name] [dir]      Check one change, or every active change, plus the main specs
   stamp <name> [--rebase] [dir]
                              Record in each MODIFIED and REMOVED requirement of a change the version of the main
@@ -195,21 +196,27 @@ function Invoke-Version([string]$Dir) {
 # ---------------------------------------------------------------- new / list
 
 function Invoke-New([string[]]$Arguments) {
-  $name = ''; $dir = '.'; $ticket = $Ticket; $title = $Title; $kind = $Kind; $i = 0
+  $name = ''; $dir = '.'; $ticket = $Ticket; $title = $Title; $kind = $Kind; $lane = ''; $declared = ''; $i = 0
   while ($i -lt $Arguments.Count) {
     $a = $Arguments[$i]
     if ($a -eq '--ticket' -and ($i + 1) -lt $Arguments.Count) { $ticket = $Arguments[$i + 1]; $i += 2 }
     elseif ($a -eq '--title' -and ($i + 1) -lt $Arguments.Count) { $title = $Arguments[$i + 1]; $i += 2 }
     elseif ($a -eq '--kind' -and ($i + 1) -lt $Arguments.Count) { $kind = $Arguments[$i + 1]; $i += 2 }
     elseif ($a -like '--kind=*') { $kind = $a -replace '^--kind=', ''; $i++ }
+    elseif ($a -eq '--lane' -and ($i + 1) -lt $Arguments.Count) { $lane = $Arguments[$i + 1]; $i += 2 }
+    elseif ($a -like '--lane=*') { $lane = $a -replace '^--lane=', ''; $i++ }
+    elseif ($a -eq '--declared-by' -and ($i + 1) -lt $Arguments.Count) { $declared = $Arguments[$i + 1]; $i += 2 }
+    elseif ($a -like '--declared-by=*') { $declared = $a -replace '^--declared-by=', ''; $i++ }
     elseif ($a -like '--ticket=*') { $ticket = $a -replace '^--ticket=', ''; $i++ }
     elseif ($a -like '--title=*') { $title = $a -replace '^--title=', ''; $i++ }
     elseif ($a -like '-*') { Fail "unknown option: $a" }
     elseif (-not $name) { $name = $a; $i++ }
     else { $dir = $a; $i++ }
   }
-  if (-not $name) { Fail 'usage: espec.ps1 new <change-name> [--ticket KEY] [--title "Title"] [--kind feature|bug] [dir]' }
+  if (-not $name) { Fail 'usage: espec.ps1 new <change-name> [--ticket KEY] [--title "Title"] [--kind feature|bug] [--lane small|urgent] [--declared-by NAME] [dir]' }
   if (@('', 'feature', 'bug') -cnotcontains $kind) { Fail "--kind must be feature or bug: $kind" }
+  if (@('', 'standard', 'small', 'urgent') -cnotcontains $lane) { Fail "--lane must be standard, small or urgent: $lane" }
+  if ($lane -ceq 'urgent' -and -not $declared) { Fail '--lane urgent needs --declared-by NAME: who declared the emergency' }
   if ($name -cnotmatch '^[a-z0-9]+(-[a-z0-9]+)*$') { Fail "change name must be kebab-case (lowercase letters, digits, dashes): $name" }
   Require-Project $dir
   $tpl = Join-Path $dir 'espec/templates'
@@ -217,28 +224,58 @@ function Invoke-New([string[]]$Arguments) {
     if (-not (Test-Path -LiteralPath (Join-Path $tpl $f))) { Fail "$tpl/$f is missing. Run: espec.ps1 update $dir" }
   }
   if ($kind -eq 'bug' -and -not (Test-Path -LiteralPath (Join-Path $tpl 'bug.md'))) { Fail "$tpl/bug.md is missing. Run: espec.ps1 update $dir" }
+  if ($lane -ceq 'small' -and $kind -ne 'bug' -and -not (Test-Path -LiteralPath (Join-Path $tpl 'small.md'))) { Fail "$tpl/small.md is missing. Run: espec.ps1 update $dir" }
   $change = Join-Path $dir "espec/changes/$name"
   if (Test-Path -LiteralPath $change) { Fail "$change already exists" }
 
   $today = Get-Date -Format 'yyyy-MM-dd'
-  New-Item -ItemType Directory -Force -Path (Join-Path $change 'specs') | Out-Null
-  foreach ($f in 'feature.md', 'tech-proposal.md', 'tasks.md') {
-    Copy-Item -LiteralPath (Join-Path $tpl $f) -Destination (Join-Path $change $f)
+  # The urgent lane fixes first: the folder holds only .espec.yaml until the paper is written,
+  # and the paper is due one week after the change was declared.
+  $due = ''
+  if ($lane -ceq 'urgent') {
+    $due = (Get-Date).AddDays(7).ToString('yyyy-MM-dd', [System.Globalization.CultureInfo]::InvariantCulture)
+    New-Item -ItemType Directory -Force -Path $change | Out-Null
+  } else {
+    New-Item -ItemType Directory -Force -Path (Join-Path $change 'specs') | Out-Null
+    foreach ($f in 'feature.md', 'tech-proposal.md', 'tasks.md') {
+      Copy-Item -LiteralPath (Join-Path $tpl $f) -Destination (Join-Path $change $f)
+    }
+    if ($kind -eq 'bug') { Copy-Item -LiteralPath (Join-Path $tpl 'bug.md') -Destination (Join-Path $change 'feature.md') -Force }
+    if ($lane -ceq 'small' -and $kind -ne 'bug') { Copy-Item -LiteralPath (Join-Path $tpl 'small.md') -Destination (Join-Path $change 'feature.md') -Force }
   }
-  if ($kind -eq 'bug') { Copy-Item -LiteralPath (Join-Path $tpl 'bug.md') -Destination (Join-Path $change 'feature.md') -Force }
-  $yaml = foreach ($line in @(Get-Lines (Join-Path $tpl 'espec.yaml'))) {
+  $yaml = @(foreach ($line in @(Get-Lines (Join-Path $tpl 'espec.yaml'))) {
     if ($ticket -and $line -cmatch '^ticket:') { "ticket: $ticket" }
     elseif ($title -and $line -cmatch '^title:') { "title: $title" }
     elseif ($kind -and $line -cmatch '^kind:') { "kind: $kind" }
+    elseif ($lane -and $line -cmatch '^lane:') { "lane: $lane" }
+    elseif ($lane -ceq 'urgent' -and $line -cmatch '^status:') { 'status: in-progress' }
     elseif ($line -cmatch '^created:') { "created: $today" }
+    elseif ($lane -ceq 'urgent' -and $line -cmatch '^# declared_by:') { "declared_by: $declared" }
+    elseif ($lane -ceq 'urgent' -and $line -cmatch '^# catch_up_by:') { "catch_up_by: $due" }
     else { $line }
+  })
+  # A template from before the lanes has no such lines: add them.
+  if ($lane -and @($yaml | Where-Object { $_ -cmatch '^lane:' }).Count -eq 0) { $yaml += "lane: $lane" }
+  if ($lane -ceq 'urgent') {
+    if (@($yaml | Where-Object { $_ -cmatch '^declared_by:' }).Count -eq 0) { $yaml += "declared_by: $declared" }
+    if (@($yaml | Where-Object { $_ -cmatch '^catch_up_by:' }).Count -eq 0) { $yaml += "catch_up_by: $due" }
   }
   $target = Join-Path (Resolve-Path -LiteralPath $change).Path '.espec.yaml'
   [System.IO.File]::WriteAllText($target, (@($yaml) -join "`n").TrimEnd("`n") + "`n")
 
   Write-Output "Created $change"
+  if ($lane -ceq 'urgent') {
+    Write-Output "  .espec.yaml  (urgent lane, declared by $declared, paper due $due)"
+    Write-Output ''
+    Write-Output 'Next: commit this file with the fix, so the pull request records that the paper is owed.'
+    Write-Output "      Before $due, run /espec-tech-proposal $name in Copilot Chat to write the record of what shipped."
+    return
+  }
   Write-Output '  feature.md  tech-proposal.md  tasks.md  specs/  .espec.yaml'
   Write-Output ''
+  if ($lane -ceq 'small') {
+    Write-Output 'Small lane: one pull request carries this folder and the code, and the reviewer approves both.'
+  }
   if ($kind -eq 'bug') {
     Write-Output 'Next: fill in feature.md from the bug report (expected versus actual, steps to reproduce),'
     Write-Output "      set status: defined, then run /espec-tech-proposal $name in Copilot Chat"
@@ -257,8 +294,8 @@ function Get-TaskCounts([string]$File) {
 
 function Invoke-List([string]$Dir) {
   Require-Project $Dir
-  $fmt = '{0,-36} {1,-13} {2,-18} {3}'
-  Write-Output ($fmt -f 'NAME', 'STATUS', 'TICKET', 'TASKS')
+  $fmt = '{0,-36} {1,-13} {2,-18} {3,-9} {4}'
+  Write-Output ($fmt -f 'NAME', 'STATUS', 'TICKET', 'TASKS', 'LANE')
   $changes = @(Get-ChangeDirs $Dir)
   foreach ($c in $changes) {
     $meta = Join-Path $c.FullName '.espec.yaml'
@@ -266,7 +303,9 @@ function Invoke-List([string]$Dir) {
     $ticket = Get-YamlValue $meta 'ticket'; if (-not $ticket) { $ticket = '-' }
     $tasksFile = Join-Path $c.FullName 'tasks.md'
     $tasks = if (Test-Path -LiteralPath $tasksFile) { Get-TaskCounts $tasksFile } else { 'no tasks' }
-    Write-Output ($fmt -f $c.Name, $status, $ticket, $tasks)
+    $lane = Get-ChangeLane $c.FullName
+    if ($lane -ceq 'urgent') { $lane = "urgent, paper due $(Get-YamlValue $meta 'catch_up_by')" }
+    Write-Output ($fmt -f $c.Name, $status, $ticket, $tasks, $lane)
   }
   if ($changes.Count -eq 0) { Write-Output '(no active changes)' }
   $archiveDir = Join-Path $Dir 'espec/changes/archive'
@@ -359,6 +398,9 @@ function Test-Feature([string]$Change) {
   # A bug carries steps to reproduce instead of use cases and edge cases.
   if ((Get-YamlValue (Join-Path $Change '.espec.yaml') 'kind') -ceq 'bug') {
     $headings = @('## Why', '## What', '## Steps to reproduce', '## Out of scope', '## Acceptance criteria'); $prefixes = @('AC')
+  } elseif (Test-ShortForms $Change) {
+    # The small and the urgent lane take the short definition: no use cases, no edge cases.
+    $headings = @('## Why', '## What', '## Out of scope', '## Acceptance criteria'); $prefixes = @('AC')
   } else {
     $headings = @('## Why', '## What', '## Use cases', '## Edge cases', '## Out of scope', '## Acceptance criteria'); $prefixes = @('UC', 'EC', 'AC')
   }
@@ -399,7 +441,7 @@ function Test-TechProposal([string]$Change) {
   }
   $lines = @(Get-Lines $f)
   $missing = @()
-  if ((Get-YamlValue $meta 'kind') -ceq 'bug') {
+  if (((Get-YamlValue $meta 'kind') -ceq 'bug') -or (Test-ShortForms $Change)) {
     $headings = @('## Context', '## Approach', '## Traceability', '## Test strategy', '## Questions for Product')
   } else {
     $headings = @('## Context', '## Approach', '## Architecture', '## APIs and contracts', '## Data model and migrations', '## Technology decisions', '## Traceability', '## Non-functional requirements', '## Rollout and migration', '## Test strategy', '## Risks and trade-offs', '## Questions for Product', '## Open engineering questions')
@@ -501,6 +543,37 @@ function Test-Meta([string]$Change) {
   else { Add-Fail ".espec.yaml: status '$status' must be one of defined, proposed, in-progress, implemented, archived, cancelled" }
   $kind = Get-YamlValue $f 'kind'
   if (@('', 'feature', 'bug') -cnotcontains $kind) { Add-Fail ".espec.yaml: kind '$kind' must be feature or bug" }
+  Test-Lane $Change
+}
+
+# standard, small or urgent. A change without the line is in the standard lane.
+function Get-ChangeLane([string]$Change) {
+  $l = Get-YamlValue (Join-Path $Change '.espec.yaml') 'lane'
+  if ($l) { return $l }
+  return 'standard'
+}
+# True in the small and the urgent lane, whose definition and proposal are short.
+function Test-ShortForms([string]$Change) { return (@('small', 'urgent') -ccontains (Get-ChangeLane $Change)) }
+
+# The urgent lane fixes first and writes the paper after: .espec.yaml names who declared it and the
+# date the paper is due, and the change fails once that date has passed.
+function Test-Lane([string]$Change) {
+  $f = Join-Path $Change '.espec.yaml'
+  $lane = Get-ChangeLane $Change
+  if ($lane -ceq 'standard') { return }
+  if ($lane -ceq 'small') { Add-Pass '.espec.yaml: small lane'; return }
+  if ($lane -cne 'urgent') { Add-Fail ".espec.yaml: lane '$lane' must be standard, small or urgent"; return }
+  $who = Get-YamlValue $f 'declared_by'
+  $due = Get-YamlValue $f 'catch_up_by'
+  if (-not $who -or $who.StartsWith('<')) { Add-Fail '.espec.yaml: urgent lane needs declared_by, the person who declared the emergency' }
+  $today = (Get-Date).ToString('yyyy-MM-dd', [System.Globalization.CultureInfo]::InvariantCulture)
+  if ($due -cnotmatch '^[0-9]{4}-[0-9]{2}-[0-9]{2}$') {
+    Add-Fail '.espec.yaml: urgent lane needs catch_up_by, the date the paper is due, as YYYY-MM-DD'
+  } elseif ([string]::CompareOrdinal($today, $due) -gt 0) {
+    Add-Fail ".espec.yaml: urgent lane: the paper was due on $due. Write it with /espec-tech-proposal $(Split-Path -Leaf $Change), or move catch_up_by in a reviewed pull request"
+  } else {
+    Add-Pass ".espec.yaml: urgent lane, paper due by $due"
+  }
 }
 
 function Test-PullRequest([string]$Change) {
@@ -517,7 +590,11 @@ function Test-PullRequest([string]$Change) {
     if ($missing.Count -eq 0) { Add-Pass 'pull-request.md: all sections present' }
     else { Add-Fail ('pull-request.md: missing section(s): ' + ($missing -join ', ')) }
   } elseif (@('implemented', 'archived') -ccontains $status) {
-    Add-Fail "pull-request.md: missing (required once status is $status)"
+    if ((Get-ChangeLane $Change) -ceq 'urgent') {
+      Write-Output "  - no pull-request.md (urgent lane: the proposal's Context names the merged fix)"
+    } else {
+      Add-Fail "pull-request.md: missing (required once status is $status)"
+    }
   } else {
     Write-Output '  - no pull-request.md yet (written at the end of implementation)'
   }
@@ -696,6 +773,10 @@ function Invoke-Stamp([string[]]$Arguments) {
 function Test-Change([string]$Change, [string]$Dir) {
   Write-Output "Change: $(Split-Path -Leaf $Change)"
   Test-Meta $Change
+  if ((Get-ChangeLane $Change) -ceq 'urgent' -and -not (Test-Path -LiteralPath (Join-Path $Change 'feature.md'))) {
+    Write-Output '  - urgent lane: the paper is not written yet, nothing else to check'
+    return
+  }
   Test-PullRequest $Change
   Test-Feature $Change
   Test-TechProposal $Change

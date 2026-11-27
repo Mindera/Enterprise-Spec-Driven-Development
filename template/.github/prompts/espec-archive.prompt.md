@@ -21,7 +21,9 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
    - Unchecked tasks: list them and ask whether to archive anyway. On yes, record the reason in the
      release note and in `.espec.yaml` under `archived_with_open_tasks: <reason>`.
    - Missing `tech-proposal.md` or (without `skip_specs: true`) missing `specs/`: warn and ask.
-   - Missing `pull-request.md`: warn; the release note is then written from scratch in step 7.
+   - Missing `pull-request.md`: warn; the release note is then written from scratch in step 7. An
+     urgent change (`lane: urgent`) has none: write the release note from the proposal, and name the
+     merged pull request.
    - When a tool can reach the ticket, compare its description with `feature.md` from `# Feature:`
      down. A difference is a pause: show it and ask. What the ticket asks for beyond `feature.md` was
      not built: name it in the release note as not part of this change, which needs a change of its

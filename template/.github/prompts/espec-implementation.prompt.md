@@ -24,6 +24,10 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
    `/espec:inspect-tech-proposal` and the reviewer named in `project.md`, and stop. A blocking
    **Question for Product** that is still open in `tech-proposal.md` is a pause: show it and ask
    whether product has answered it.
+   Small lane (`lane: small` in `.espec.yaml`): a status line of In review is enough to start, because
+   one pull request carries the change folder and the code. Say so, and say that the reviewer approves
+   by setting the status line to Approved in that pull request, which `espec validate` waits for.
+   Never set the line yourself.
    Then compare the ticket, on every run. When a tool can reach the ticket named in `.espec.yaml`,
    fetch its description and compare it with `feature.md` from `# Feature:` down (a Jira description
    has no marker and no header line). Identical: say so, with the date. Different: show the

@@ -101,6 +101,13 @@ each later phase does differently are in **Bug fixes** in AGENTS.md. What change
 - **Store.** As below, in the bug format, with `kind: bug` in `.espec.yaml`. For Jira, print it from
   `# Bug:` down.
 
+## Small lane
+
+When `.espec.yaml` says `lane: small`, or the user asks for the short form for a small change, write
+the short definition of **Lanes** in AGENTS.md: Why, What, Out of scope, Acceptance criteria and Open
+questions. Ask only for those, skip the design step, and check only the items of the review checklist
+that those sections answer. Say once when the change does not meet the small lane's conditions.
+
 ## Review checklist
 
 Report each item as ✅ or ❌ with a one-line fix:

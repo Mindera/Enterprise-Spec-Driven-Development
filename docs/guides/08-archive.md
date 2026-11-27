@@ -17,7 +17,8 @@ and the next tech proposal reads it.
 ## Before you start
 
 - The implementation pull request is merged. Archiving before the merge puts spec changes on `main`
-  that the code does not back yet.
+  that the code does not back yet. An [urgent change](lanes.md#the-urgent-lane) is archived once its
+  record is approved: it has no `pull-request.md`, and the release note comes from the proposal.
 - You are on `main`, pulled, on a fresh branch:
 
 ```bash

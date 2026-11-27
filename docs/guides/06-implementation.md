@@ -17,7 +17,9 @@ proposal and why, and how it was verified.
 ## Before you start
 
 - The proposal pull request is merged and the status line in `tech-proposal.md` reads **Approved**.
-  The command stops on Draft or In review and points to the reviewer.
+  The command stops on Draft or In review and points to the reviewer. The exception is the
+  [small lane](lanes.md#the-small-lane): there the command starts on In review, in the proposal's own
+  branch, and the reviewer approves the proposal and the code in one pull request.
 - No blocking Question for Product is open. The command stops on one and asks whether product has
   answered.
 - `main` is green and you are on a fresh branch from it.

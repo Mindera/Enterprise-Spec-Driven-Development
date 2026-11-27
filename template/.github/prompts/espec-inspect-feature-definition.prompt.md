@@ -61,6 +61,13 @@ The same steps, with these differences:
   describes the actual behaviour as the intended one, the report asks for a change of behaviour, a
   feature: a blocking finding, and the comment for the ticket says a feature definition is needed.
 
+## Small lane
+
+A short definition (`lane: small` in `.espec.yaml`, or no Use cases and Edge cases sections and the
+user says it is a small change) is checked on Why, What, Out of scope, Acceptance criteria, Open
+questions and the product boundary only. Step 5 is skipped. Report as a finding any condition of the
+small lane in **Lanes** in AGENTS.md that the definition shows it does not meet.
+
 ## Guardrails
 
 - Read-only. Do not fix the definition, do not update the ticket, do not create a change folder.

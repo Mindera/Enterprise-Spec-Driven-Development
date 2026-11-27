@@ -7,11 +7,53 @@ bumps to (see [AGENTS.md](AGENTS.md)). When a version is merged to `main`, the r
 To move a project to a version, check it out in the toolkit clone and run `espec update`:
 
 ```bash
-git -C ~/espec fetch --tags && git -C ~/espec checkout v1.0.26
+git -C ~/espec fetch --tags && git -C ~/espec checkout v1.0.27
 ~/espec/bin/espec update /path/to/your/repo
 ```
 
 Entries marked **Action** need something done in projects that update.
+
+## v1.0.27 (2026-11-27)
+
+Two shorter lanes, and a CI check for code that travels with no change:
+
+- `.espec.yaml` takes `lane: standard | small | urgent`. A change without the line is in the standard
+  lane, so nothing changes for existing changes. **Lanes** in `espec/AGENTS.md` holds the rules.
+- **Small lane**, for a change one reviewer can judge whole in one sitting: one capability, no new
+  API, data model or screen, nothing needed from another team. It takes a short definition (Why, What,
+  Out of scope, Acceptance criteria, from the new `templates/small.md`), the short proposal, no
+  required inspection or assessment, and one pull request for the change folder and the code.
+  `/espec:implementation` starts on a proposal In review, and the reviewer approves both by setting
+  the status line to Approved, which `espec validate` waits for.
+- **Urgent lane**, for production that is broken or at risk now. `espec new <name> --lane urgent
+  --declared-by "<name>"` writes `.espec.yaml` only, with `declared_by` and `catch_up_by` one week
+  ahead. The fix ships first, reviewed before merge. `/espec:tech-proposal` then writes the record of
+  what shipped from the merged pull request. `espec validate` fails an urgent change whose date has
+  passed, and `espec list` shows the lane and the date. No `pull-request.md` is needed.
+- CLI, bash and PowerShell: `espec new` takes `--lane` and `--declared-by`, `espec list` has a LANE
+  column, and `espec validate` checks the lane, the short forms and the urgent deadline. Both smoke
+  tests cover the three.
+- A pull request that changes no behaviour needs no change folder: its description says
+  `espec: no behaviour change` and why. The validate workflow has a new step, "Code changes travel
+  with a change", for a pull request that changes code with neither a change nor that line.
+  `lanes.untracked_changes` in `config.yaml` sets it to `warn` (the default), `require` or `off`. The
+  workflow now also runs when a pull request description is edited.
+- New pull request template for an urgent fix: `.github/PULL_REQUEST_TEMPLATE/espec-urgent-fix.md`.
+- The prompts read the lane: the tech proposal checks the small lane's conditions and never picks a
+  lane, the inspections apply the short forms, the review says what approving a small-lane pull
+  request means, and the archive takes an urgent change without `pull-request.md`. The product
+  agents write the short definition when asked for a small change.
+- Docs: a new guide, `docs/guides/lanes.md`, a Lanes section in `docs/workflow.md`, three FAQ
+  entries, the README, the command reference, the conventions page and the setup guide.
+- **Action:** run `espec update`. Nothing new fails `espec validate`. Every pull request that changes
+  code and touches no change folder now gets a warning annotation: add a line that starts with
+  `espec: no behaviour change` to its description, or set `lanes.untracked_changes: off` in
+  `espec/config.yaml`.
+- **Action:** `espec update` does not touch `config.yaml` or pull request templates. To change the
+  default, add the `lanes:` block from `template/espec/config.yaml`. For the urgent fix template, copy
+  `template/.github/PULL_REQUEST_TEMPLATE/espec-urgent-fix.md` into `.github/PULL_REQUEST_TEMPLATE/`.
+- **Action (Rovo and M365 Copilot):** paste the Instructions block of the Feature Definition agent
+  again to get the short form for small changes.
 
 ## v1.0.26 (2026-11-27)
 

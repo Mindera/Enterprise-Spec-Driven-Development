@@ -37,10 +37,29 @@ proposal goes to review. The AI never creates or updates a ticket without being 
 
 ## What about pure refactors, tooling and docs changes?
 
-Set `skip_specs: true` in `.espec.yaml` and create no `specs/` folder. A tech proposal and tasks are
-still useful when you want the plan reviewed. Archive moves the folder without touching the main
-specs. Do not invent a requirement to fill a folder. If the refactor does change observable
-behaviour, it is not a pure refactor: write the delta.
+They need no change folder. The pull request description says so on a line of its own,
+`espec: no behaviour change`, with the reason, and the reviewer confirms it by approving. CI warns
+about a pull request that changes code with neither a change nor that line.
+
+When you want the plan of a large refactor reviewed, give it a change with `skip_specs: true` in
+`.espec.yaml` and no `specs/` folder. Archive moves the folder without touching the main specs. Do not
+invent a requirement to fill a folder. If the refactor does change observable behaviour, it is not a
+pure refactor: write the delta.
+
+## Does a one-line change need all four phases?
+
+No. A change that touches one capability, adds no API, data model or screen, needs nothing from
+another team and can be judged whole by one reviewer takes the **small lane**: a short definition, a
+short proposal, and one pull request that carries the change folder and the code. The reviewer
+approves both at once. See [Small and urgent changes](guides/lanes.md).
+
+## Production is down. Do we write a tech proposal first?
+
+No. Declare the **urgent lane**: `espec/bin/espec new <name> --kind bug --lane urgent --declared-by
+"<name>"` writes one file that records who declared it and when the paper is due, a week later. Fix,
+get the fix reviewed, merge. Then write the record of what shipped with `/espec:tech-proposal` before
+that date; `espec validate` fails once it has passed. A tight delivery date is not an emergency. See
+[Small and urgent changes](guides/lanes.md).
 
 ## What about bug fixes?
 

@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="./VERSION"><img alt="Version: v1.0.26" src="https://img.shields.io/badge/version-v1.0.26-orange.svg?style=flat-square"></a>
+  <a href="./VERSION"><img alt="Version: v1.0.27" src="https://img.shields.io/badge/version-v1.0.27-orange.svg?style=flat-square"></a>
   <a href="./LICENSE.md"><img alt="License: Sustainable Use 1.0" src="https://img.shields.io/badge/License-Sustainable%20Use%201.0-blue.svg?style=flat-square"></a>
   <img alt="GitHub Copilot" src="https://img.shields.io/badge/Developers-GitHub%20Copilot-24292f?style=flat-square">
   <img alt="Rovo" src="https://img.shields.io/badge/Product-Rovo-0052cc?style=flat-square">
@@ -146,6 +146,12 @@ a traceability table from every product id to a spec scenario and a task, a test
 questions for product that go back on the ticket. Bugs take the same path with less paper: a bug
 report in place of the definition, written by whoever found the bug, no assessment, and a shorter
 proposal that names the root cause.
+
+Two lanes keep the process honest when the full path is too much. A **small** change (a label, a
+default, a limit) takes a short definition and proposal and one pull request, approved once. An
+**urgent** fix ships first and writes its record within a week: `espec validate` fails after that
+date. A pull request that changes no behaviour says so in one line. See
+[Small and urgent changes](docs/guides/lanes.md).
 
 **Phase 3** generates the code from the tech proposal and specs, one task at a time, and never
 narrows scope silently. It ends with a pull request description a reviewer can read without opening
@@ -285,7 +291,7 @@ Your repo also gets its own copy of the validator in `espec/bin` and a GitHub Ac
 runs it on every pull request, so format rules are checked without any dependency
 on this toolkit. Then name your tech proposal approvers in CODEOWNERS
 ([engineering setup, step 5](docs/guides/setup-engineering.md#step-5-protect-approval-and-the-main-specs)).
-To pin a version, check out its tag (`git -C ~/espec checkout v1.0.26`) before `init` or `update`.
+To pin a version, check out its tag (`git -C ~/espec checkout v1.0.27`) before `init` or `update`.
 
 ### Product and design
 
@@ -339,7 +345,8 @@ your-repo/
 │   ├── workflows/espec-validate.yml       # CI: validates changes and specs on every pull request
 │   ├── ISSUE_TEMPLATE/feature-definition.md
 │   ├── ISSUE_TEMPLATE/bug-report.md
-│   └── PULL_REQUEST_TEMPLATE/espec-spec-change.md # For tech proposal and archive pull requests
+│   ├── PULL_REQUEST_TEMPLATE/espec-spec-change.md # For tech proposal and archive pull requests
+│   └── PULL_REQUEST_TEMPLATE/espec-urgent-fix.md  # For an urgent fix: who declared it, how to roll back
 └── espec/
     ├── AGENTS.md                          # Conventions for humans and AI
     ├── LICENSE.md, .toolkit-version       # The toolkit's licence and the version you run
@@ -372,7 +379,7 @@ Questions, bugs and ideas go to [GitHub Issues](https://github.com/Mindera/Enter
 Pull requests are welcome. Keep the README simple and the prompts shorter than the documents they
 produce.
 
-The current version is **v1.0.26**, kept in [`VERSION`](VERSION). Every change bumps the last number
+The current version is **v1.0.27**, kept in [`VERSION`](VERSION). Every change bumps the last number
 (`vX.Y.Z` → `vX.Y.Z+1`) and adds an entry to the [changelog](CHANGELOG.md); every version merged to
 `main` is tagged and released. See [`AGENTS.md`](AGENTS.md) for the rules every contributor and every
 AI assistant follows.

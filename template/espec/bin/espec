@@ -34,8 +34,9 @@ Usage: espec <command> [arguments]
                              templates, espec/bin, espec/LICENSE.md and espec/.toolkit-version
                              (init and update run from the toolkit checkout; the other commands work from espec/bin in a project)
   new <name> [options] [dir] Start a change under espec/changes/<name>
-                             (options: --ticket KEY, --title "Title", --kind feature|bug)
-  list [dir]                 Show active changes with status, ticket and task progress
+                             (options: --ticket KEY, --title "Title", --kind feature|bug,
+                             --lane small|urgent, --declared-by NAME for the urgent lane)
+  list [dir]                 Show active changes with status, ticket, task progress and lane
   validate [name] [dir]      Check one change, or every active change, plus the main specs
   stamp <name> [--rebase] [dir]
                              Record in each MODIFIED and REMOVED requirement of a change the version of the main
@@ -164,21 +165,27 @@ cmd_version() {
 # ---------------------------------------------------------------- new / list
 
 cmd_new() {
-  local name="" ticket="" title="" kind="" dir="." today change tpl line f
+  local name="" ticket="" title="" kind="" lane="" declared="" dir="." today due change tpl line f
   while [ $# -gt 0 ]; do
     case "$1" in
       --ticket) [ $# -ge 2 ] || die "--ticket needs a value"; ticket="$2"; shift 2 ;;
       --title)  [ $# -ge 2 ] || die "--title needs a value"; title="$2"; shift 2 ;;
       --kind)   [ $# -ge 2 ] || die "--kind needs a value"; kind="$2"; shift 2 ;;
       --kind=*) kind="${1#--kind=}"; shift ;;
+      --lane)   [ $# -ge 2 ] || die "--lane needs a value"; lane="$2"; shift 2 ;;
+      --lane=*) lane="${1#--lane=}"; shift ;;
+      --declared-by)   [ $# -ge 2 ] || die "--declared-by needs a value"; declared="$2"; shift 2 ;;
+      --declared-by=*) declared="${1#--declared-by=}"; shift ;;
       --ticket=*) ticket="${1#--ticket=}"; shift ;;
       --title=*)  title="${1#--title=}"; shift ;;
       -*) die "unknown option: $1" ;;
       *) if [ -z "$name" ]; then name="$1"; else dir="$1"; fi; shift ;;
     esac
   done
-  [ -n "$name" ] || die 'usage: espec new <change-name> [--ticket KEY] [--title "Title"] [--kind feature|bug] [dir]'
+  [ -n "$name" ] || die 'usage: espec new <change-name> [--ticket KEY] [--title "Title"] [--kind feature|bug] [--lane small|urgent] [--declared-by NAME] [dir]'
   case "$kind" in ""|feature|bug) ;; *) die "--kind must be feature or bug: $kind" ;; esac
+  case "$lane" in ""|standard|small|urgent) ;; *) die "--lane must be standard, small or urgent: $lane" ;; esac
+  [ "$lane" != urgent ] || [ -n "$declared" ] || die "--lane urgent needs --declared-by NAME: who declared the emergency"
   echo "$name" | grep -Eq '^[a-z0-9]+(-[a-z0-9]+)*$' \
     || die "change name must be kebab-case (lowercase letters, digits, dashes): $name"
   need_project "$dir"
@@ -187,26 +194,58 @@ cmd_new() {
     [ -f "$tpl/$f" ] || die "$tpl/$f is missing. Run: espec update $dir"
   done
   [ "$kind" != bug ] || [ -f "$tpl/bug.md" ] || die "$tpl/bug.md is missing. Run: espec update $dir"
+  [ "$lane" != small ] || [ "$kind" = bug ] || [ -f "$tpl/small.md" ] || die "$tpl/small.md is missing. Run: espec update $dir"
   change="$dir/espec/changes/$name"
   [ ! -e "$change" ] || die "$change already exists"
 
   today=$(date +%Y-%m-%d)
-  mkdir -p "$change/specs"
-  for f in feature.md tech-proposal.md tasks.md; do cp "$tpl/$f" "$change/$f"; done
-  [ "$kind" != bug ] || cp "$tpl/bug.md" "$change/feature.md"
+  # The urgent lane fixes first: the folder holds only .espec.yaml until the paper is written,
+  # and the paper is due one week after the change was declared.
+  due=""
+  [ "$lane" != urgent ] || due=$(date -d "+7 days" +%Y-%m-%d 2>/dev/null || date -v+7d +%Y-%m-%d)
+  if [ "$lane" = urgent ]; then
+    mkdir -p "$change"
+  else
+    mkdir -p "$change/specs"
+    for f in feature.md tech-proposal.md tasks.md; do cp "$tpl/$f" "$change/$f"; done
+    [ "$kind" != bug ] || cp "$tpl/bug.md" "$change/feature.md"
+    [ "$lane" != small ] || [ "$kind" = bug ] || cp "$tpl/small.md" "$change/feature.md"
+  fi
   while IFS= read -r line || [ -n "$line" ]; do
     case "$line" in
       ticket:*)  [ -z "$ticket" ] || line="ticket: $ticket" ;;
       title:*)   [ -z "$title" ] || line="title: $title" ;;
       kind:*)    [ -z "$kind" ] || line="kind: $kind" ;;
+      lane:*)    [ -z "$lane" ] || line="lane: $lane" ;;
+      status:*)  [ "$lane" != urgent ] || line="status: in-progress" ;;
       created:*) line="created: $today" ;;
+      "# declared_by:"*) [ "$lane" != urgent ] || line="declared_by: $declared" ;;
+      "# catch_up_by:"*) [ "$lane" != urgent ] || line="catch_up_by: $due" ;;
     esac
     printf '%s\n' "$line"
   done < "$tpl/espec.yaml" > "$change/.espec.yaml"
+  if [ "$lane" = urgent ]; then
+    # A template from before the lanes has no such lines: add them.
+    grep -q '^lane:' "$change/.espec.yaml" || echo "lane: urgent" >> "$change/.espec.yaml"
+    grep -q '^declared_by:' "$change/.espec.yaml" || echo "declared_by: $declared" >> "$change/.espec.yaml"
+    grep -q '^catch_up_by:' "$change/.espec.yaml" || echo "catch_up_by: $due" >> "$change/.espec.yaml"
+  elif [ -n "$lane" ]; then
+    grep -q '^lane:' "$change/.espec.yaml" || echo "lane: $lane" >> "$change/.espec.yaml"
+  fi
 
   echo "Created $change"
+  if [ "$lane" = urgent ]; then
+    echo "  .espec.yaml  (urgent lane, declared by $declared, paper due $due)"
+    echo
+    echo "Next: commit this file with the fix, so the pull request records that the paper is owed."
+    echo "      Before $due, run /espec-tech-proposal $name in Copilot Chat to write the record of what shipped."
+    return 0
+  fi
   echo "  feature.md  tech-proposal.md  tasks.md  specs/  .espec.yaml"
   echo
+  if [ "$lane" = small ]; then
+    echo "Small lane: one pull request carries this folder and the code, and the reviewer approves both."
+  fi
   if [ "$kind" = bug ]; then
     echo "Next: fill in feature.md from the bug report (expected versus actual, steps to reproduce),"
     echo "      set status: defined, then run /espec-tech-proposal $name in Copilot Chat"
@@ -217,9 +256,9 @@ cmd_new() {
 }
 
 cmd_list() {
-  local dir="${1:-.}" d name status ticket tasks n=0 archived=0
+  local dir="${1:-.}" d name status ticket tasks lane n=0 archived=0
   need_project "$dir"
-  printf '%-36s %-13s %-18s %s\n' NAME STATUS TICKET TASKS
+  printf '%-36s %-13s %-18s %-9s %s\n' NAME STATUS TICKET TASKS LANE
   for d in "$dir"/espec/changes/*/; do
     [ -d "$d" ] || continue
     name=$(basename "$d")
@@ -227,7 +266,9 @@ cmd_list() {
     status=$(yaml_value "$d/.espec.yaml" status)
     ticket=$(yaml_value "$d/.espec.yaml" ticket)
     if [ -f "$d/tasks.md" ]; then tasks=$(task_counts "$d/tasks.md" | awk '{ print $1 "/" $2 }'); else tasks="no tasks"; fi
-    printf '%-36s %-13s %-18s %s\n' "$name" "${status:-?}" "${ticket:--}" "$tasks"
+    lane=$(change_lane "$d")
+    [ "$lane" != urgent ] || lane="urgent, paper due $(yaml_value "$d/.espec.yaml" catch_up_by)"
+    printf '%-36s %-13s %-18s %-9s %s\n' "$name" "${status:-?}" "${ticket:--}" "$tasks" "$lane"
     n=$((n + 1))
   done
   [ "$n" -gt 0 ] || echo "(no active changes)"
@@ -297,6 +338,9 @@ validate_feature() {
   # A bug carries steps to reproduce instead of use cases and edge cases.
   if [ "$(yaml_value "$1/.espec.yaml" kind)" = bug ]; then
     set -- "## Why" "## What" "## Steps to reproduce" "## Out of scope" "## Acceptance criteria"; ids="AC"
+  elif short_forms "$1"; then
+    # The small and the urgent lane take the short definition: no use cases, no edge cases.
+    set -- "## Why" "## What" "## Out of scope" "## Acceptance criteria"; ids="AC"
   else
     set -- "## Why" "## What" "## Use cases" "## Edge cases" "## Out of scope" "## Acceptance criteria"; ids="UC EC AC"
   fi
@@ -331,7 +375,7 @@ validate_tech_proposal() {
     esac
     return 0
   fi
-  if [ "$(yaml_value "$c/.espec.yaml" kind)" = bug ]; then
+  if [ "$(yaml_value "$c/.espec.yaml" kind)" = bug ] || short_forms "$c"; then
     set -- "## Context" "## Approach" "## Traceability" "## Test strategy" "## Questions for Product"
   else
     set -- "## Context" "## Approach" "## Architecture" "## APIs and contracts" "## Data model and migrations" \
@@ -443,6 +487,34 @@ validate_meta() {
     ""|feature|bug) ;;
     *) bad ".espec.yaml: kind '$(yaml_value "$f" kind)' must be feature or bug" ;;
   esac
+  validate_lane "$1"
+}
+
+# change_lane CHANGE: standard, small or urgent. A change without the line is in the standard lane.
+change_lane() { local l; l=$(yaml_value "$1/.espec.yaml" lane); echo "${l:-standard}"; }
+# short_forms CHANGE: true in the small and the urgent lane, whose definition and proposal are short.
+short_forms() { case "$(change_lane "$1")" in small|urgent) return 0 ;; *) return 1 ;; esac; }
+
+# The urgent lane fixes first and writes the paper after: .espec.yaml names who declared it and the
+# date the paper is due, and the change fails once that date has passed.
+validate_lane() {
+  local f="$1/.espec.yaml" lane who due
+  lane=$(change_lane "$1")
+  case "$lane" in
+    standard) return 0 ;;
+    small) ok ".espec.yaml: small lane"; return 0 ;;
+    urgent) ;;
+    *) bad ".espec.yaml: lane '$lane' must be standard, small or urgent"; return 0 ;;
+  esac
+  who=$(yaml_value "$f" declared_by); due=$(yaml_value "$f" catch_up_by)
+  case "$who" in ""|"<"*) bad ".espec.yaml: urgent lane needs declared_by, the person who declared the emergency" ;; esac
+  if ! printf '%s\n' "$due" | grep -Eq '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'; then
+    bad ".espec.yaml: urgent lane needs catch_up_by, the date the paper is due, as YYYY-MM-DD"
+  elif [ "$(date +%Y-%m-%d)" \> "$due" ]; then
+    bad ".espec.yaml: urgent lane: the paper was due on $due. Write it with /espec-tech-proposal $(basename "$1"), or move catch_up_by in a reviewed pull request"
+  else
+    ok ".espec.yaml: urgent lane, paper due by $due"
+  fi
 }
 
 validate_pull_request() {
@@ -455,7 +527,12 @@ validate_pull_request() {
     if [ -z "$missing" ]; then ok "pull-request.md: all sections present"; else bad "pull-request.md: missing section(s):$missing"; fi
   else
     case "$status" in
-      implemented|archived) bad "pull-request.md: missing (required once status is $status)" ;;
+      implemented|archived)
+        if [ "$(change_lane "$1")" = urgent ]; then
+          echo "  - no pull-request.md (urgent lane: the proposal's Context names the merged fix)"
+        else
+          bad "pull-request.md: missing (required once status is $status)"
+        fi ;;
       *) echo "  - no pull-request.md yet (written at the end of implementation)" ;;
     esac
   fi
@@ -613,6 +690,10 @@ validate_change() {
   local c="$1" dir="$2" specs spec
   echo "Change: $(basename "$c")"
   validate_meta "$c"
+  if [ "$(change_lane "$c")" = urgent ] && [ ! -f "$c/feature.md" ]; then
+    echo "  - urgent lane: the paper is not written yet, nothing else to check"
+    return 0
+  fi
   validate_pull_request "$c"
   validate_feature "$c"
   validate_tech_proposal "$c"

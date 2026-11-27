@@ -108,6 +108,26 @@ Input: `${input:source:Change name, ticket key or URL, or a pasted feature defin
    "Review the tech proposal. When approved, start a new chat or session and run
    `/espec:implementation <change-name>` there, so this conversation does not steer the code."
 
+## Lanes
+
+Read `lane:` in `.espec.yaml` (absent means standard) and follow **Lanes** in AGENTS.md.
+
+- **Small.** Check its four conditions first. Name any that does not hold and ask whether to move the
+  change to the standard lane. Skip step 3: no assessment is needed. Write the short definition when
+  it is not there, and the short proposal. Leave the status line at In review and end the report
+  with: "Small lane: implement in this branch with `/espec:implementation <change-name>`. One pull
+  request carries the change folder and the code, and the reviewer approves both by setting the
+  status line to Approved."
+- **Urgent.** The fix already merged. This run writes the record of what shipped, not a plan. Ask for
+  the merged pull request when neither `.espec.yaml` nor the ticket names it, and read its diff.
+  Write `feature.md` (a bug report, or the short definition) and the short proposal from it: the root
+  cause and the pull request in Context, what was changed in Approach. In `tasks.md`, what shipped is
+  checked and what is still owed is open: the missing test, the workaround to remove, the proper
+  fix. Never describe behaviour the diff does not show. Skip step 3. Set `status: implemented` when
+  every task is checked, otherwise `in-progress`.
+- You never pick a lane. When a standard change meets every condition of the small lane, say so once
+  in the report and leave the choice to the author and the reviewer.
+
 ## Guardrails
 
 - Planning only. Do not create or modify files outside `espec/changes/<change-name>/` in this phase.

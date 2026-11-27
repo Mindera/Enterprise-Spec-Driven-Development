@@ -31,6 +31,13 @@ security:
   repo: Mindera/AI-Mobile-Security-Assessment
   platforms: []                 # android | ios | kmp. Empty: detected from the repository
 
+lanes:
+  # A pull request that changes code and travels with no change under espec/changes/
+  # (espec/AGENTS.md, "Lanes"). warn | require | off
+  # warn annotates the pull request. require fails the check until the pull request touches a change
+  # folder or its description has a line that starts with "espec: no behaviour change".
+  untracked_changes: warn
+
 usage:
   # The usage line every espec command ends with (espec/AGENTS.md, "Usage report").
   # always | when-available | none

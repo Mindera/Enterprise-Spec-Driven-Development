@@ -32,7 +32,11 @@ and follow the prompt file.
   automatically: open and follow `.github/prompts/espec-tech-proposal.prompt.md` step by step to write
   the proposal, and `.github/prompts/espec-implementation.prompt.md` once its status line says Approved.
 - Do not change behaviour that is not described in an approved change under `espec/changes/`.
-  When a request needs a behaviour change, say so and point to `/espec-tech-proposal`.
+  When a request needs a behaviour change, say so and point to `/espec-tech-proposal`. Two lanes in
+  `espec/AGENTS.md` (Lanes) shorten the path and never remove it: a small change travels with its
+  change folder in one pull request, and an urgent fix ships with an `.espec.yaml` that says when its
+  paper is due. A pull request that changes no behaviour says `espec: no behaviour change` in its
+  description.
 - Never edit `espec/specs/` directly. Main specs change only through archive and archive-clean.
 - Never reduce the scope of a task silently. Surface it and ask.
 - Scenarios in specs use `#### Scenario:` with four hashes and GIVEN / WHEN / THEN / AND bullets.

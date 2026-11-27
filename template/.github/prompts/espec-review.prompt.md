@@ -48,6 +48,9 @@ optionally followed by the change name. Steps 1 to 5 below say what differs.
 4. **Check the description.** For the change found, read `.espec.yaml`, `tasks.md` and
    `pull-request.md` from disk on the reviewed branch. Report, without blocking the tour:
    - `.espec.yaml` is not at `implemented`, or tasks are unchecked: say how many.
+   - `lane: small`: this pull request is also the proposal's review. Say that approving it means
+     setting the status line of `tech-proposal.md` to Approved, and whether it already reads so.
+   - `lane: urgent`: say who declared it and the date the paper is due.
    - `pull-request.md` is missing or lacks a section: name it and point to `/espec:implementation`.
    - The pull request body differs from `pull-request.md`: say so. The description is the review's map.
    - The ticket's description differs from `feature.md`, when a tool can reach the ticket: say so and
