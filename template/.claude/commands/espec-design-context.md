@@ -1,5 +1,5 @@
 ---
-description: "espec design context · Read the Figma frames linked from a feature and write the UI design section of feature.md from them, so the tech proposal works from the real design. Runs .github/prompts/espec-design-context.prompt.md (for GitHub Copilot CLI and Claude Code)."
+description: "espec design context · The design step of the feature definition, on its own: read the Figma frames linked from a feature and write the UI design section of feature.md from them, so the tech proposal works from the real design. Runs .github/prompts/espec-design-context.prompt.md (for GitHub Copilot CLI and Claude Code)."
 argument-hint: "<Change name, ticket key, or one or more Figma frame URLs>"
 disable-model-invocation: true
 ---

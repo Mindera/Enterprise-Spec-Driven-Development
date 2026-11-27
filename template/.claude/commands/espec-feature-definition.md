@@ -1,5 +1,5 @@
 ---
-description: "espec phase 1 · AI Assisted Feature Definition: write, import or review a feature definition (what and why, never how) and store it as feature.md. Runs .github/prompts/espec-feature-definition.prompt.md (for GitHub Copilot CLI and Claude Code)."
+description: "espec phase 1 · AI Assisted Feature Definition: write, import or review a feature definition (what and why, never how), read its Figma frames into the UI design section in the same run, and store it as feature.md. Runs .github/prompts/espec-feature-definition.prompt.md (for GitHub Copilot CLI and Claude Code)."
 argument-hint: "<Ticket key or URL, a pasted feature definition, or a one-line description of the feature>"
 disable-model-invocation: true
 ---

@@ -43,8 +43,9 @@
 
 <!-- One of three. Passed: "Security validation passed: <platforms>, <tool> <rubric version>, <date>".
      Skipped: "Security validation skipped: <reason>" (no access to the tool, not a mobile app, security.tool
-     is none). Findings: the alert line "⚠️ Security findings: fix before merge", one row per finding and a
-     link to security-report.md. -->
+     is none). Findings: the alert line, one row per finding and a link to security-report.md. The alert
+     is "⚠️ Security findings: fix before merge" while a finding sits in a file the change touches, and
+     "⚠️ Security findings: pre-existing, not from this change" when every finding left is pre-existing. -->
 
 ## Rollout
 

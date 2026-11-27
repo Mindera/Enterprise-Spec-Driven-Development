@@ -1,7 +1,7 @@
 # Microsoft 365 Copilot Agent · espec UI Design
 
 Create this agent once in Microsoft 365 Copilot (Copilot → Create agent → Configure) and share it
-with the design team. Designers use it to add the experience section, the experience-driven edge
+with the design team. Designers use it to add the UI design section, the experience-driven edge
 cases and their acceptance criteria to a feature definition, then paste the result into the ticket.
 
 | Field | Value |
@@ -13,7 +13,7 @@ cases and their acceptance criteria to a feature definition, then paste the resu
 
 ## Starter prompts
 
-- Add design notes to this feature definition
+- Add the UI design to this feature definition
 - Walk me through the states of each screen
 - Check this feature for accessibility gaps
 - Write the user-facing copy for this feature

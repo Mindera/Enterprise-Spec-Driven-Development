@@ -87,7 +87,7 @@ headings. Cite paths." Then correct it. A wrong `project.md` is worse than an em
 
 ```bash
 git checkout -b espec/init
-git add espec .github .diffcompass.json
+git add espec .github .claude .diffcompass.json .markdownlint-cli2.yaml
 git commit -m "Add espec"
 ```
 
@@ -124,10 +124,10 @@ Write the approvers' names in `espec/project.md` under Ticketing too, so the com
 ## Step 6: check the commands in Copilot Chat
 
 1. Pull `main` and restart the IDE.
-2. Open Copilot Chat, switch to **Agent** mode, and type `/espec-`. The nine commands appear:
+2. Open Copilot Chat, switch to **Agent** mode, and type `/espec-`. The ten commands appear:
    `/espec-feature-definition`, `/espec-tech-proposal`, `/espec-implementation`, `/espec-archive`,
    `/espec-archive-clean`, `/espec-inspect-feature-definition`, `/espec-assess`,
-   `/espec-inspect-tech-proposal`, `/espec-review`.
+   `/espec-inspect-tech-proposal`, `/espec-review`, `/espec-design-context`.
 3. If they do not appear, check that prompt files are enabled in your IDE's or Terminal's Copilot
    settings and that `.github/prompts/` is in the prompt file locations. The Copilot documentation
    for your IDE or Terminal covers prompt file support; the prompt files are plain Markdown and can be
@@ -153,7 +153,8 @@ one, `/espec-tech-proposal BILL-142` fetches it, and the inspect commands compar
 - **GitHub Issues:** the GitHub MCP server, or the `gh` CLI signed in on the machine. The prompts
   accept either.
 
-- **Figma** (for `/espec-design-context`): the Figma MCP server. The remote server needs a Figma
+- **Figma** (for the design step of `/espec-feature-definition`, which `/espec-design-context` also
+  runs on its own): the Figma MCP server. The remote server needs a Figma
   seat with Dev Mode access; the desktop app's local server is an alternative when the remote one is
   not allowed.
 
@@ -286,7 +287,7 @@ espec/bin/espec validate
 | `espec validate` fails on a fresh change | Template placeholders are still in `feature.md` | Expected. Fill the definition in, or keep the draft on a branch |
 | The coding agent implemented an issue directly | `copilot-instructions.md` was replaced, or the issue body lacks the marker | Restore the rule; use the issue template so the marker is the first line |
 | An MCP server does not start, or its tools never appear | Organisation policy blocks MCP servers, or the folder is not trusted | Ask an admin to allow the server; trust the workspace folder; restart the IDE |
-| `/espec-design-context` reads the whole file or the wrong screen | The Figma link has no `node-id` | Ask the designer for a link to the frame (right click, Copy link to selection) |
+| The design step reads the whole Figma file or the wrong screen | The Figma link has no `node-id` | Ask the designer for a link to the frame (right click, Copy link to selection) |
 | Figma calls fail or are rate limited | No Dev Mode seat, or a large page read in one call | Get a seat with Dev Mode, or use the desktop server; read one frame at a time |
 | A command cites old code in a spec hub | `repos/<name>` is stale | Run `espec/bin/espec repos` |
 | A search from the hub root finds no code | `repos/` is gitignored, so search tools skip it | Search with an explicit `repos/<name>/` path |

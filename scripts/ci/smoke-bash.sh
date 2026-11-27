@@ -78,6 +78,15 @@ sed 's/^| FT-1 | Overridden | .*/| FT-1 | **Accepted** | |/' "$TP.bak" > "$TP"
 ./espec/bin/espec validate >/dev/null
 mv "$TP.bak" "$TP"
 
+# pull-request.md needs every section once a change is implemented, Security validation included.
+PR=espec/changes/bill-142-invoice-csv-export/pull-request.md
+cp "$PR" "$PR.bak"
+grep -v '^## Security validation' "$PR.bak" > "$PR"
+if out=$(./espec/bin/espec validate); then echo "expected validate to fail without the Security validation section"; exit 1; fi
+printf '%s\n' "$out" | grep -F "pull-request.md: missing section(s): '## Security validation'" >/dev/null \
+  || { echo "expected the missing Security validation section to be named"; exit 1; }
+mv "$PR.bak" "$PR"
+
 # After the archive the main specs hold the delta's text, which counts as already applied.
 rm -rf espec/specs/*
 cp -R "$ROOT/examples/specs/." espec/specs/

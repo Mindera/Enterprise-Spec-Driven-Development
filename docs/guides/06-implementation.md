@@ -106,7 +106,8 @@ and is reported, not fixed; it is work for another change. What is left goes on 
 | Outcome | What `pull-request.md` says | Attached |
 |---|---|---|
 | No findings | "Security validation passed: android, msa 1.0.0, 2026-11-05" | Nothing |
-| Findings left | "⚠️ Security findings: fix before merge", the scorecard, one row per finding (row, weakness, `File:LINE`, standard, in this change or pre-existing) | `security-report.md` in the change folder, the tool's full report |
+| A finding left in a file the change touches | "⚠️ Security findings: fix before merge", the scorecard, one row per finding (row, weakness, `File:LINE`, standard, in this change or pre-existing) | `security-report.md` in the change folder, the tool's full report |
+| Only pre-existing findings left | "⚠️ Security findings: pre-existing, not from this change", the scorecard, one row per finding | `security-report.md` in the change folder |
 | Skipped | "Security validation skipped: <reason>" | Nothing |
 
 The report maps the app's weaknesses and its API, so commit it only in a repository private to the
@@ -161,8 +162,9 @@ test to run or a task that is not really done.
 - `pull-request.md` has no "see code" and no "self-explanatory". A reviewer could decide where to
   look first from the Behaviour delivered table alone.
 - The Verification section names commands and results, and the QA table names environments.
-- On a mobile app, Security validation says passed after a run on every platform, or carries the alert
-  with no finding left in a file the change touches. "Skipped" names the reason.
+- On a mobile app, Security validation says passed after a run on every platform, or carries the
+  "pre-existing, not from this change" alert, with no finding left in a file the change touches.
+  "Skipped" names the reason.
 - The coverage report says Delivered on every acceptance criterion and gives a reason for every
   proposal item that differs. A Partial at the end of the change is a finding for you, not a note.
 

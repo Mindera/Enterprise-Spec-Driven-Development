@@ -7,11 +7,51 @@ bumps to (see [AGENTS.md](AGENTS.md)). When a version is merged to `main`, the r
 To move a project to a version, check it out in the toolkit clone and run `espec update`:
 
 ```bash
-git -C ~/espec fetch --tags && git -C ~/espec checkout v1.0.23
+git -C ~/espec fetch --tags && git -C ~/espec checkout v1.0.24
 ~/espec/bin/espec update /path/to/your/repo
 ```
 
 Entries marked **Action** need something done in projects that update.
+
+## v1.0.24 (2026-11-27)
+
+One command for Product in GitHub Copilot, and consistency fixes:
+
+- `/espec:feature-definition` covers the definition and its UI design in one run. The interview asks
+  for the links to the Figma frames. With `feature.md` written, the command reads the frames, asks how
+  the design behaves, writes the **UI design** section and the `EC-n` and `AC-n` Product confirms, and
+  only then runs the readiness check. On an imported or existing definition it asks once whether to
+  read frames the section does not map yet. Without frames or a Figma MCP server it says so and
+  finishes the definition.
+- `/espec:design-context` stays as that design step on its own: for frames that arrive or change after
+  the definition, or after importing a ticket written in Rovo or M365 Copilot.
+  `/espec:feature-definition` no longer hands over to it.
+- The README, its diagram and GIF, the workflow, roles and tools, the commands page, the FAQ, the
+  setup guides, the feature definition guide and `AGENTS.md` show one command on the GitHub Copilot
+  stream.
+- `espec validate` requires the `## Security validation` section in `pull-request.md`, in the bash and
+  the PowerShell CLI. `AGENTS.md` already said the section is never empty; v1.0.14 had left it out of
+  the check so that older changes kept validating.
+- The security alert has two headlines. "⚠️ Security findings: fix before merge" is written only
+  while a finding remains in a file the change touches. When every finding left is pre-existing, the
+  alert reads "⚠️ Security findings: pre-existing, not from this change": those findings do not block
+  the pull request and get a change of their own.
+- The engineering setup guide commits `.claude/commands/` and `.markdownlint-cli2.yaml` with the rest
+  and lists all ten commands, the README tree shows the command wrappers, and the template
+  `copilot-instructions.md` names `/espec-design-context`.
+- The product pack's review prompt lists "file formats chosen for internal reasons" among the hows, as
+  the agents do. The last "Design Notes" names now say UI design: the paste prompt's title, the UI
+  Design agents' first conversation starter and the product pack README.
+- **Action:** run `espec update`. A change at `implemented` whose `pull-request.md` was written before
+  v1.0.14 has no `## Security validation` section and now fails `espec validate`: add the section with
+  one line, for example "Security validation skipped: written before the validation existed".
+- **Action:** a repository set up from the earlier guide may never have committed `.claude/commands/`.
+  Check with `git ls-files .claude/commands`; when it prints nothing, `git add .claude` and commit, so
+  GitHub Copilot CLI and Claude Code get the commands.
+- **Action (optional):** `copilot-instructions.md` is yours after init: copy the new command list from
+  [template/.github/copilot-instructions.md](template/.github/copilot-instructions.md). In Rovo and
+  M365 Copilot, the UI Design agent's first conversation starter is now "Add the UI design to this
+  feature definition"; the Instructions blocks did not change.
 
 ## v1.0.23 (2026-11-27)
 

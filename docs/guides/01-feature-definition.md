@@ -5,9 +5,9 @@ Product writes the **what** and the **why** of a feature with an AI agent that r
 
 | | |
 |---|---|
-| Command | `/espec:feature-definition`. In Rovo or M365 Copilot, the `espec Feature Definition` agent. In GitHub Copilot, `/espec-feature-definition`, then `/espec-design-context` for the UI design. |
+| Command | `/espec:feature-definition`. In Rovo or M365 Copilot, the `espec Feature Definition` agent. In GitHub Copilot, `/espec-feature-definition`, one command for the definition and its UI design. |
 | Who | The Product Manager. Then the Designer for the UI design section. A developer when the work has no product owner. |
-| Two ways to start | Without GitHub Copilot, the agents in Rovo or M365 Copilot. With GitHub Copilot, the commands in a local copy of the repository, never committed ([below](#in-github-copilot)). Both end on the ticket and join at [the inspection](02-inspect-feature-definition.md). |
+| Two ways to start | Without GitHub Copilot, the agents in Rovo or M365 Copilot. With GitHub Copilot, one command in a local copy of the repository, never committed ([below](#in-github-copilot)). Both end on the ticket and join at [the inspection](02-inspect-feature-definition.md). |
 | Input | An idea, a problem, a draft, or an existing ticket |
 | Output | The feature definition, pasted as the ticket description, status line **Ready for tech proposal** |
 | Time | Thirty to ninety minutes for a feature of normal size, in one or two sittings |
@@ -90,25 +90,33 @@ their sections. The PM re-reads the acceptance criteria: a new state is a new th
 
 ### In GitHub Copilot
 
-A Product Manager or Designer with GitHub Copilot runs the same steps as commands, in a local copy of
-the repository:
+A Product Manager or Designer with GitHub Copilot runs the same steps as one command, in a local copy
+of the repository:
 
 ```text
 /espec-feature-definition BILL-142
-/espec-design-context bill-142-invoice-csv-export
 ```
 
-1. `/espec-feature-definition` runs the same interview (Draft mode), or imports the ticket when it
-   already has a draft (Import mode). It writes `espec/changes/<change-name>/feature.md` locally.
-2. `/espec-design-context` reads the Figma frames linked from the definition, then interviews you, the
-   PM or the Designer, on what the frames cannot show: what each action does, what the user sees when
-   something is empty, slow or fails, and which use case or edge case each screen serves. It writes
-   the **UI design** section and proposes new `EC-n` and `AC-n` entries for behaviour the design shows
-   but the definition lacks. The PM confirms or rejects each one.
+1. It runs the same interview (Draft mode), or imports the ticket when it already has a draft (Import
+   mode), and writes `espec/changes/<change-name>/feature.md` locally. The interview also asks for the
+   links to the Figma frames.
+2. In the same run it reads the Figma frames, then interviews you, the PM or the Designer, on what the
+   frames cannot show: what each action does, what the user sees when something is empty, slow or
+   fails, and which use case or edge case each screen serves. It writes the **UI design** section and
+   proposes new `EC-n` and `AC-n` entries for behaviour the design shows but the definition lacks. The
+   PM confirms or rejects each one. Then it runs the readiness check on the whole document.
 3. Let Copilot write the ticket description when it asks (an Atlassian or GitHub MCP server must be
    connected), or paste the printed text yourself.
 4. Delete the local change folder. Do not commit it: the ticket is the hand-off, and engineering
    imports from it exactly as it does from the Rovo or M365 stream.
+
+When the frames are not ready yet, or no Figma MCP server is connected, the command says so and
+finishes the definition without them. Run the design step alone once the frames exist, before the
+ticket goes to engineering:
+
+```text
+/espec-design-context bill-142-invoice-csv-export
+```
 
 ### A developer starting in the repository
 

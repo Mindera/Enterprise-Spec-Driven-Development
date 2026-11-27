@@ -1,11 +1,13 @@
 ---
 agent: agent
-description: "espec phase 1 · AI Assisted Feature Definition: write, import or review a feature definition (what and why, never how) and store it as feature.md."
+description: "espec phase 1 · AI Assisted Feature Definition: write, import or review a feature definition (what and why, never how), read its Figma frames into the UI design section in the same run, and store it as feature.md."
 ---
 
 # /espec:feature-definition
 
 You are helping define a feature in **product language**: the what and the why. You never write the how.
+One command covers the definition and its design: when the feature has frames in Figma, you read them
+and fill the UI design section in the same run (**The design step**, below).
 Read [espec/AGENTS.md](../../espec/AGENTS.md), [espec/project.md](../../espec/project.md) and
 [espec/config.yaml](../../espec/config.yaml) before you start. Follow the **Feature definition format**
 and **The product boundary** sections exactly.
@@ -39,7 +41,9 @@ Skip questions whose answers are already in the input. Suggested order:
    Propose edge cases yourself and ask the user to confirm or reject each one.
 5. Out of scope. Propose nearby work that is probably excluded and ask.
 6. Constraints and success metrics.
-7. Open questions and who owns each.
+7. UI design. Whether the feature has screens, and the links to the Figma frames when the designs
+   exist. No screens: the section is marked "not needed" with the reason.
+8. Open questions and who owns each.
 
 Write the document after the interview, not during it, so the user reviews one coherent text.
 
@@ -57,6 +61,24 @@ Whenever the user (or the imported ticket) states a **how** as defined in AGENTS
 
 Never silently drop a forced note and never silently keep a how elsewhere in the document.
 
+## The design step
+
+When the feature has design frames in Figma, read them in this run instead of handing over to a second
+command.
+
+- **When it runs.** Draft: the interview asked for the frame links. Import and Review: when the
+  definition, the ticket or the input links Figma frames and the UI design section does not map them
+  to `UC-n` and `EC-n` yet, ask once whether to read them now.
+- **What it does.** With `feature.md` on disk, follow steps 2 to 6 of
+  [espec-design-context.prompt.md](espec-design-context.prompt.md) for this change: collect the frame
+  links, read each frame through the Figma MCP server, interview on how the design behaves, and write
+  the UI design section plus the `EC-n` and `AC-n` the person confirms. Leave the ticket alone there:
+  this command prints the final text and offers the ticket update once, under **Storing the result**.
+- **When it cannot run.** No frames yet, no Figma MCP server connected, or the person says later: say
+  which, and continue. The UI design section stays as the interview left it, or "not needed" with the
+  reason, and the review checklist judges it as it is. `/espec:design-context <change-name>` runs
+  this same step on its own once the frames exist.
+
 ## Review checklist
 
 Report each item as ✅ or ❌ with a one-line fix:
@@ -72,6 +94,8 @@ Report each item as ✅ or ❌ with a one-line fix:
 - No how outside `## Forced technical notes`.
 
 The definition is **Ready for tech proposal** only when every item passes. Set the status line accordingly.
+Run the checklist after the design step, not before: the UI design section and any new `EC-n` and
+`AC-n` change the result.
 
 ## Storing the result
 
@@ -79,6 +103,7 @@ The definition is **Ready for tech proposal** only when every item passes. Set t
    verb-first slug when there is no ticket yet). If `espec/changes/<change-name>/` exists, ask whether
    to update it or create a new one.
 2. Write `espec/changes/<change-name>/feature.md` with the full document, starting with the marker.
+   Then run the design step when it applies, and the review checklist on the result.
 3. Write `espec/changes/<change-name>/.espec.yaml` from `espec/templates/espec.yaml` with
    `status: defined` when the definition is ready, otherwise leave the status line in `feature.md` as
    `Draft` and still write the file.
@@ -89,9 +114,8 @@ The definition is **Ready for tech proposal** only when every item passes. Set t
    ticket without being asked.
 5. When the user is a Product Manager or a Designer (ask when it is not clear), the ticket is the
    hand-off, not the repository. Say that the change folder is their local working copy: they do not
-   commit it, and they delete it once the ticket holds the final text. When the definition links
-   Figma frames, suggest `/espec:design-context <change-name>` before the ticket is updated.
-   Engineering starts from the ticket with `/espec:inspect-feature-definition`.
+   commit it, and they delete it once the ticket holds the final text. Engineering starts from the
+   ticket with `/espec:inspect-feature-definition`.
 
 ## Guardrails
 

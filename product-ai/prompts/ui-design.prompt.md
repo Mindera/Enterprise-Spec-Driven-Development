@@ -1,4 +1,4 @@
-# Prompt · Design Notes
+# Prompt · UI Design
 
 For Designers. Paste the whole block into Rovo Chat or Microsoft 365 Copilot Chat, followed by the
 current feature definition from the ticket.

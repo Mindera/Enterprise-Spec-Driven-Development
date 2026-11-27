@@ -103,6 +103,16 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'expected validate to pass on an Accepted forced note' }
     [System.IO.File]::WriteAllText($tp, $approved)
 
+    # pull-request.md needs every section once a change is implemented, Security validation included.
+    $pr = Join-Path $Work 'espec/changes/bill-142-invoice-csv-export/pull-request.md'
+    $prText = [System.IO.File]::ReadAllText($pr)
+    [System.IO.File]::WriteAllText($pr, ($prText -replace '(?m)^## Security validation.*$', ''))
+    $global:LASTEXITCODE = 0
+    $out = (& $cli validate) -join "`n"
+    if ($LASTEXITCODE -eq 0) { throw 'expected validate to fail without the Security validation section' }
+    if (-not $out.Contains('## Security validation')) { throw "expected the missing Security validation section to be named:`n$out" }
+    [System.IO.File]::WriteAllText($pr, $prText)
+
     # After the archive the main specs hold the delta's text, which counts as already applied.
     Remove-Item -Recurse -Force (Join-Path $Work 'espec/specs/invoice-list'), (Join-Path $Work 'espec/specs/invoice-export') -ErrorAction SilentlyContinue
     Get-ChildItem -LiteralPath (Join-Path $Root 'examples/specs') -Directory | ForEach-Object {

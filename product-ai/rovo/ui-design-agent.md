@@ -1,7 +1,7 @@
 # Rovo Agent · espec UI Design
 
 Create this agent once in Atlassian Rovo and share it with the design team. Designers @-mention it in
-Rovo Chat, or in the Jira issue that holds the feature definition, to add the experience section,
+Rovo Chat, or in the Jira issue that holds the feature definition, to add the UI design section,
 the experience-driven edge cases and their acceptance criteria.
 
 | Field | Value |
@@ -13,7 +13,7 @@ the experience-driven edge cases and their acceptance criteria.
 
 ## Conversation starters
 
-- Add design notes to this feature definition
+- Add the UI design to this feature definition
 - Walk me through the states of each screen
 - Check this feature for accessibility gaps
 - Write the user-facing copy for this feature

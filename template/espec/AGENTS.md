@@ -11,8 +11,8 @@ Finished changes are folded into a living set of specs that describes the system
 Different roles may use different AI tools, so the hand-off between them is a **ticket** (Jira or
 GitHub Issue) written in a fixed format that any AI assistant can read and any human can review.
 Product starts in one of two ways: in Rovo or M365 Copilot with the product agents, or in GitHub
-Copilot with the commands below, in a local copy of the repository that Product never commits. Both
-end with the definition on the ticket, and engineering starts from the ticket either way.
+Copilot with `/espec:feature-definition`, in a local copy of the repository that Product never
+commits. Both end with the definition on the ticket, and engineering starts from the ticket either way.
 
 ## Phases and commands
 
@@ -35,10 +35,13 @@ comment for the ticket.
 `/espec:review` starts the code review of an implemented change: it checks `pull-request.md` and
 launches the DiffCompass tour of the pull request or branch. It writes nothing either.
 
-`/espec:design-context` reads the design frames linked from a feature (through a Figma MCP server),
-interviews Product or Design on how the design behaves and which use cases and edge cases each screen
-serves, and writes the **UI design** section of `feature.md`, before the tech proposal. It adds only
-the edge cases and acceptance criteria Product confirms, and writes nothing else.
+In GitHub Copilot, `/espec:feature-definition` covers the definition and its design in one run. When
+the feature links design frames, it reads them through a Figma MCP server, interviews Product or
+Design on how the design behaves and which use cases and edge cases each screen serves, and writes the
+**UI design** section of `feature.md`, adding only the edge cases and acceptance criteria Product
+confirms. `/espec:design-context` is that design step on its own: for frames that arrive or change
+after the definition, or after a ticket written in Rovo or M365 Copilot is imported. It writes nothing
+else.
 
 GitHub Copilot prompt files cannot contain `:` in their name, so in Copilot Chat the commands are typed
 with a dash: `/espec-feature-definition`, `/espec-tech-proposal`, `/espec-implementation`,
@@ -161,9 +164,10 @@ line:
 
 ## UI design
 <!-- Filled by the Designer: flows, screens and states (empty, loading, error, success), content and tone,
-     accessibility needs, links to design files. Still what, not how. /espec:design-context fills it
-     from Figma frame links: screens and states mapped to UC-n and EC-n, interactions, copy verbatim,
-     accessibility. The tech proposal may read the linked frames for components and tokens. -->
+     accessibility needs, links to design files. Still what, not how. The design step of
+     /espec:feature-definition (alone: /espec:design-context) fills it from Figma frame links: screens
+     and states mapped to UC-n and EC-n, interactions, copy verbatim, accessibility. The tech proposal
+     may read the linked frames for components and tokens. -->
 
 ## Constraints
 <!-- Business, legal, compliance, brand, timing, markets, devices. Outcomes, not mechanisms. -->
@@ -431,9 +435,11 @@ Rules:
   entry point a reviewer opens first. "Verified by" names a test and the `Q.n` task.
 - **Deviations and deferred work** lists unchecked tasks with reasons and scope surfaced during
   implementation. "None" is a valid value and must be written.
-- **Security validation** is one of three lines: passed, skipped with the reason, or the alert
-  "⚠️ Security findings: fix before merge" followed by one row per finding and a link to
-  `security-report.md` in the change folder. See **Security validation** below.
+- **Security validation** is one of three lines: passed, skipped with the reason, or an alert
+  followed by one row per finding and a link to `security-report.md` in the change folder. The alert
+  reads "⚠️ Security findings: fix before merge" while a finding sits in a file the change touches,
+  and "⚠️ Security findings: pre-existing, not from this change" when none does. See
+  **Security validation** below.
 - **Rollout** describes what was implemented, not what was proposed.
 - Never write "see code" or "self-explanatory". Every claim points to a file, a test or a result.
 - The `## Release note` section is reused by `/espec:archive` as the ticket comment.
@@ -464,9 +470,12 @@ repository with no mobile platform. `security.platforms` names the platforms; em
 - A finding in a file the change did not touch is pre-existing. It is not fixed in this change; it is
   reported.
 - Findings left: the tool's `report.md` is saved as `security-report.md` in the change folder and the
-  **Security validation** section of `pull-request.md` carries the alert
-  "⚠️ Security findings: fix before merge", the scorecard, one row per finding and the link. The
-  reviewer treats a finding in a touched file as a change request.
+  **Security validation** section of `pull-request.md` carries an alert, the scorecard, one row per
+  finding and the link. While a finding remains in a file the change touches, the alert reads
+  "⚠️ Security findings: fix before merge" and the reviewer treats that finding as a change request.
+  When every finding left is pre-existing, it reads
+  "⚠️ Security findings: pre-existing, not from this change": they do not block this pull request and
+  get a change of their own.
 - No findings: the section says "Security validation passed", with the platforms, the tool's rubric
   version and the date. Nothing is attached.
 - Skipped: the section says so and why. A run that did not happen never reads as passed.
