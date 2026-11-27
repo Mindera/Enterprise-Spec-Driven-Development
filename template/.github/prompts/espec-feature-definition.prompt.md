@@ -87,6 +87,11 @@ The definition is **Ready for tech proposal** only when every item passes. Set t
    header line: Jira drops the marker and holds the rest in fields. When the ticket system is reachable
    through a tool and the user asks, update the ticket description with the same text. Never update a
    ticket without being asked.
+5. When the user is a Product Manager or a Designer (ask when it is not clear), the ticket is the
+   hand-off, not the repository. Say that the change folder is their local working copy: they do not
+   commit it, and they delete it once the ticket holds the final text. When the definition links
+   Figma frames, suggest `/espec:design-context <change-name>` before the ticket is updated.
+   Engineering starts from the ticket with `/espec:inspect-feature-definition`.
 
 ## Guardrails
 

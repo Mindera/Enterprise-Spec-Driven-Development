@@ -27,7 +27,7 @@ Only phase 1 runs in Rovo and M365 Copilot. Phases 2 to 4 need the repository an
 
 | Command | Phase | Who | Input | Writes |
 |---|---|---|---|---|
-| `/espec:feature-definition` | 1 | PM, Designer. A developer in-repo. | Idea, ticket key, URL or pasted definition | Ticket description. In-repo also `feature.md` and `.espec.yaml` |
+| `/espec:feature-definition` | 1 | PM, Designer, in Rovo, M365 Copilot or GitHub Copilot. A developer in-repo. | Idea, ticket key, URL or pasted definition | Ticket description. In-repo also `feature.md` and `.espec.yaml` |
 | `/espec:tech-proposal` | 2 | Developer, QA | Ticket key, URL, change name or pasted definition | `tech-proposal.md`, `specs/`, `tasks.md`, `.espec.yaml` |
 | `/espec:implementation` | 3 | Developer, QA | Change name | Code, tests, `tasks.md`, `pull-request.md`, `.espec.yaml` |
 | `/espec:archive` | 4 | Developer | Change name | `espec/specs/`, the archived folder, a release note |
@@ -36,7 +36,7 @@ Only phase 1 runs in Rovo and M365 Copilot. Phases 2 to 4 need the repository an
 | `/espec:assess` | before 2 | Developer, with Product, Design, QA and the owning teams | Ticket key, URL, pasted definition or change name | Nothing. A report and a ticket comment in the chat |
 | `/espec:inspect-tech-proposal` | before 3 | QA, Engineering Manager, Architect | Change name | Nothing. A report and a ticket comment in the chat |
 | `/espec:review` | after 3 | Reviewer | Pull request number or URL, branch or change name. In a spec hub: code pull request URL and change name | Nothing. Launches the DiffCompass tour |
-| `/espec:design-context` | 1, before 2 | Developer or Designer | Change name, ticket key or Figma frame URLs | The **UI design** and **Open questions** sections of `feature.md`. The ticket only on yes |
+| `/espec:design-context` | 1, before 2 | PM, Designer or developer | Change name, ticket key or Figma frame URLs | The **UI design** and **Open questions** sections of `feature.md`. The ticket only on yes |
 
 Every command ends with a usage line, such as `Usage: 3 premium requests (GitHub Copilot)`, so
 developers see what each run cost. When the tool does not show usage to the agent, the line says so
@@ -62,7 +62,7 @@ and the worked examples in [examples/coverage/](../examples/coverage/).
 | GitHub Copilot | `/espec-feature-definition <source>` |
 | Prompt file | [template/.github/prompts/espec-feature-definition.prompt.md](../template/.github/prompts/espec-feature-definition.prompt.md) |
 | Product tools | [product-ai/rovo/feature-definition-agent.md](../product-ai/rovo/feature-definition-agent.md), [product-ai/m365-copilot/feature-definition-agent.md](../product-ai/m365-copilot/feature-definition-agent.md), [product-ai/prompts/feature-definition.prompt.md](../product-ai/prompts/feature-definition.prompt.md) |
-| Who runs it | Product Manager. Designer for the UI design section, with the UI design agent. A developer when the work has no product owner. |
+| Who runs it | Product Manager: as an agent in Rovo or M365 Copilot, or as this command in GitHub Copilot, in a local copy that Product never commits. Designer for the UI design section, with the UI design agent or `/espec:design-context`. A developer when the work has no product owner. |
 | Input | One of: a one-line idea (Draft mode), a ticket key, URL or pasted definition (Import mode), an existing `feature.md` (Review mode). The AI says which mode it picked. |
 | Reads | In-repo: `espec/AGENTS.md`, `project.md`, `config.yaml`. The ticket, when a tool can reach it. |
 | Writes | The feature definition, printed as one Markdown block to paste into the ticket. In-repo: `espec/changes/<change-name>/feature.md` and `.espec.yaml` with `status: defined` when the definition is ready. |
@@ -206,12 +206,12 @@ tour from `repos/<name>` and prints a brief to paste into the tour's Ask panel.
 |---|---|
 | GitHub Copilot | `/espec-design-context <source>` |
 | Prompt file | [template/.github/prompts/espec-design-context.prompt.md](../template/.github/prompts/espec-design-context.prompt.md) |
-| Who runs it | A developer after importing the ticket, or a Designer working in the repository. |
+| Who runs it | A Product Manager or Designer with GitHub Copilot, on their local change folder, or a developer after importing the ticket. |
 | Input | A change name, a ticket key, or Figma frame URLs. The change folder must exist: import the ticket with `/espec:feature-definition` first. |
 | Needs | A Figma MCP server (`get_metadata`, `get_design_context`, `get_screenshot`). See [setup step 7](guides/setup-engineering.md#step-7-let-copilot-reach-the-ticket-system-optional-recommended). |
 | Reads | `AGENTS.md`, `project.md`, `config.yaml`, `feature.md`, the ticket's description, links and comments, and every linked frame. |
 | Writes | The **UI design** section of `feature.md`: screens and states mapped to `UC-n` and `EC-n`, interactions, copy verbatim, differences per platform, accessibility. Gaps go to **Open questions** with Design as owner. Shows the diff and asks before writing. Updates the ticket only on yes, so the ticket and `feature.md` stay identical. |
-| Pauses when | A Figma link has no `node-id`. The design shows behaviour the definition does not describe: listed as a question for Product. Before writing and before touching the ticket: always asks. |
+| Pauses when | A Figma link has no `node-id`. The interview: in rounds of at most four questions, it asks how each screen behaves (actions, empty, slow, failed and offline states) and which `UC-n` and `EC-n` it serves. The design shows behaviour the definition does not describe: it proposes a new `EC-n` and `AC-n`, added only when Product confirms, otherwise listed as a question for Product. Before writing and before touching the ticket: always asks. |
 
 It writes what people see and do, not component names, code or tokens. The tech proposal reads the
 linked frames for those.

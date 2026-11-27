@@ -16,13 +16,13 @@ for the role matrix. The guides are the walkthroughs. When a guide and
 |---|---|---|
 | [Engineering setup](setup-engineering.md) | A developer with write access to the repository | `espec/` and `.github/` in the repository, the Copilot commands available to the team, validation in CI |
 | [Spec hub setup](setup-spec-hub.md) | A developer, when the code spans several repositories that cannot hold the specs. Optional | A spec repository with the code repositories cloned under `repos/`, one change folder per ticket for all of them |
-| [Product setup](setup-product.md) | A Rovo or Microsoft 365 Copilot admin, then the product team | The two agents shared with product and design, the ticket template in Jira or GitHub |
+| [Product setup](setup-product.md) | A Rovo or Microsoft 365 Copilot admin, then the product team. Product people with GitHub Copilot only need the ticket template and a clone | The two agents shared with product and design (or the commands in GitHub Copilot), the ticket template in Jira or GitHub |
 
 ## Steps, once per feature
 
 | # | Guide | Command | Who runs it | Ends with |
 |---|---|---|---|---|
-| 1 | [Feature definition](01-feature-definition.md) | `/espec:feature-definition`, an agent in Rovo or M365 Copilot | Product Manager, then Designer | A ticket whose description is marked Ready for tech proposal |
+| 1 | [Feature definition](01-feature-definition.md) | `/espec:feature-definition`: an agent in Rovo or M365 Copilot, or the command in GitHub Copilot | Product Manager, then Designer | A ticket whose description is marked Ready for tech proposal |
 | 2 | [Inspect the feature definition](02-inspect-feature-definition.md) | `/espec:inspect-feature-definition` | Developer or QA | A verdict and a comment on the ticket |
 | 3 | [Technical assessment](03-technical-assessment.md) | `/espec:assess` | Developer, then the team in refinement | An assessment comment on the ticket: Ready for tech proposal or Further discovery required |
 | 4 | [Tech proposal](04-tech-proposal.md) | `/espec:tech-proposal` | Developer, QA for the test strategy | `tech-proposal.md`, delta specs and `tasks.md` in a pull request |

@@ -7,11 +7,33 @@ bumps to (see [AGENTS.md](AGENTS.md)). When a version is merged to `main`, the r
 To move a project to a version, check it out in the toolkit clone and run `espec update`:
 
 ```bash
-git -C ~/espec fetch --tags && git -C ~/espec checkout v1.0.22
+git -C ~/espec fetch --tags && git -C ~/espec checkout v1.0.23
 ~/espec/bin/espec update /path/to/your/repo
 ```
 
 Entries marked **Action** need something done in projects that update.
+
+## v1.0.23 (2026-11-27)
+
+Product can start in GitHub Copilot:
+
+- Phase 1 has two ways to start. Product Managers and Designers without GitHub Copilot keep the Rovo
+  and M365 Copilot agents. Those with GitHub Copilot run `/espec-feature-definition` and
+  `/espec-design-context` in a local copy of the repository and commit nothing: the ticket stays the
+  hand-off. Both streams join when a developer runs the readiness check
+  (`/espec:inspect-feature-definition`) on the ticket; engineering is unchanged from there.
+- `/espec:design-context` interviews whoever runs it, Product or Design, after reading the Figma
+  frames: what each action does, what the user sees when something is empty, slow or fails, and which
+  use case or edge case each screen serves. Behaviour the design shows but the definition lacks becomes
+  a proposed `EC-n` and `AC-n`, added only when Product confirms; otherwise it stays an open question.
+- `/espec:feature-definition` tells a Product Manager or Designer that the change folder is a local
+  working copy, not to be committed, and suggests `/espec:design-context` when the definition links
+  Figma frames.
+- The README diagram, the workflow, roles and tools, the product setup, the feature definition guide,
+  the commands page, the FAQ and `AGENTS.md` describe both streams. The README GIF shows the two
+  Product lanes joining at the readiness check.
+- **Action:** run `espec update` to get the new prompts. Product teams with GitHub Copilot follow
+  [GitHub Copilot for Product Managers and Designers](docs/roles-and-tools.md#github-copilot-product-managers-designers).
 
 ## v1.0.22 (2026-11-09)
 

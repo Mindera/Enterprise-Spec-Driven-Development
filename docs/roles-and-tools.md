@@ -1,7 +1,8 @@
 # Roles and tools
 
-espec assumes that product and engineering have different AI tools, and designs the hand-off around
-that. This page says what each role does in each phase, which tool they use, what they never do, and
+espec assumes that product and engineering may have different AI tools, and designs the hand-off
+around that. Product Managers and Designers work in Rovo or M365 Copilot, or in GitHub Copilot when
+they have it; either way the hand-off is the ticket. This page says what each role does in each phase, which tool they use, what they never do, and
 how to set each tool up. The underlying rules are in
 [template/espec/AGENTS.md](../template/espec/AGENTS.md).
 
@@ -13,13 +14,14 @@ how to set each tool up. The underlying rules are in
 | 2 Tech proposal | Answers Questions for Product | Answers UI design questions | Writes | Writes the test strategy | Reviews and approves |
 | 3 Implementation | Available for questions | Reviews built screens | Implements, checks tasks | Runs QA verification | Decides on design pauses |
 | 4 Archive | Reads the release note, closes the ticket | | Runs archive and archive-clean | Confirms the note matches what was verified | Confirms clean verdicts |
-| Tool | Rovo or M365 Copilot | Rovo or M365 Copilot | GitHub Copilot, AI Mobile Security Assessment | GitHub Copilot | GitHub Copilot, the PR review, DiffCompass |
+| Tool | Rovo, M365 Copilot or GitHub Copilot | Rovo, M365 Copilot or GitHub Copilot | GitHub Copilot, AI Mobile Security Assessment | GitHub Copilot | GitHub Copilot, the PR review, DiffCompass |
 
 ## Product Manager
 
 | Phase | Does | Tool |
 |---|---|---|
 | 1 | Describes the problem to the feature definition agent. Answers the interview in short rounds. Confirms or rejects the proposed edge cases. Lists what is out of scope. Sets the status to Ready for tech proposal and pastes the document as the ticket description. | Rovo Agent or M365 Copilot agent from [product-ai/](../product-ai/README.md) |
+| 1, with GitHub Copilot | The same interview with `/espec-feature-definition` in a local copy of the repository. Runs `/espec-design-context` with the Designer when the frames are in Figma and answers its questions on behaviour. Writes the ticket description on a yes, or pastes it. Commits nothing and deletes the local change folder once the ticket holds the final text. | `/espec-feature-definition`, `/espec-design-context`, an Atlassian or GitHub MCP server for the ticket |
 | 2 | Answers the Questions for Product that engineering posts as a ticket comment. Updates the ticket description when an answer changes the definition. | The ticket. The review prompt in [product-ai/prompts/review-feature-definition.prompt.md](../product-ai/prompts/review-feature-definition.prompt.md) to check the result |
 | 3 | Stays reachable. A scope question during implementation comes back as a ticket comment. | The ticket |
 | 4 | Reads the release note comment. Closes the ticket. | The ticket |
@@ -28,7 +30,8 @@ Never:
 
 - Writes how. No endpoints, tables, services, libraries or architecture. A how the PM insists on
   goes under `## Forced technical notes` as `FT-n`, where engineering reviews it.
-- Edits files in the repository. The ticket is the product's copy.
+- Commits to the repository. The ticket is the product's copy, also when Product works in GitHub
+  Copilot.
 - Approves the tech proposal. Product answers the questions; engineering approves the how.
 - Changes scope mid-implementation without updating the ticket description. Engineering re-imports
   from the ticket, so a silent change is lost.
@@ -38,7 +41,8 @@ Never:
 | Phase | Does | Tool |
 |---|---|---|
 | 1 | Fills the **UI design** section: flows, screens, the empty / loading / error / success states, content and tone, accessibility needs, links to design files. Proposes edge cases that come from the UI (what the user sees when something fails). | The UI design agent: [product-ai/rovo/ui-design-agent.md](../product-ai/rovo/ui-design-agent.md) or [product-ai/m365-copilot/ui-design-agent.md](../product-ai/m365-copilot/ui-design-agent.md), or the prompt in [product-ai/prompts/ui-design.prompt.md](../product-ai/prompts/ui-design.prompt.md) |
-| 1 | When the frames are in Figma, a developer (or the Designer, in the repository) runs `/espec:design-context` to write the UI design section from the linked frames. Answers the questions it lists. | GitHub Copilot with the Figma MCP server |
+| 1, with GitHub Copilot | Runs `/espec-design-context` on the local change folder: it reads the Figma frames, then interviews the Designer or the PM on how each screen behaves and which use cases and edge cases it serves. Confirms the edge cases it proposes with the PM. Commits nothing; the PM writes the result to the ticket. | GitHub Copilot with the Figma MCP server |
+| 1, engineering side | When the frames are in Figma and the definition came from Rovo or M365, a developer runs `/espec-design-context` after the import. Answers the questions it lists. | The ticket |
 | 2 | Answers UI design questions from the tech proposal. | The ticket |
 | 3 | Reviews the built screens against the states listed in phase 1. A `Q.n` task can name this review. | The ticket, the staging environment |
 | 4 | Nothing. | |
@@ -134,6 +138,21 @@ Never:
 The result is pasted into the ticket. For GitHub Issues, use the issue template that ships with the
 repository, or the body in
 [product-ai/ticket-templates/github-issue-feature-definition.md](../product-ai/ticket-templates/github-issue-feature-definition.md).
+
+### GitHub Copilot (Product Managers, Designers)
+
+For product people who have a GitHub Copilot seat and read access to the repository. They need no
+agents in Rovo or M365.
+
+1. Clone the repository that already has espec (an engineer ran `espec init`) and open it in an IDE
+   with Copilot Chat, or in GitHub Copilot CLI. Type `/espec-` to see the commands.
+2. Connect the Figma MCP server for `/espec-design-context`, and the Atlassian or GitHub MCP server so
+   Copilot can read the ticket and write its description on a yes. The settings are in
+   [engineering setup, step 7](guides/setup-engineering.md#step-7-let-copilot-reach-the-ticket-system-optional-recommended).
+   Without a ticket server, paste the description by hand.
+3. Run `/espec-feature-definition` and `/espec-design-context`. The change folder they write is a
+   local working copy: do not commit it, and delete it once the ticket holds the final text.
+   Engineering starts from the ticket with `/espec-inspect-feature-definition`.
 
 ### GitHub Copilot (Developers, QA, reviewers)
 

@@ -8,14 +8,17 @@ Read this file before creating, editing, archiving or cleaning anything under `e
 Product defines **what** and **why**. Engineering defines **how**. Code follows the specs.
 Finished changes are folded into a living set of specs that describes the system as it is today.
 
-Different roles use different AI tools, so the hand-off between them is a **ticket** (Jira or GitHub Issue)
-written in a fixed format that any AI assistant can read and any human can review.
+Different roles may use different AI tools, so the hand-off between them is a **ticket** (Jira or
+GitHub Issue) written in a fixed format that any AI assistant can read and any human can review.
+Product starts in one of two ways: in Rovo or M365 Copilot with the product agents, or in GitHub
+Copilot with the commands below, in a local copy of the repository that Product never commits. Both
+end with the definition on the ticket, and engineering starts from the ticket either way.
 
 ## Phases and commands
 
 | # | Phase | Command | Who | Tool | Produces |
 |---|-------|---------|-----|------|----------|
-| 1 | AI Assisted Feature Definition | `/espec:feature-definition` | Product Managers, Designers | Rovo, M365 Copilot (or GitHub Copilot in-repo) | A ticket holding `feature.md` |
+| 1 | AI Assisted Feature Definition | `/espec:feature-definition` | Product Managers, Designers | Rovo, M365 Copilot or GitHub Copilot | A ticket holding `feature.md` |
 | 2 | Tech Proposal | `/espec:tech-proposal` | Developers, QA | GitHub Copilot | `tech-proposal.md`, `specs/`, `tasks.md` |
 | 3 | Implementation | `/espec:implementation` | Developers, QA | GitHub Copilot | Code and tests, tasks checked off, `pull-request.md` |
 | 4 | Archive | `/espec:archive`, `/espec:archive-clean` | Developers | GitHub Copilot | Main specs updated, change archived |
@@ -32,9 +35,10 @@ comment for the ticket.
 `/espec:review` starts the code review of an implemented change: it checks `pull-request.md` and
 launches the DiffCompass tour of the pull request or branch. It writes nothing either.
 
-`/espec:design-context` reads the design frames linked from a feature (through a Figma MCP server)
-and writes the **UI design** section of `feature.md`, after the import and before the tech proposal.
-It writes nothing else.
+`/espec:design-context` reads the design frames linked from a feature (through a Figma MCP server),
+interviews Product or Design on how the design behaves and which use cases and edge cases each screen
+serves, and writes the **UI design** section of `feature.md`, before the tech proposal. It adds only
+the edge cases and acceptance criteria Product confirms, and writes nothing else.
 
 GitHub Copilot prompt files cannot contain `:` in their name, so in Copilot Chat the commands are typed
 with a dash: `/espec-feature-definition`, `/espec-tech-proposal`, `/espec-implementation`,

@@ -1,14 +1,16 @@
 ---
 agent: agent
-description: "espec design context · Read the Figma frames linked from a feature and write the UI design section of feature.md from them, so the tech proposal works from the real design."
+description: "espec design context · Read the Figma frames linked from a feature, check with Product or Design how the design works, and write the UI design section of feature.md from them, so the tech proposal works from the real design."
 ---
 
 # /espec:design-context
 
 You turn the design files linked from a feature into the **UI design** section of its `feature.md`:
 screens, states, interactions, copy and accessibility, each tied to the use cases and edge cases it
-shows. You write only that section and, when asked, the same section on the ticket. You never write
-code and never touch the other sections, the tech proposal, specs or tasks.
+shows. Then you interview the person running the command (a Product Manager, a Designer or a
+developer) to confirm how the design behaves and how it connects to the functionality. You write only
+that section, new edge cases and acceptance criteria the person confirms, and, when asked, the same
+text on the ticket. You never write code and never touch the tech proposal, specs or tasks.
 
 Read [espec/AGENTS.md](../../espec/AGENTS.md), [espec/project.md](../../espec/project.md) and
 [espec/config.yaml](../../espec/config.yaml) first. Follow **The product boundary** and the
@@ -32,9 +34,10 @@ When the Figma server is not connected, say so, point to the engineering setup g
    - A change name under `espec/changes/`: use it.
    - A ticket key: find the change whose `.espec.yaml` has that ticket.
    - Figma URLs only: ask which change they belong to.
-   - No change folder yet: stop and tell the user to import the ticket with
-     `/espec:feature-definition <KEY>` first. The section maps frames to the `UC-n` and `EC-n` ids
-     of `feature.md`, so it cannot be written before them.
+   - No change folder yet: stop. A developer imports the ticket with
+     `/espec:feature-definition <KEY>`; Product drafts or imports with the same command, in a local
+     copy that is never committed. The section maps frames to the `UC-n` and `EC-n` ids of
+     `feature.md`, so it cannot be written before them.
    Announce "Using change: <name>". Read `feature.md` from disk.
 
 2. **Collect the frame links.** From the current **UI design** section, the ticket description,
@@ -45,8 +48,21 @@ When the Figma server is not connected, say so, point to the engineering setup g
    `get_design_context` per screen, not per page, to stay within the server's limits. Use
    `get_screenshot` when the structure is ambiguous.
 
-4. **Draft the section.** Keep what the designer already wrote unless a frame contradicts it; then
-   show both and ask. Use this shape:
+4. **Interview.** The frames show what the screens look like, not always how they behave. Ask the
+   person, in short rounds of at most four questions, one screen at a time:
+   - What each action does and where it leads, including back, cancel and retry.
+   - What the user sees when the data is empty, slow, invalid, fails or the device is offline, when
+     no frame shows it.
+   - Which `UC-n` and `EC-n` the screen serves. Propose the mapping; ask only where it is unclear.
+   - Behaviour the frames show that the definition does not describe, and definition behaviour no
+     frame shows.
+   For each behaviour the definition lacks, propose an `EC-n` and an `AC-n`, numbered after the
+   highest existing ones, and ask Product to confirm, change or reject it. Rejected or unanswered, it
+   becomes an open question for Product. Skip the questions the frames and the definition already
+   answer. Stop when every screen and state is mapped.
+
+5. **Draft the section.** Keep what the designer already wrote unless a frame or an answer
+   contradicts it; then show both and ask. Use this shape:
 
    ```markdown
    ## UI design
@@ -71,20 +87,21 @@ When the Figma server is not connected, say so, point to the engineering setup g
      token values: they are how, and the tech proposal reads them from the linked frames.
    - Replace personal data shown in mock content with placeholders.
 
-5. **Write and sync.** Show the new section as a diff against the current one and ask before
-   writing. Then write it into `feature.md`, leaving every other section as it was. The ticket and
-   `feature.md` must stay identical: offer to update the UI design section of the ticket description
-   and, only on yes, update it. On no, say the two now differ and print the section to paste.
+6. **Write and sync.** Show the new section and the confirmed `EC-n` and `AC-n` as a diff and ask
+   before writing. Then write them into `feature.md`, leaving everything else as it was. The ticket
+   and `feature.md` must stay identical: offer to update the ticket description and, only on yes,
+   update it. On no, say the two now differ and print the text to paste.
 
-6. **Report.** List the screens and states captured, the gaps, and a comment ready to paste on the
-   ticket with the questions for Design. Ask before posting anything. Suggest the next step:
-   `/espec:assess <change-name>` or `/espec:tech-proposal <change-name>`.
+7. **Report.** List the screens and states captured, the entries added, the gaps, and a comment
+   ready to paste on the ticket with the questions for Design and Product. Ask before posting
+   anything. Suggest the next step: for Product, update the ticket and hand it to engineering, who
+   start with `/espec:inspect-feature-definition`; for a developer, `/espec:assess <change-name>`.
 
 ## Guardrails
 
-- Write only the **UI design** and **Open questions** sections of `feature.md`. Never change ids,
-  use cases, edge cases or acceptance criteria; when the design shows behaviour the definition does
-  not describe, list it as a question for Product instead.
+- Write only the **UI design** and **Open questions** sections of `feature.md`, plus the `EC-n` and
+  `AC-n` entries Product confirmed in the interview. Never renumber or change existing ids, use cases,
+  edge cases or acceptance criteria.
 - Never post to or edit the ticket without a yes.
 - End the reply with the usage line from the **Usage report** section of AGENTS.md, when
   `usage.report` in config.yaml asks for it.
