@@ -185,6 +185,15 @@ See the worked example
 
 Open the pull request with `pull-request.md` as its body and go to [code review](07-code-review.md).
 
+The command also prints an **acceptance request** for the ticket: where to try the change and, one
+row per acceptance criterion, what product should see and the QA line that verified it, then the
+deviations and the deferred work. Post it once product can use the behaviour: before the merge when
+you have a preview, staging or a flag, right after it otherwise. Product replies "Accepted", or says
+which criterion is not as defined. Code that does not do what `feature.md` says means the change is
+not done. Something product now wants that `feature.md` does not say is new scope: a proposal update
+or a ticket of its own, never a quiet extra commit. [The archive](08-archive.md) waits for the
+acceptance. An example: [examples/acceptance-request.md](../../examples/acceptance-request.md).
+
 ## Common problems
 
 | Symptom | Cause | Fix |

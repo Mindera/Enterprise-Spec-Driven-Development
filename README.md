@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="./VERSION"><img alt="Version: v1.0.27" src="https://img.shields.io/badge/version-v1.0.27-orange.svg?style=flat-square"></a>
+  <a href="./VERSION"><img alt="Version: v1.0.28" src="https://img.shields.io/badge/version-v1.0.28-orange.svg?style=flat-square"></a>
   <a href="./LICENSE.md"><img alt="License: Sustainable Use 1.0" src="https://img.shields.io/badge/License-Sustainable%20Use%201.0-blue.svg?style=flat-square"></a>
   <img alt="GitHub Copilot" src="https://img.shields.io/badge/Developers-GitHub%20Copilot-24292f?style=flat-square">
   <img alt="Rovo" src="https://img.shields.io/badge/Product-Rovo-0052cc?style=flat-square">
@@ -161,9 +161,11 @@ and puts the rest on the pull request as an alert. The reviewer then runs `/espe
 the diff with [DiffCompass](https://github.com/Mindera/diffcompass): it reads the change folder and
 flags code that drifts from the proposal.
 
-**Phase 4** folds the change into the main specs. `archive-clean` goes further: it searches the specs
-for anything the code no longer does, proposes keep, update or purge with evidence, and applies what
-you confirm.
+**Phase 4** folds the change into the main specs. It closes the loop with product first: phase 3
+ends with an acceptance request on the ticket, the archive waits for product's "Accepted", and every
+success metric in the definition gets a date on which someone reads the number. `archive-clean` goes
+further: it searches the specs for anything the code no longer does, proposes keep, update or purge
+with evidence, applies what you confirm, and lists the changes whose metrics are due for review.
 
 Three read-only commands sit between the phases. `/espec:inspect-feature-definition` checks a ticket
 for missing information before engineering starts: hows outside the forced notes, use cases and edge
@@ -291,7 +293,7 @@ Your repo also gets its own copy of the validator in `espec/bin` and a GitHub Ac
 runs it on every pull request, so format rules are checked without any dependency
 on this toolkit. Then name your tech proposal approvers in CODEOWNERS
 ([engineering setup, step 5](docs/guides/setup-engineering.md#step-5-protect-approval-and-the-main-specs)).
-To pin a version, check out its tag (`git -C ~/espec checkout v1.0.27`) before `init` or `update`.
+To pin a version, check out its tag (`git -C ~/espec checkout v1.0.28`) before `init` or `update`.
 
 ### Product and design
 
@@ -379,7 +381,7 @@ Questions, bugs and ideas go to [GitHub Issues](https://github.com/Mindera/Enter
 Pull requests are welcome. Keep the README simple and the prompts shorter than the documents they
 produce.
 
-The current version is **v1.0.27**, kept in [`VERSION`](VERSION). Every change bumps the last number
+The current version is **v1.0.28**, kept in [`VERSION`](VERSION). Every change bumps the last number
 (`vX.Y.Z` → `vX.Y.Z+1`) and adds an entry to the [changelog](CHANGELOG.md); every version merged to
 `main` is tagged and released. See [`AGENTS.md`](AGENTS.md) for the rules every contributor and every
 AI assistant follows.

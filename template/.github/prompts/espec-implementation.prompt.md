@@ -130,7 +130,13 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
 12. **On completion**, set `status: implemented` in `.espec.yaml` and report: tasks completed this
    session, overall progress, anything deferred with the reason, the security validation outcome
    (passed, skipped with the reason, or the number of findings and the alert), and
-   "All tasks complete. Review, then run `/espec:archive <change-name>`."
+   "All tasks complete. Review, post the acceptance request, then run `/espec:archive <change-name>`
+   once it is merged and accepted."
+   Then print the **acceptance request** for the ticket, in the format of **Product acceptance and
+   success metrics** in AGENTS.md: one row per `AC-n` with its THEN in one line and the `Q.n` line
+   that verified it, the deviations and the deferred work from `pull-request.md`, and where to try
+   the change. Ask where when the proposal's Rollout does not say. Post it only when a tool can reach
+   the ticket and the user asks. Never write that anything was accepted.
    When `review.tool` in `config.yaml` is `diffcompass`, add the review command for the reviewer:
    `/espec:review <change-name>`, which runs `diffcompass pr <number> --open` once the pull request
    exists and `diffcompass --base <review.base> --open` before. Do not launch the tour yourself unless

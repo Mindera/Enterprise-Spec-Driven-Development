@@ -60,13 +60,19 @@ Follow the phases in order.
    reasons), one row per acceptance criterion with the file to open first and the test that proves it, the
    review order, the verification results, the rollout as built, and the release note that archive reuses.
 
-7. **Phase 4, archive.**
+7. **Phase 3, acceptance.**
+   [`acceptance-request.md`](acceptance-request.md) is the comment `/espec:implementation` printed for
+   the ticket at the end: where to try the export and, one row per acceptance criterion, what product
+   should see and the QA line that verified it, then what differs from the definition and what is not
+   in the change. Product answered "Accepted" on the ticket, and the archive recorded who and when.
+
+8. **Phase 4, archive.**
    [`specs/invoice-export/spec.md`](specs/invoice-export/spec.md) and
    [`specs/invoice-list/spec.md`](specs/invoice-list/spec.md) show the main specs under `espec/specs/` after
    `/espec:archive` folded the deltas in: the new capability created from the delta's purpose and added
    requirements, and the existing capability with its modified requirement replaced in place.
 
-8. **Phase 4, archive clean.**
+9. **Phase 4, archive clean.**
    [`archive-clean/cleanup.md`](archive-clean/cleanup.md) is a sample report from `/espec:archive-clean` run
    later over four capabilities, showing a Keep, an Update with the corrected text, a Purge with evidence, and
    the applied actions appended after confirmation.
@@ -176,6 +182,7 @@ examples/
 ├── coverage/
 │   ├── tech-proposal.md                  # coverage report printed by /espec:tech-proposal
 │   └── implementation.md                 # coverage report printed by /espec:implementation
+├── acceptance-request.md                 # the ticket comment product answers before archive
 └── archive-clean/
     └── cleanup.md                        # sample /espec:archive-clean report
 ```

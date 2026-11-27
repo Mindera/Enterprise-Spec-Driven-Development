@@ -104,7 +104,7 @@ The document starts at "# Feature:". Jira drops HTML comments and holds the key,
 <business, legal, compliance, brand, timing, markets, devices. Outcomes, not mechanisms.>
 
 ## Success metrics
-- <number and time frame>
+- <the number, by when, who reads it>
 
 ## Open questions
 - None

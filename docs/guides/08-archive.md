@@ -16,6 +16,8 @@ and the next tech proposal reads it.
 
 ## Before you start
 
+- Product has accepted the result on the ticket (for a bug, the reporter). The command looks for
+  that answer and pauses without it.
 - The implementation pull request is merged. Archiving before the merge puts spec changes on `main`
   that the code does not back yet. An [urgent change](lanes.md#the-urgent-lane) is archived once its
   record is approved: it has no `pull-request.md`, and the release note comes from the proposal.
@@ -90,11 +92,25 @@ again on the synced spec, where a removed requirement is meant to be missing. On
 move to `espec/changes/archive/YYYY-MM-DD-<change-name>/`, with `status: archived` and the date in
 `.espec.yaml`. An existing archive folder is never overwritten.
 
+### Acceptance and success metrics
+
+Before it moves anything, the command looks for the acceptance of the result: an answer on the ticket
+from the product owner, or from the reporter of a bug. When it cannot read the ticket it asks who
+accepted and when. It writes `accepted_by` and `accepted` to `.espec.yaml`. With no acceptance it
+prints the acceptance request again and asks whether to wait or to archive anyway; "anyway" needs a
+reason, recorded as `archived_without_acceptance` and in the release note. A merged pull request is
+not an acceptance.
+
+It then reads the Success metrics of `feature.md` and asks for a date wherever the definition gives
+none. The latest date goes to `.espec.yaml` as `metrics_review_due`.
+[Archive clean](09-archive-clean.md) lists the change when that date has passed.
+
 ### The release note
 
 It starts from the `## Release note` section of `pull-request.md` and updates it for anything that
 changed since: what shipped, which capabilities changed (added, modified, removed requirements by
-name), what was deferred and why. Paste it as the closing comment on the ticket and move the ticket
+name), what was deferred and why, who accepted the result, and a "To check after release" list with
+each success metric, its date and who reads it. Paste it as the closing comment on the ticket and move the ticket
 to Done. When Copilot can reach the ticket and you ask, it posts the comment and transitions the
 ticket; it never does so unasked.
 
@@ -117,6 +133,7 @@ delta did, nothing more. Merge.
 - The archived folder still holds everything: `feature.md`, the proposal, the deltas, `tasks.md` with
   QA's recorded results, `pull-request.md`, any saved inspection reports, and `.espec.yaml` as the
   audit record.
+- `.espec.yaml` names who accepted the result and when, and the date its success metrics are due.
 - The ticket's last comment is the release note, and its status is Done.
 
 See the main specs after archive in [examples/specs/](../../examples/README.md).

@@ -111,7 +111,7 @@ For a GitHub issue, use the template as it is. For a Jira ticket, leave out the 
 <business, legal, compliance, brand, timing, markets, devices. Outcomes, not mechanisms.>
 
 ## Success metrics
-- <number and time frame>
+- <the number, by when, who reads it>
 
 ## Open questions
 - None

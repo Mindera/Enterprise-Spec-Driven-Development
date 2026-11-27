@@ -48,6 +48,14 @@ you state a solution they ask you to rephrase it as an outcome, and if you insis
 5. Once the assessment outcome is **Ready for tech proposal**, engineering picks the ticket up with
    `/espec:tech-proposal`. Their questions come back as a ticket comment. Answer them in the ticket;
    they re-import the definition.
+6. When the work is built and verified, engineering posts an **acceptance request** on the ticket:
+   where to try it and, criterion by criterion, what you should see. Try it and reply "Accepted", or
+   say which criterion is not as defined. This is a look at the working result, not a second test
+   pass. Something you now want that the definition does not say is new scope: update the
+   description and engineering picks it up as a proposal update or a ticket of its own.
+7. The release note that closes the ticket lists your success metrics under "To check after release",
+   each with its date. On that date engineering asks for the numbers. Give them: met, not met or not
+   measured. A metric that was not met is your call: nothing, a new ticket, or a rollback.
 
 ## Bugs
 

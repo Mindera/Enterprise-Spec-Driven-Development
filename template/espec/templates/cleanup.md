@@ -24,6 +24,7 @@
 - Duplicate requirement names:
 - Requirements without scenarios:
 - Archived changes eligible for pruning:
+- Success metrics due for review (change, metric, due date, outcome once given):
 
 ## Applied actions
 

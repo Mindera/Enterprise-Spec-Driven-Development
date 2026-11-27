@@ -64,6 +64,15 @@ It also flags capabilities whose Purpose is a placeholder, duplicate requirement
 without scenarios, and archived change folders older than
 `archive.clean.prune_archived_changes_older_than_days` when that setting is above zero.
 
+It lists one more thing, which is about outcomes, not specs: the archived changes whose
+`metrics_review_due` has passed and that have no `metrics_reviewed` yet, each with its ticket, its
+product owner and the success metrics from its `feature.md`. Take that list to product. For every
+change you bring back numbers for, the command records `metrics_reviewed` and `metrics_outcome` (met,
+partly met, not met or not measured) in the archived `.espec.yaml` and prints a comment for the
+ticket. It never fills in a number itself, and a change still waiting for its review is never listed
+for pruning. A metric that was not met is a product decision, not a defect: the comment asks what
+follows.
+
 The report is written to `espec/changes/archive/YYYY-MM-DD-archive-clean/cleanup.md` and shown in
 the chat. Then it stops.
 

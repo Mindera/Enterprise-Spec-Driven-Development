@@ -63,4 +63,9 @@ Paste the output of the espec Feature Definition agent over it, keeping the firs
   an issue comment.
 - When the repository uses the Copilot coding agent, assigning the issue to Copilot produces the tech
   proposal pull request first, not an implementation, because `.github/copilot-instructions.md` says so.
-- On archive, engineering posts the release note as a comment and closes the issue.
+- When implementation is done and verified by QA, engineering posts the acceptance request as a
+  comment: where to try it and what to look for, criterion by criterion. Product replies "Accepted",
+  or says which criterion is not as defined. A label such as `ready-for-acceptance` makes the state
+  visible on the board.
+- On archive, engineering posts the release note as a comment, with who accepted and the success
+  metrics to check after release, and closes the issue.

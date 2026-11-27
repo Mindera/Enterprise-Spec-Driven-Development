@@ -177,7 +177,7 @@ A bug runs through the same phases with less paper: see [Bugs](#bugs).
 | Outputs | Code and tests. `tasks.md` with a task checked off only after its verification passed. `pull-request.md`: the pull request description, readable without the code, with a proposal-versus-implementation table. `.espec.yaml` moves to `in-progress` after the first check and `implemented` after the last. In the chat, a coverage report: how much of the proposal and the feature definition the code delivers, criterion by criterion. |
 | Security | On a mobile app, before the pull request description: [AI Mobile Security Assessment](https://github.com/Mindera/AI-Mobile-Security-Assessment) against OWASP MASVS, run only when the signed-in GitHub user can read its private repository. Findings in files the change touches are fixed as `S.n` tasks; the rest go on the pull request with `security-report.md`, under "⚠️ Security findings: pre-existing, not from this change", or under "⚠️ Security findings: fix before merge" while a finding remains in a touched file. No findings: "Security validation passed". No access: skipped, and the pull request says so. |
 | Exit criteria | **All tasks complete**: every checkbox in `tasks.md` is `[x]`, including the QA verification group. |
-| Hand-off | The pull request, whose description is `pull-request.md`. It links to the ticket, and its Release note section becomes the ticket comment at archive. |
+| Hand-off | The pull request, whose description is `pull-request.md`. It links to the ticket, and its Release note section becomes the ticket comment at archive. An **acceptance request** for the ticket, printed at the end: where to try the change and, per acceptance criterion, what product should see and what QA verified. Product replies "Accepted" on the ticket, or says which criterion is not as defined. |
 | Code review | The reviewer reads `pull-request.md`, then runs `/espec:review <number>` to walk the diff with [DiffCompass](https://github.com/Mindera/diffcompass). `.diffcompass.json` points its agent at the change folder, so the tour follows **How to review** and flags drift from the tech proposal and the delta specs. |
 
 Every run starts by comparing the ticket with `feature.md`, when a tool can reach it. A difference
@@ -196,18 +196,21 @@ approval.
 | Commands | `/espec:archive` and `/espec:archive-clean` |
 | Who | Developer. |
 | Tool | GitHub Copilot: `/espec-archive <change-name>` and `/espec-archive-clean [capability]`. |
-| Inputs | An implemented change. For clean: every main spec, the archive, the code and the tests. |
+| Inputs | An implemented change, merged and accepted by product on the ticket. For clean: every main spec, the archive, the code and the tests. |
 | Outputs | Archive: main specs updated from the deltas, the change folder moved to `espec/changes/archive/YYYY-MM-DD-<change-name>/`, a release note. Clean: `cleanup.md` with keep / update / purge verdicts and evidence, applied only on confirmation. |
-| Exit criteria | **Archived**: `.espec.yaml` says `archived`, no delta headings remain in the main specs, every requirement still has a scenario. |
-| Hand-off | The release note is pasted as a ticket comment: what shipped, which specs changed, what was deferred. The ticket is closed. |
+| Exit criteria | **Archived**: `.espec.yaml` says `archived`, names who accepted the result and when (or why it was archived without acceptance), and holds the date the success metrics are due. No delta headings remain in the main specs, every requirement still has a scenario. |
+| Hand-off | The release note is pasted as a ticket comment: what shipped, which specs changed, what was deferred, who accepted, and the success metrics to check after release with their dates. The ticket is closed. |
 
 Archive runs after the implementation pull request is merged, either as its own short pull request
 or as the last commit of the implementation pull request (see
 [the guides](guides/README.md#pull-requests-along-the-way)). Archive stops on any conflict before
 moving anything, including a base stamp that shows another change edited the same requirement first.
 Before the release note, archive compares the ticket with `feature.md` once more, so a ticket is not
-closed on a description that differs from what shipped. Archive-clean never deletes without evidence
-and a confirmed verdict. In CI, a pull request that
+closed on a description that differs from what shipped. It then looks for product's acceptance and
+pauses without one: a merged pull request is not an acceptance. Each success metric of the definition
+gets a review date, and archive-clean, on its rhythm, lists the archived changes whose date has
+passed and asks for the numbers, so the definition's "how we will know it worked" gets an answer.
+Archive-clean never deletes without evidence and a confirmed verdict. In CI, a pull request that
 changes `espec/specs/` without archiving a change fails. See
 [conventions.md](conventions.md#archive-merge-order-and-conflicts).
 

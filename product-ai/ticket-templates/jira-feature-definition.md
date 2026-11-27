@@ -66,7 +66,9 @@ starts from it.
 | Assessed, ready for tech proposal | The assessment outcome is Ready and the description holds the agreed scope | Engineering |
 | Tech proposal in review | Engineering posted the tech proposal pull request and any Questions for Product as a comment | Engineering |
 | In progress | Implementation started | Engineering |
-| Done | Archived; release note posted as a comment | Engineering |
+| Ready for acceptance | Implementation is done and verified by QA. The acceptance request is a comment: where to try it and what to look for, criterion by criterion | Engineering |
+| Accepted | The product owner has seen it work and replied "Accepted", or said which criterion is not as defined | Product |
+| Done | Archived; the release note is a comment, with who accepted and the success metrics to check after release | Engineering |
 
 The feature definition and `espec/changes/<change-name>/feature.md` in the repository stay identical
 from `# Feature:` down.

@@ -67,7 +67,9 @@ from that file, or map them onto the statuses you have:
 | Assessed, ready for tech proposal | Engineering | The assessment outcome is Ready for tech proposal and the description holds the agreed scope |
 | Tech proposal in review | Engineering | The proposal pull request exists; Questions for Product may be in a comment |
 | In progress | Engineering | Implementation started |
-| Done | Engineering | Archived; the release note is the last comment |
+| Ready for acceptance | Engineering | Implementation is done and verified by QA; the acceptance request is a comment |
+| Accepted | Product | The product owner has seen it work and replied "Accepted" on the ticket |
+| Done | Engineering | Archived; the release note is the last comment, with who accepted and the success metrics to check after release |
 
 For bugs, save
 [ticket-templates/jira-bug-report.md](../../product-ai/ticket-templates/jira-bug-report.md) as the

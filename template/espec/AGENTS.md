@@ -176,7 +176,7 @@ line:
 <!-- Business, legal, compliance, brand, timing, markets, devices. Outcomes, not mechanisms. -->
 
 ## Success metrics
-<!-- How we will know it worked. Numbers and time frames where possible. -->
+<!-- How we will know it worked: the number, by when, and who reads it. Checked after release. -->
 
 ## Open questions
 <!-- Each with an owner. Empty is a valid state and must be stated as "None". -->
@@ -864,6 +864,12 @@ catch_up_by: 2026-10-31          # urgent lane only: the date the paper is due
 archived: 2026-11-02             # set by /espec:archive
 archived_with_open_tasks: ""     # set by /espec:archive when the user chose to archive early, with the reason
 archived_without_sync: ""        # set by /espec:archive when the deltas were not applied, with the reason
+accepted_by: <name>              # set by /espec:archive: who accepted the result
+accepted: 2026-11-01             # the date of the acceptance
+archived_without_acceptance: ""  # set by /espec:archive when nobody accepted, with the reason
+metrics_review_due: 2027-01-31   # set by /espec:archive: when the success metrics can be read
+metrics_reviewed: 2027-02-03     # set by /espec:archive-clean when the outcome is recorded
+metrics_outcome: ""              # met | partly met | not met | not measured, with the numbers read
 cancelled: 2026-11-02            # set by /espec:archive when the change will not ship
 cancelled_reason: ""             # why, set together with cancelled
 ```
@@ -882,6 +888,58 @@ cancelled_reason: ""             # why, set together with cancelled
 - `cancelled`: the change will not ship. The folder is moved under `changes/archive/` without applying
   its deltas, with `cancelled` and `cancelled_reason` set. A cancelled change is a record, never
   evidence of behaviour.
+
+## Product acceptance and success metrics
+
+A change is not finished when it merges. It is finished when the person who asked for it has seen it
+work, and when someone has looked at whether it did what it was for.
+
+### Acceptance
+
+When `pull-request.md` is written, `/espec:implementation` prints an **acceptance request** for the
+ticket. The developer posts it once the behaviour is somewhere the accepter can use it: before the
+merge when there is a preview, a staging environment or a flag, right after it otherwise.
+
+```markdown
+**Acceptance request · <title> (<ticket>)**
+
+Try it: <the environment, build or flag, and how to get there>
+
+| Criterion | What you should see | Verified by QA |
+|-----------|---------------------|----------------|
+| AC-1: <name> | <the THEN of the criterion, in one line> | Q.1, <date>, <environment> |
+
+Differs from the definition: <each deviation in one line, or "Nothing">
+Not in this change: <deferred work, or "Nothing">
+
+Reply "Accepted", or say which criterion is not as defined.
+```
+
+- The accepter is the product owner named in `feature.md`. For a bug it is the reporter. For an urgent
+  change it is the person in `declared_by`, who confirms the fix in production.
+- Accepting is a look at the working behaviour against the definition, not a second QA pass. The
+  answer goes on the ticket.
+- "Not as defined" has two outcomes. The code does not do what `feature.md` says: the change is not
+  done, and its tasks are reopened. The accepter wants something `feature.md` does not say: that is
+  new scope, a tech proposal update or a change of its own.
+- `/espec:archive` records the acceptance in `.espec.yaml` as `accepted_by` and `accepted`, from the
+  ticket when a tool can read it and from the user otherwise. Without one it pauses. Archiving anyway
+  needs a reason, recorded as `archived_without_acceptance` and in the release note.
+
+### Success metrics
+
+- Every item under Success metrics in `feature.md` says what number is read and by when. The product
+  owner reads it unless the item names someone else.
+- `/espec:archive` lists them in the release note under "To check after release", asks for a date the
+  definition does not give, and writes the latest of the dates to `.espec.yaml` as
+  `metrics_review_due`. A change with no metrics gets none.
+- `/espec:archive-clean` lists the archived changes whose `metrics_review_due` has passed and that
+  have no `metrics_reviewed`, and asks for the outcome of each metric: the number read, and met, not
+  met or not measured. The answer is recorded in the archived `.espec.yaml` as `metrics_reviewed` and
+  `metrics_outcome`, and printed as a comment for the ticket. A change still waiting for its review
+  is never listed for pruning.
+- A metric that was not met is a product decision, not a defect. The comment asks product what
+  follows: nothing, a new ticket, or a rollback.
 
 ## Archive rules (`/espec:archive`)
 
@@ -907,6 +965,8 @@ cancelled_reason: ""             # why, set together with cancelled
 8. A change that will not ship is cancelled instead of archived: set `status: cancelled`, `cancelled`
    and `cancelled_reason` in `.espec.yaml`, skip the spec sync, move the folder as in rule 6, and
    write a note for the ticket saying what was cancelled and why. Its deltas are never applied.
+9. Before moving the folder, record the acceptance of the result and the date its success metrics are
+   due, as **Product acceptance and success metrics** says. Never record an acceptance nobody gave.
 
 ## Archive clean rules (`/espec:archive-clean`)
 
@@ -926,6 +986,8 @@ The goal is a `espec/specs/` folder that describes only what the system does tod
 6. Apply nothing until the user confirms. Apply only the confirmed verdicts, one capability at a time.
    Purging the last requirement of a capability deletes its folder.
 7. Append the applied actions to the same `cleanup.md`. The report is the audit trail.
+8. List the archived changes whose success metrics are due for review, ask for each outcome, and
+   record only what the user answers. Never invent a number.
 
 ## Coverage report
 
@@ -1081,7 +1143,8 @@ empty.
   An accepted change to the design sets the proposal back to In review and waits for approval.
   Security validation runs only with access to the tool; without it the pull request says skipped,
   never passed.
-- Phase 4 never deletes a spec without evidence and confirmation.
+- Phase 4 never deletes a spec without evidence and confirmation, and never records an acceptance or
+  a metric outcome that a person did not give.
 - Never pick a lane. The small lane is proposed by the author and accepted by the reviewer; the
   urgent lane is declared by a named person. Say when a change does not meet its lane's conditions,
   and never present a tight date as an emergency.
