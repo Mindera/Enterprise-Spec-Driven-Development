@@ -50,4 +50,7 @@ A report that asks for behaviour the product never had is a feature, not a bug: 
   as `feature.md` with `kind: bug` and opens a pull request with the tech proposal: the root cause,
   the fix, and a first task that reproduces the bug in a failing test. A bug skips the technical
   assessment. Questions for Product go back as an issue comment.
-- On archive, engineering posts the release note as a comment and closes the issue.
+- When the fix is done and verified by QA, engineering posts the acceptance request as a comment.
+  The reporter replies "Accepted", or says what still happens.
+- On archive, engineering posts the release note as a comment, with who accepted, and closes the
+  issue.

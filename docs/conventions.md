@@ -373,6 +373,12 @@ skip_specs: false                # true only when the main specs need no change
 
 The file stays with the folder. It is the audit record of the change.
 
+Archive also records how the change ended with product: `accepted_by` and `accepted` (who saw it
+work and when), or `archived_without_acceptance` with the reason, and `metrics_review_due`, the date
+the definition's success metrics can be read. Archive-clean lists a change once that date has passed
+and records the answer as `metrics_reviewed` and `metrics_outcome`. See
+[Product acceptance and success metrics](../template/espec/AGENTS.md#product-acceptance-and-success-metrics).
+
 `lane` says how the change travels. `standard`, the default when the line is absent, is the four
 phases. `small` takes a short definition (Why, What, Out of scope, Acceptance criteria) and a short
 proposal, in one pull request with the code, approved once. `urgent` ships the fix first: the folder

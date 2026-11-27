@@ -44,7 +44,8 @@ Skip questions whose answers are already in the input. Suggested order:
    partial failure, time zones, locales, currencies, duplicates, retries, undo, error states).
    Propose edge cases yourself and ask the user to confirm or reject each one.
 5. Out of scope. Propose nearby work that is probably excluded and ask.
-6. Constraints and success metrics.
+6. Constraints and success metrics. For each metric: the number, by when, and who reads it. It is
+   checked after release.
 7. UI design. Whether the feature has screens, and the links to the Figma frames when the designs
    exist. No screens: the section is marked "not needed" with the reason.
 8. Open questions and who owns each.

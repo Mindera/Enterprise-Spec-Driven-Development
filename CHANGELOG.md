@@ -7,11 +7,47 @@ bumps to (see [AGENTS.md](AGENTS.md)). When a version is merged to `main`, the r
 To move a project to a version, check it out in the toolkit clone and run `espec update`:
 
 ```bash
-git -C ~/espec fetch --tags && git -C ~/espec checkout v1.0.27
+git -C ~/espec fetch --tags && git -C ~/espec checkout v1.0.28
 ~/espec/bin/espec update /path/to/your/repo
 ```
 
 Entries marked **Action** need something done in projects that update.
+
+## v1.0.28 (2026-11-27)
+
+A change ends with product: acceptance before archive, and success metrics read after release:
+
+- **Acceptance request.** When the last task is checked, `/espec:implementation` prints a comment for
+  the ticket: where to try the change and, one row per acceptance criterion, what product should see
+  and the `Q.n` line that verified it, then the deviations and the deferred work. The product owner
+  replies "Accepted", or says which criterion is not as defined. For a bug the reporter accepts; for
+  an urgent change, the person who declared it.
+- **The archive waits for it.** `/espec:archive` looks for the acceptance on the ticket, or asks who
+  accepted and when, and records `accepted_by` and `accepted` in `.espec.yaml`. Without one it pauses.
+  Archiving anyway needs a reason, recorded as `archived_without_acceptance` and in the release note.
+  A merged pull request is not an acceptance.
+- **Success metrics get a date.** At archive every item under Success metrics in `feature.md` gets the
+  date it can be read, listed in the release note under "To check after release". The latest date is
+  recorded as `metrics_review_due`.
+- **And an answer.** `/espec:archive-clean` lists the archived changes whose date has passed, asks for
+  each metric's number, records `metrics_reviewed` and `metrics_outcome` in the archived change and
+  prints a comment for the ticket. It never fills in a number, and a change waiting for its review is
+  never listed for pruning. A metric that was not met is a product decision.
+- `espec/AGENTS.md` has a new section, **Product acceptance and success metrics**, with the format of
+  the acceptance request. The feature definition asks each metric for its number and its date.
+- Ticket templates and the product setup guide gain two statuses, **Ready for acceptance** and
+  **Accepted**. The product pack README says what product does at each.
+- Worked example: `examples/acceptance-request.md`.
+- Docs: the workflow, the role tables, guides 06, 08 and 09, the command reference, the conventions
+  page, the README and two FAQ entries.
+- No CLI or validator change: the new `.espec.yaml` lines are written by the commands and nothing
+  new fails `espec validate`.
+- **Action:** run `espec update`. A change already implemented has no acceptance on its ticket: when
+  you archive it, the command asks. Answer who accepted, or archive anyway with the reason.
+- **Action (Jira):** add the statuses **Ready for acceptance** and **Accepted** to the workflow, or map
+  them onto statuses you have.
+- **Action (Rovo and M365 Copilot):** paste the Instructions block of the Feature Definition agent
+  again; only the success metrics placeholder changed.
 
 ## v1.0.27 (2026-11-27)
 

@@ -75,6 +75,21 @@ behaviour was never written down: write the delta like any change. Asking for be
 never had is a feature, not a bug: the inspection says so when a main spec describes the current
 behaviour as the intended one. See [Bug fixes](../template/espec/AGENTS.md#bug-fixes).
 
+## Who says a change is done?
+
+The person who asked for it. When implementation is finished and QA has verified it,
+`/espec:implementation` prints an acceptance request for the ticket: where to try the change and what
+to look for, criterion by criterion. The product owner, or the reporter of a bug, replies "Accepted"
+or says which criterion is not as defined. `/espec:archive` looks for that answer and pauses without
+it; archiving anyway needs a recorded reason. A merged pull request is not an acceptance.
+
+## Does anyone check the success metrics afterwards?
+
+Yes. At archive each success metric in the definition gets a date, listed in the release note under
+"To check after release". When the date has passed, `/espec:archive-clean` lists the change and asks
+for the numbers, records the outcome in the archived change and prints a comment for the ticket. A
+metric that was not met is product's call: nothing, a new ticket, or a rollback.
+
 ## Two changes edit the same requirement at the same time?
 
 Both deltas copy the requirement as it was when each proposal was written, so the second archive

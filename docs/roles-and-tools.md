@@ -12,8 +12,8 @@ how to set each tool up. The underlying rules are in
 |---|---|---|---|---|---|
 | 1 Feature definition | Writes | Fills UI design | Runs the technical assessment | Reviews edge cases and ACs | Reads the assessment |
 | 2 Tech proposal | Answers Questions for Product | Answers UI design questions | Writes | Writes the test strategy | Reviews and approves |
-| 3 Implementation | Available for questions | Reviews built screens | Implements, checks tasks | Runs QA verification | Decides on design pauses |
-| 4 Archive | Reads the release note, closes the ticket | | Runs archive and archive-clean | Confirms the note matches what was verified | Confirms clean verdicts |
+| 3 Implementation | Available for questions. Accepts the result | Reviews built screens | Implements, checks tasks, posts the acceptance request | Runs QA verification | Decides on design pauses |
+| 4 Archive | Reads the release note, closes the ticket, reads the success metrics on their date | | Runs archive and archive-clean | Confirms the note matches what was verified | Confirms clean verdicts |
 | Tool | Rovo, M365 Copilot or GitHub Copilot | Rovo, M365 Copilot or GitHub Copilot | GitHub Copilot, AI Mobile Security Assessment | GitHub Copilot | GitHub Copilot, the PR review, DiffCompass |
 
 ## Product Manager
@@ -23,8 +23,8 @@ how to set each tool up. The underlying rules are in
 | 1 | Describes the problem to the feature definition agent. Answers the interview in short rounds. Confirms or rejects the proposed edge cases. Lists what is out of scope. Sets the status to Ready for tech proposal and pastes the document as the ticket description. | Rovo Agent or M365 Copilot agent from [product-ai/](../product-ai/README.md) |
 | 1, with GitHub Copilot | The same interview with `/espec-feature-definition` in a local copy of the repository. When the frames are in Figma, the same run reads them and asks how the design behaves; the PM answers with the Designer. Writes the ticket description on a yes, or pastes it. Commits nothing and deletes the local change folder once the ticket holds the final text. | `/espec-feature-definition`, the Figma MCP server, an Atlassian or GitHub MCP server for the ticket |
 | 2 | Answers the Questions for Product that engineering posts as a ticket comment. Updates the ticket description when an answer changes the definition. | The ticket. The review prompt in [product-ai/prompts/review-feature-definition.prompt.md](../product-ai/prompts/review-feature-definition.prompt.md) to check the result |
-| 3 | Stays reachable. A scope question during implementation comes back as a ticket comment. | The ticket |
-| 4 | Reads the release note comment. Closes the ticket. | The ticket |
+| 3 | Stays reachable. A scope question during implementation comes back as a ticket comment. When the work is built and verified, tries it where the acceptance request says and replies "Accepted" on the ticket, or says which criterion is not as defined. | The ticket, and the environment the request names |
+| 4 | Reads the release note comment. Closes the ticket. On the date the release note gives, reads each success metric and tells engineering the number: met, not met or not measured. Decides what follows a metric that was not met. | The ticket |
 
 Never:
 
@@ -59,8 +59,8 @@ Never:
 |---|---|---|
 | 1 | Runs `/espec-inspect-feature-definition` on the ticket, then `/espec-assess`: what the code already does for each acceptance criterion and constraint, which specs the feature touches, dependencies on other teams (unconfirmed until their owner confirms), alternatives with their consequences for product, criteria that cannot be met as written, spikes. Pastes the assessment as a ticket comment and takes the findings to product, the owning teams or a spike. Optional: runs the feature definition in-repo when the work has no product owner, or imports a ticket, and pastes the result into a ticket so product can own it. | `/espec-inspect-feature-definition`, `/espec-assess`, `/espec-feature-definition` |
 | 2 | Starts when the assessment outcome is Ready for tech proposal. Runs the tech proposal. Explores the code before writing. Writes `tech-proposal.md`, the delta specs and `tasks.md`. Pastes Questions for Product as a ticket comment. Opens the pull request that adds the change folder. | `/espec-tech-proposal`, an Atlassian or GitHub MCP server to fetch the ticket |
-| 3 | Runs the implementation task by task. Lets the AI pause and decides on each pause. Keeps `tasks.md` as the progress record. Opens the pull request with `pull-request.md` as its body, so reviewers read what was built and how it differs from the proposal without opening the code first. | `/espec-implementation` |
-| 4 | Runs archive after the implementation pull request is merged. Posts the release note. Runs archive-clean on the agreed rhythm and brings the report to the reviewer. | `/espec-archive`, `/espec-archive-clean`, `bin/espec validate` |
+| 3 | Runs the implementation task by task. Lets the AI pause and decides on each pause. Keeps `tasks.md` as the progress record. Opens the pull request with `pull-request.md` as its body, so reviewers read what was built and how it differs from the proposal without opening the code first. Posts the acceptance request on the ticket once product can try the change. | `/espec-implementation` |
+| 4 | Runs archive after the implementation pull request is merged and product has accepted. Posts the release note. Runs archive-clean on the agreed rhythm, brings the report to the reviewer, and takes the list of success metrics due for review to product. | `/espec-archive`, `/espec-archive-clean`, `bin/espec validate` |
 
 Never:
 

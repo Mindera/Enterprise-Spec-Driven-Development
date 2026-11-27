@@ -54,7 +54,9 @@ A report that asks for behaviour the product never had is a feature, not a bug: 
 | Ready for tech proposal | The bug readiness check passed; engineering can pick it up | The reporter, or whoever triages |
 | Tech proposal in review | Engineering posted the tech proposal pull request, with the root cause, and any Questions for Product as a comment | Engineering |
 | In progress | Implementation started; the first task reproduces the bug in a failing test | Engineering |
-| Done | Archived; release note posted as a comment | Engineering |
+| Ready for acceptance | The fix is done and verified by QA. The acceptance request is a comment: where to try it and what to look for | Engineering |
+| Accepted | The reporter has seen the bug gone and replied "Accepted", or said what still happens | The reporter |
+| Done | Archived; the release note is a comment, with who accepted | Engineering |
 
 A bug skips the technical assessment and its three statuses. The report and
 `espec/changes/<change-name>/feature.md` in the repository stay identical from `# Bug:` down. When

@@ -29,6 +29,16 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
      not built: name it in the release note as not part of this change, which needs a change of its
      own. A stale ticket: offer to update its description from `feature.md`, on yes only. The ticket
      is never closed on a description that differs from what shipped without someone having seen it.
+   - **Acceptance.** Look for the acceptance of the result, as **Product acceptance and success
+     metrics** in AGENTS.md defines it: an answer on the ticket from the accepter (the product owner
+     in `feature.md`, the reporter of a bug, the person in `declared_by` of an urgent change) when a
+     tool can read the ticket's comments, otherwise ask who accepted and when. Found: set
+     `accepted_by` and `accepted` in `.espec.yaml`. Not found: say so, print the acceptance request
+     and ask whether to wait or to archive anyway. Archiving anyway records the reason as
+     `archived_without_acceptance` and in the release note.
+   - **Success metrics.** For each item under Success metrics in `feature.md`: the number, the date
+     it can first be read and who reads it. Ask for a date the definition does not give. Set
+     `metrics_review_due` in `.espec.yaml` to the latest of them. No metrics: set nothing.
    - The user says the change will not ship, or `.espec.yaml` already says `status: cancelled`: ask
      for the reason, set `status: cancelled`, `cancelled: YYYY-MM-DD` and `cancelled_reason: <reason>`,
      skip steps 3 to 5, move the folder as in step 6, and write the ticket note in step 7 as what was
@@ -74,7 +84,9 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
 7. **Release note.** Start from the `## Release note` section of `pull-request.md` when the file
    exists, and update it for anything that changed since. Otherwise write a short note for the
    ticket: what shipped, which capabilities changed (added, modified, removed requirements by name),
-   what was deferred and why. When a tool can reach
+   what was deferred and why. Add who accepted the result and when, or that it was archived without
+   acceptance and why, and, when the change has success metrics, a "To check after release" list:
+   each metric, its date and who reads it. When a tool can reach
    the ticket and the user asks, post it as a comment and transition the ticket. Never do so unasked.
 
 ## Output on success
@@ -86,6 +98,8 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
 **Archived to:** espec/changes/archive/<YYYY-MM-DD-change-name>/
 **Specs:** ✓ synced (<capabilities>) | no delta specs | sync skipped: <reason> | not applied (cancelled)
 **Tasks:** 12/12 complete | archived with 2 open tasks: <reason>
+**Accepted:** <name>, <YYYY-MM-DD> | archived without acceptance: <reason>
+**Metrics review due:** <YYYY-MM-DD> | no success metrics
 ```
 
 ## Guardrails
@@ -94,6 +108,7 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
 - Never delete a requirement the delta does not list under REMOVED or RENAMED.
 - Never invent a current version for a MODIFIED requirement that has no main spec.
 - Keep `.espec.yaml` with the folder; it is the audit record.
+- Never record an acceptance nobody gave. A merged pull request is not an acceptance.
 - A cancelled change keeps every file; nothing in it is deleted and nothing from it reaches
   `espec/specs/`.
 - End the reply with the usage line from the **Usage report** section of AGENTS.md, when

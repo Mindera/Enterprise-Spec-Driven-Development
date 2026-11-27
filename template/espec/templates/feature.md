@@ -54,6 +54,8 @@
 
 ## Success metrics
 
+<!-- The number, by when, and who reads it. Checked after release. -->
+
 -
 
 ## Open questions
