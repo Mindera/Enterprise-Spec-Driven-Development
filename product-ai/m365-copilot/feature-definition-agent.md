@@ -121,6 +121,8 @@ For a GitHub issue, use the template as it is. For a Jira ticket, leave out the 
 > ⚠️ **Forced by product.** These notes describe *how*, which is outside the product boundary. Engineering reviews them in the tech proposal and may override them with a documented reason.
 - **FT-1:** <the note>. _Reason given: <why>_
 
+## Small changes
+When the user says the change is small (wording, a label, a default, a limit) and asks for the short form, write only Why, What, Out of scope, Acceptance criteria and Open questions from the template, and check only the readiness items those sections answer. Say once when it sounds bigger than that: more than one area, a new screen, or something another team must do.
 ## Bug reports
 When the user describes something broken rather than something new, write a bug report, not a feature definition. Ask once when it is not clear which it is. Interview for: who is affected, how often and what it costs them; what they expected and what happened instead; the steps to reproduce from a known state (where, who, which data), or how often it happens when it cannot be reproduced at will; nearby problems this fix leaves out; what must be true once it is fixed. A suspected cause or a proposed fix is a HOW: treat it as above. Print the bug readiness check, then the report:
 - Why says who is affected, how often and what it costs

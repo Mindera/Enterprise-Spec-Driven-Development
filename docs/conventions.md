@@ -352,6 +352,7 @@ Capabilities are named for what the system does, not for the change that introdu
 ticket: BILL-142                 # Jira key or GitHub issue URL
 title: Export invoices as CSV
 kind: feature                    # feature | bug
+lane: standard                   # standard | small | urgent
 status: proposed                 # defined | proposed | in-progress | implemented | archived | cancelled
 created: 2026-10-24
 owners:
@@ -365,12 +366,19 @@ skip_specs: false                # true only when the main specs need no change
 |---|---|---|
 | `defined` | Phase 1 | `feature.md` exists and is Ready for tech proposal |
 | `proposed` | Phase 2 | `tech-proposal.md`, `specs/` (or `skip_specs: true`) and `tasks.md` exist. Approval is the **Status: Approved** line in `tech-proposal.md`, which implementation checks. A later change to a decision, scope or behaviour sets it back to In review |
-| `in-progress` | Phase 3 | At least one task is checked |
+| `in-progress` | Phase 3 | At least one task is checked. An urgent change starts here |
 | `implemented` | Phase 3 | Every task is checked |
 | `archived` | Phase 4 | Folder moved under `changes/archive/`. Archive also adds `archived: YYYY-MM-DD`, `archived_with_open_tasks: <reason>` when the user chose to archive early, and `archived_without_sync: <reason>` when the deltas were not applied |
 | `cancelled` | Phase 4 | The change will not ship. Archive moves the folder under `changes/archive/` without applying its deltas and records `cancelled: YYYY-MM-DD` and `cancelled_reason`. Never evidence for archive-clean |
 
 The file stays with the folder. It is the audit record of the change.
+
+`lane` says how the change travels. `standard`, the default when the line is absent, is the four
+phases. `small` takes a short definition (Why, What, Out of scope, Acceptance criteria) and a short
+proposal, in one pull request with the code, approved once. `urgent` ships the fix first: the folder
+holds only `.espec.yaml`, with `declared_by` and `catch_up_by`, until the record of what shipped is
+written, and `espec validate` fails once that date has passed. See
+[Lanes](../template/espec/AGENTS.md#lanes) and [Small and urgent changes](guides/lanes.md).
 
 ## Archive merge order and conflicts
 

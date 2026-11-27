@@ -70,6 +70,15 @@ Input: `${input:change:Change name under espec/changes/ (leave empty to pick fro
     findings with Blocking or Advisory, the verdict, and the comment for the ticket. When the user asks,
     save it to `espec/changes/<change-name>/inspections/YYYY-MM-DD-inspect-tech-proposal.md`.
 
+## Lanes
+
+Read `lane:` in `.espec.yaml`. In the small and the urgent lane the definition and the proposal take
+the short forms of **Lanes** in AGENTS.md: do not report the sections they leave out, and no
+assessment is expected. Small: check its four conditions against the proposal and the deltas; one
+that does not hold is a blocking finding, and the fix is `lane: standard`. Urgent: the proposal is a
+record. Compare Approach with the merged pull request named in Context; a difference is blocking, and
+so is an open task with no owner.
+
 ## Guardrails
 
 - Read-only. Do not edit the proposal, specs, tasks, `feature.md`, the ticket or code. To fix a gap,

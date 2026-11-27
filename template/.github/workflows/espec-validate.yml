@@ -3,12 +3,15 @@ name: espec validate
 # Checks every active change and every main spec under espec/ against the espec formats:
 # feature definition sections and ids, four-hash scenarios, delta section names, task checkboxes,
 # and that every delta still applies to the main spec as it is today.
-# Then checks that the main specs change only through /espec:archive and /espec:archive-clean.
+# Then checks that the main specs change only through /espec:archive and /espec:archive-clean, and
+# that a pull request that changes code travels with a change or says it changes no behaviour.
 # The validator ships with the project in espec/bin, so this job needs no network access.
 # It runs on every pull request, not only those that touch espec/, so it can be a required check.
 
 on:
   pull_request:
+    # edited: a change to the description re-runs the check that reads it.
+    types: [opened, synchronize, reopened, edited]
   workflow_dispatch:
 
 permissions:
@@ -51,3 +54,30 @@ jobs:
             echo "Put behaviour changes in the change's delta specs: espec/changes/<change-name>/specs/."
             exit 1
           fi
+
+      # A behaviour change travels with a change under espec/changes/: the implementation checks off
+      # tasks.md there, the small lane adds the whole folder, the urgent lane adds .espec.yaml.
+      # A pull request that changes code and touches no change says that it changes no behaviour, in
+      # a line of its description that starts with "espec: no behaviour change".
+      # lanes.untracked_changes in espec/config.yaml: warn (default), require or off.
+      - name: Code changes travel with a change
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          mode=$(sed -n 's/^  untracked_changes:[[:space:]]*\([a-z]*\).*/\1/p' espec/config.yaml | head -n 1)
+          mode=${mode:-warn}
+          if [ "$mode" = off ]; then echo "lanes.untracked_changes is off: not checked."; exit 0; fi
+          changed=$(git diff --name-only "$BASE_SHA"...HEAD)
+          code=$(printf '%s\n' "$changed" | grep -Ev '^(espec/|\.github/|\.claude/)|\.md$' || true)
+          if [ -z "$code" ]; then echo "No code changed."; exit 0; fi
+          if printf '%s\n' "$changed" | grep -q '^espec/changes/'; then
+            echo "The code travels with a change under espec/changes/."; exit 0
+          fi
+          if printf '%s\n' "$PR_BODY" | tr -d '\r' | grep -Eiq '^[[:space:]]*espec:[[:space:]]*no behaviou?r change'; then
+            echo "The description says this pull request changes no behaviour."; exit 0
+          fi
+          msg="This pull request changes code and touches no change under espec/changes/. A behaviour change needs one (espec/AGENTS.md, Lanes). When it changes no behaviour, add a line to the description that starts with: espec: no behaviour change"
+          if [ "$mode" = require ]; then echo "::error::$msg"; exit 1; fi
+          echo "::warning::$msg"

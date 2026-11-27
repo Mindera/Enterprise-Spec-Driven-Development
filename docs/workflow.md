@@ -230,6 +230,24 @@ Format and rules: [Bug fixes](../template/espec/AGENTS.md#bug-fixes). Ticket tem
 [GitHub Issues](../product-ai/ticket-templates/github-issue-bug-report.md). A worked report:
 [examples/changes/bill-171-fix-jpy-amounts-in-export/feature.md](../examples/changes/bill-171-fix-jpy-amounts-in-export/feature.md).
 
+## Lanes
+
+The four phases are the standard lane. Two shorter lanes exist for changes that should not wait for
+them. Each is declared as `lane:` in `.espec.yaml`, and neither removes the review of the code, the
+tests or the record in the specs.
+
+| Lane | For | What it changes |
+|---|---|---|
+| Small | A change one reviewer can judge whole in one sitting: one capability, no new API, data model or screen, nothing needed from another team | A short definition and a short proposal. One pull request carries the change folder and the code, and the reviewer approves both by setting the proposal's status line to Approved |
+| Urgent | Production is broken or at risk now, declared by a named person | The fix ships first, reviewed, with an `.espec.yaml` that says who declared it and when the paper is due. The record of what shipped is written within a week. `espec validate` fails once the date has passed |
+
+A pull request that changes no behaviour (a refactor, a dependency update, tooling, tests) needs no
+change: its description says `espec: no behaviour change` and why. CI warns about a pull request that
+changes code with neither a change nor that line, and can be set to fail it.
+
+Step by step: [Small and urgent changes](guides/lanes.md). Rules:
+[Lanes](../template/espec/AGENTS.md#lanes).
+
 ## Where things live
 
 | Artifact | Ticket | Repository |

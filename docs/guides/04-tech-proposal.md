@@ -48,6 +48,10 @@ in `.espec.yaml`, and skips the assessment step. To start by hand, run
 (Context with the root cause, Approach, Traceability, Test strategy, Questions for Product) and the
 first task reproduces the bug in a failing test. See [Bug fixes](../../template/espec/AGENTS.md#bug-fixes).
 
+A change with `lane: small` in `.espec.yaml` gets the short proposal and no assessment step, and its
+code travels in the same pull request. For `lane: urgent` the command writes the record of a fix that
+already merged. Both are in [Small and urgent changes](lanes.md).
+
 It then works through ten steps and announces each. Where to pay attention:
 
 1. **Resolve and check readiness.** It prints the checklist again. If something is ❌, decide now

@@ -35,6 +35,9 @@ for the role matrix. The guides are the walkthroughs. When a guide and
 Steps 2, 3 and 5 are reviews. They are short and read-only, and skipping them is how definitions with
 gaps reach implementation. Step 9 runs on a rhythm, not per feature.
 
+A change too small for nine steps, and a production fix that cannot wait for them, take a shorter
+lane through the same steps: [Small and urgent changes](lanes.md).
+
 ## How the steps hand over
 
 Product reads and writes the ticket. Engineering reads and writes the repository. The feature

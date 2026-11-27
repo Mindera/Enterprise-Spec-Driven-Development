@@ -55,7 +55,42 @@ try {
     $global:LASTEXITCODE = 0
     & $cli validate bill-171-fix-jpy-amounts-in-export | Out-Null
     if ($LASTEXITCODE -eq 0) { throw 'expected validate to ask a feature for use cases and edge cases' }
+    # In the small lane the same text is a valid short definition: Why, What, Out of scope, Acceptance criteria.
+    [System.IO.File]::AppendAllText($bugMeta, "lane: small`n")
+    $global:LASTEXITCODE = 1
+    & $cli validate bill-171-fix-jpy-amounts-in-export | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw 'expected the short definition to validate in the small lane' }
     Remove-Item -Recurse -Force $bug
+
+    # The small lane starts from the short definition template.
+    & $cli new proj-3-small --lane small | Out-Null
+    $smallDir = Join-Path $Work 'espec/changes/proj-3-small'
+    if ((Get-Content -Raw -LiteralPath (Join-Path $smallDir '.espec.yaml')) -notmatch '(?m)^lane: small') { throw 'new --lane small did not set the lane' }
+    if ((Get-Content -Raw -LiteralPath (Join-Path $smallDir 'feature.md')) -match '(?m)^## Use cases') { throw 'new --lane small did not use the short definition' }
+    Remove-Item -Recurse -Force $smallDir
+
+    # The urgent lane names who declared it, holds only .espec.yaml until the paper is written,
+    # and fails validation once the paper is overdue.
+    $global:LASTEXITCODE = 0
+    & $cli new proj-4-urgent --lane urgent | Out-Null
+    if ($LASTEXITCODE -eq 0) { throw 'expected --lane urgent to need --declared-by' }
+    & $cli new proj-4-urgent --kind bug --lane urgent --declared-by 'Priya Raghavan' | Out-Null
+    $urgentDir = Join-Path $Work 'espec/changes/proj-4-urgent'
+    $urgentFiles = @(Get-ChildItem -LiteralPath $urgentDir -Force | ForEach-Object { $_.Name })
+    if (($urgentFiles -join ',') -ne '.espec.yaml') { throw "expected only .espec.yaml in an urgent change, got $($urgentFiles -join ',')" }
+    $urgentMeta = Join-Path $urgentDir '.espec.yaml'
+    $urgentText = [System.IO.File]::ReadAllText($urgentMeta)
+    if ($urgentText -notmatch '(?m)^catch_up_by: [0-9]{4}-[0-9]{2}-[0-9]{2}\r?$') { throw 'new --lane urgent did not set catch_up_by' }
+    if ($urgentText -notmatch '(?m)^declared_by: Priya Raghavan\r?$') { throw 'new --lane urgent did not set declared_by' }
+    $global:LASTEXITCODE = 1
+    & $cli validate proj-4-urgent | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw 'an urgent change inside its deadline failed validation' }
+    if (((& $cli list) -join "`n") -notmatch 'proj-4-urgent.*urgent, paper due') { throw 'list did not show the urgent lane' }
+    [System.IO.File]::WriteAllText($urgentMeta, ($urgentText -replace '(?m)^catch_up_by: [0-9-]+', 'catch_up_by: 2000-01-01'))
+    $global:LASTEXITCODE = 0
+    & $cli validate proj-4-urgent | Out-Null
+    if ($LASTEXITCODE -eq 0) { throw 'expected validate to fail on an overdue urgent change' }
+    Remove-Item -Recurse -Force $urgentDir
 
     # The worked example must pass against the main specs it was written for (its delta is stamped).
     Copy-Item -Recurse -LiteralPath (Join-Path $Root 'examples/changes/bill-142-invoice-csv-export') -Destination (Join-Path $Work 'espec/changes')

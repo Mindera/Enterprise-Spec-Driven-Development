@@ -29,6 +29,7 @@ Copilot commands, the formats and the validation, with nothing installed on thei
 | `.github/workflows/espec-validate.yml` | CI: validation on every pull request, `config.yaml` syntax, and main specs changed only by archive | The toolkit |
 | `.github/ISSUE_TEMPLATE/feature-definition.md` | New issue skeleton for GitHub Issues projects | You |
 | `.github/ISSUE_TEMPLATE/bug-report.md` | New issue skeleton for bug reports in GitHub Issues projects | You |
+| `.github/PULL_REQUEST_TEMPLATE/espec-urgent-fix.md` | Pull request body for an urgent fix: who declared it, what is broken, how to roll back | You |
 | `.diffcompass.json` | Code review tour settings for DiffCompass | You, after init |
 
 ## Step 1: clone the toolkit and run init
@@ -80,6 +81,7 @@ headings. Cite paths." Then correct it. A wrong `project.md` is worse than an em
 | `security.tool` | `mobile-security-assessment`, the default: the implementation step runs [AI Mobile Security Assessment](https://github.com/Mindera/AI-Mobile-Security-Assessment) on Android, iOS and Kotlin Multiplatform repositories, when the signed-in GitHub user can read its private repository. `none` to turn it off. A non-mobile repository is skipped on its own. |
 | `security.repo` | The tool's repository, `Mindera/AI-Mobile-Security-Assessment`. Change it only for a fork. |
 | `security.platforms` | `[android]`, `[ios]`, `[kmp]` or several. Empty: detected from the repository. |
+| `lanes.untracked_changes` | What CI does with a pull request that changes code, touches no change folder and does not say `espec: no behaviour change`. `warn`, the default, annotates it. `require` fails it: move there once the team is used to the line. `off` skips the check. See [Small and urgent changes](lanes.md). |
 | `archive.clean.prune_archived_changes_older_than_days` | `0` to keep every archived change. A number of days to have old archive folders listed for pruning. |
 | `context` | Two sentences on the product, the stack, how to run tests. The prompts apply it; they do not paste it. |
 | `rules.*` | One line each. The place for house rules: API versioning policy, mandatory security review for changes touching authentication, test coverage per group. |

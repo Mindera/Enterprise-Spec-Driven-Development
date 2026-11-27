@@ -23,6 +23,8 @@ commits. Both end with the definition on the ticket, and engineering starts from
 | 3 | Implementation | `/espec:implementation` | Developers, QA | GitHub Copilot | Code and tests, tasks checked off, `pull-request.md` |
 | 4 | Archive | `/espec:archive`, `/espec:archive-clean` | Developers | GitHub Copilot | Main specs updated, change archived |
 
+A small change and an urgent fix take a shorter path through the same phases: see **Lanes**.
+
 Three read-only commands sit between the phases. They write nothing: they print a report and a
 comment for the ticket.
 
@@ -67,7 +69,7 @@ espec/
 │       └── spec.md
 ├── changes/                      # Work in flight (one folder per change)
 │   ├── <change-name>/
-│   │   ├── .espec.yaml           # Ticket link, status, owners
+│   │   ├── .espec.yaml           # Ticket link, kind, lane, status, owners
 │   │   ├── feature.md            # Phase 1: what and why (imported from the ticket)
 │   │   ├── tech-proposal.md      # Phase 2: how
 │   │   ├── specs/                # Phase 2: deltas against espec/specs/
@@ -759,12 +761,97 @@ The report is **Ready for tech proposal** when every item of the **bug readiness
 - **Everything else.** Approval, implementation, review and archive are unchanged. A one-line fix
   still gets a change folder: the archive is the record of why the behaviour changed.
 
+## Lanes
+
+Every behaviour change travels in one of three lanes. The lane is the `lane:` line in `.espec.yaml`;
+a change without it is in the standard lane. A lane changes how much paper a change carries and when
+it is written. It never removes the human review of the code, the tests, or the record in the specs.
+
+| Lane | For | What it changes |
+|------|-----|-----------------|
+| `standard` | Everything else | Nothing: the four phases as described |
+| `small` | A change one reviewer can judge whole in one sitting | Short definition and proposal, one pull request, one approval |
+| `urgent` | Production is broken or at risk now | The fix ships first; the paper is written after, by a date |
+
+A pull request that changes no observable behaviour (a refactor, a dependency update, tooling,
+tests, documentation) needs no change and no lane. Its description says so in a line that starts
+with `espec: no behaviour change`, followed by the reason, and the reviewer confirms it by approving.
+A refactor whose plan deserves review can still take a change with `skip_specs: true`.
+
+### Small lane
+
+A change qualifies when all of this holds:
+
+- It touches one capability and adds no screen or flow.
+- It adds or changes no API, contract, data model or migration.
+- It needs nothing from another team.
+- One reviewer can judge the definition, the plan and the code together in one sitting.
+
+Typical: wording, a label, a default, a limit or threshold, a validation message, an ordering, a
+configuration value. When in doubt it is not small. The author proposes the lane and the reviewer
+accepts it by approving. Either can send the change to the standard lane at any time by setting
+`lane: standard`, and the full forms then apply.
+
+What is different:
+
+- **Definition.** `feature.md` needs only Why, What, Out of scope, Acceptance criteria (`AC-n`) and
+  Open questions (`templates/small.md`): no use cases, edge cases or UI design section. A bug keeps
+  its bug report. The product boundary applies as always, and Product still owns the what: the
+  ticket holds the same text.
+- **No inspection and no assessment are required.** Both commands still run when asked.
+- **Proposal.** `tech-proposal.md` needs only Context, Approach, Traceability, Test strategy and
+  Questions for Product. Delta specs follow the usual rule: behaviour the main specs describe, or
+  should describe, gets a delta.
+- **One pull request, one approval.** The change folder and the code travel together.
+  `/espec:implementation` may start while the status line reads In review. The reviewer approves the
+  definition, the proposal and the code at once, by setting the status line to Approved in that pull
+  request. `espec validate` fails the pull request until they do.
+- **Archive** is unchanged.
+
+### Urgent lane
+
+For an emergency only: production is broken or at risk now (an incident, a vulnerability being
+exploited, data being lost or corrupted, a legal deadline that cannot move). A tight delivery date is
+not an emergency. A named person accountable for production declares it.
+
+The fix comes first:
+
+1. `espec/bin/espec new <change-name> --kind bug --lane urgent --declared-by "<name>"` writes
+   `.espec.yaml` and nothing else: `lane: urgent`, `declared_by`, and `catch_up_by`, one week ahead.
+2. The fix pull request carries that file. Its description says that it is urgent, who declared it,
+   what is broken, what the fix changes and how to roll it back
+   (`.github/PULL_REQUEST_TEMPLATE/espec-urgent-fix.md`). A person other than the author reviews it
+   before merge. A test that reproduces the problem ships with the fix, or is the first task of the
+   catch-up.
+
+The paper comes after, before `catch_up_by`:
+
+3. `/espec:tech-proposal <change-name>` writes the record of what shipped: the bug report (or the
+   short definition), the proposal in its short form with the root cause and the merged pull request
+   named in Context, the delta when the fix changed behaviour the main specs describe, and `tasks.md`
+   with what was done checked and what is still owed open: the missing test, the workaround to
+   remove, the proper fix.
+4. A reviewer approves the record, the open tasks are done or moved to a change of their own, and
+   `/espec:archive` closes it. No `pull-request.md` is needed: the fix already merged.
+
+The debt stays visible until then. `espec list` shows the lane and the date, and `espec validate`
+fails an urgent change whose date has passed, on every pull request. Moving `catch_up_by` is an edit
+to `.espec.yaml` in a reviewed pull request, with the reason in its description.
+
+### Code that travels with no change
+
+`lanes.untracked_changes` in `config.yaml` sets what CI does with a pull request that changes code,
+touches no folder under `espec/changes/` and does not say `espec: no behaviour change`: `warn` (the
+default) annotates it, `require` fails it, `off` skips the check. Files under `espec/`, `.github/`
+and `.claude/`, and Markdown files, are not code for this check.
+
 ## Change lifecycle (`.espec.yaml`)
 
 ```yaml
 ticket: PROJ-123                 # Jira key or GitHub issue URL
 title: Export invoices as CSV
 kind: feature                    # feature | bug
+lane: standard                   # standard | small | urgent (see Lanes)
 status: defined                  # defined | proposed | in-progress | implemented | archived | cancelled
 created: 2026-10-24
 owners:
@@ -772,6 +859,8 @@ owners:
   engineering: <name>
   qa: <name>
 skip_specs: false                # true only when the main specs need no change
+declared_by: <name>              # urgent lane only: who declared the emergency
+catch_up_by: 2026-10-31          # urgent lane only: the date the paper is due
 archived: 2026-11-02             # set by /espec:archive
 archived_with_open_tasks: ""     # set by /espec:archive when the user chose to archive early, with the reason
 archived_without_sync: ""        # set by /espec:archive when the deltas were not applied, with the reason
@@ -787,8 +876,8 @@ cancelled_reason: ""             # why, set together with cancelled
   In review (see the Tech proposal rules). The line is a claim anyone can type: the repository makes
   it binding by requiring the named approvers' review on `tech-proposal.md` (CODEOWNERS and branch
   protection, set up once per repository).
-- `in-progress`: at least one task is checked.
-- `implemented`: every task is checked and `pull-request.md` exists.
+- `in-progress`: at least one task is checked. An urgent change starts here, with only `.espec.yaml`.
+- `implemented`: every task is checked and `pull-request.md` exists (the urgent lane needs none).
 - `archived`: folder moved under `changes/archive/`.
 - `cancelled`: the change will not ship. The folder is moved under `changes/archive/` without applying
   its deltas, with `cancelled` and `cancelled_reason` set. A cancelled change is a record, never
@@ -993,6 +1082,9 @@ empty.
   Security validation runs only with access to the tool; without it the pull request says skipped,
   never passed.
 - Phase 4 never deletes a spec without evidence and confirmation.
+- Never pick a lane. The small lane is proposed by the author and accepted by the reviewer; the
+  urgent lane is declared by a named person. Say when a change does not meet its lane's conditions,
+  and never present a tight date as an emergency.
 - Inspect commands and the technical assessment are read-only. They never edit the ticket,
   `feature.md`, the proposal, specs, tasks or code, and they save a report only when asked. The
   assessment names what exists and what the options are; it decides nothing, and code evidence never

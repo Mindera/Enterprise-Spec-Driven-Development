@@ -50,7 +50,36 @@ mv espec.yaml.new espec/changes/bill-171-fix-jpy-amounts-in-export/.espec.yaml
 if ./espec/bin/espec validate bill-171-fix-jpy-amounts-in-export >/dev/null; then
   echo "expected validate to ask a feature for use cases and edge cases"; exit 1
 fi
+# In the small lane the same text is a valid short definition: Why, What, Out of scope, Acceptance criteria.
+echo "lane: small" >> espec/changes/bill-171-fix-jpy-amounts-in-export/.espec.yaml
+./espec/bin/espec validate bill-171-fix-jpy-amounts-in-export >/dev/null
 rm -rf espec/changes/bill-171-fix-jpy-amounts-in-export
+
+# The small lane starts from the short definition template.
+./espec/bin/espec new proj-3-small --lane small >/dev/null
+grep -q '^lane: small' espec/changes/proj-3-small/.espec.yaml
+if grep -q '^## Use cases' espec/changes/proj-3-small/feature.md; then
+  echo "expected the short definition in the small lane"; exit 1
+fi
+rm -rf espec/changes/proj-3-small
+
+# The urgent lane names who declared it, holds only .espec.yaml until the paper is written,
+# and fails validation once the paper is overdue.
+if ./espec/bin/espec new proj-4-urgent --lane urgent >/dev/null 2>&1; then
+  echo "expected --lane urgent to need --declared-by"; exit 1
+fi
+./espec/bin/espec new proj-4-urgent --kind bug --lane urgent --declared-by "Priya Raghavan" >/dev/null
+[ "$(ls -A espec/changes/proj-4-urgent)" = .espec.yaml ] || { echo "expected only .espec.yaml in an urgent change"; exit 1; }
+grep -Eq '^catch_up_by: [0-9]{4}-[0-9]{2}-[0-9]{2}$' espec/changes/proj-4-urgent/.espec.yaml
+grep -q '^declared_by: Priya Raghavan$' espec/changes/proj-4-urgent/.espec.yaml
+./espec/bin/espec validate proj-4-urgent >/dev/null
+./espec/bin/espec list | grep 'proj-4-urgent.*urgent, paper due' >/dev/null
+sed 's/^catch_up_by: .*/catch_up_by: 2000-01-01/' espec/changes/proj-4-urgent/.espec.yaml > espec.yaml.new
+mv espec.yaml.new espec/changes/proj-4-urgent/.espec.yaml
+if ./espec/bin/espec validate proj-4-urgent >/dev/null; then
+  echo "expected validate to fail on an overdue urgent change"; exit 1
+fi
+rm -rf espec/changes/proj-4-urgent
 
 # The worked example must pass against the main specs it was written for (its delta is stamped)...
 cp -R "$ROOT/examples/changes/bill-142-invoice-csv-export" espec/changes/
