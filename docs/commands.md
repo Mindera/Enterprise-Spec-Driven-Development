@@ -2,7 +2,7 @@
 
 Five commands, one per step of the workflow, three read-only commands (a technical assessment and two
 inspections), a review command that starts the DiffCompass tour, a design-context command that
-reads Figma frames into the feature definition, plus an optional CLI. Canonical names use a colon.
+runs the design step of the feature definition on its own, plus an optional CLI. Canonical names use a colon.
 In GitHub Copilot Chat the same command is typed with a dash, because prompt file names cannot
 contain `:`. Rovo and M365 Copilot have no slash commands. There the command is an agent you
 @-mention or a prompt you paste.
@@ -27,7 +27,7 @@ Only phase 1 runs in Rovo and M365 Copilot. Phases 2 to 4 need the repository an
 
 | Command | Phase | Who | Input | Writes |
 |---|---|---|---|---|
-| `/espec:feature-definition` | 1 | PM, Designer, in Rovo, M365 Copilot or GitHub Copilot. A developer in-repo. | Idea, ticket key, URL or pasted definition | Ticket description. In-repo also `feature.md` and `.espec.yaml` |
+| `/espec:feature-definition` | 1 | PM, Designer, in Rovo, M365 Copilot or GitHub Copilot. A developer in-repo. | Idea, ticket key, URL or pasted definition | Ticket description. In-repo also `feature.md` and `.espec.yaml`, with the **UI design** section read from the Figma frames in the same run |
 | `/espec:tech-proposal` | 2 | Developer, QA | Ticket key, URL, change name or pasted definition | `tech-proposal.md`, `specs/`, `tasks.md`, `.espec.yaml` |
 | `/espec:implementation` | 3 | Developer, QA | Change name | Code, tests, `tasks.md`, `pull-request.md`, `.espec.yaml` |
 | `/espec:archive` | 4 | Developer | Change name | `espec/specs/`, the archived folder, a release note |
@@ -36,7 +36,7 @@ Only phase 1 runs in Rovo and M365 Copilot. Phases 2 to 4 need the repository an
 | `/espec:assess` | before 2 | Developer, with Product, Design, QA and the owning teams | Ticket key, URL, pasted definition or change name | Nothing. A report and a ticket comment in the chat |
 | `/espec:inspect-tech-proposal` | before 3 | QA, Engineering Manager, Architect | Change name | Nothing. A report and a ticket comment in the chat |
 | `/espec:review` | after 3 | Reviewer | Pull request number or URL, branch or change name. In a spec hub: code pull request URL and change name | Nothing. Launches the DiffCompass tour |
-| `/espec:design-context` | 1, before 2 | PM, Designer or developer | Change name, ticket key or Figma frame URLs | The **UI design** and **Open questions** sections of `feature.md`. The ticket only on yes |
+| `/espec:design-context` | 1, before 2 | PM, Designer or developer, when the frames arrive after the definition | Change name, ticket key or Figma frame URLs | The design step of `/espec:feature-definition` on its own: the **UI design** and **Open questions** sections of `feature.md`. The ticket only on yes |
 
 Every command ends with a usage line, such as `Usage: 3 premium requests (GitHub Copilot)`, so
 developers see what each run cost. When the tool does not show usage to the agent, the line says so
@@ -62,11 +62,12 @@ and the worked examples in [examples/coverage/](../examples/coverage/).
 | GitHub Copilot | `/espec-feature-definition <source>` |
 | Prompt file | [template/.github/prompts/espec-feature-definition.prompt.md](../template/.github/prompts/espec-feature-definition.prompt.md) |
 | Product tools | [product-ai/rovo/feature-definition-agent.md](../product-ai/rovo/feature-definition-agent.md), [product-ai/m365-copilot/feature-definition-agent.md](../product-ai/m365-copilot/feature-definition-agent.md), [product-ai/prompts/feature-definition.prompt.md](../product-ai/prompts/feature-definition.prompt.md) |
-| Who runs it | Product Manager: as an agent in Rovo or M365 Copilot, or as this command in GitHub Copilot, in a local copy that Product never commits. Designer for the UI design section, with the UI design agent or `/espec:design-context`. A developer when the work has no product owner. |
+| Who runs it | Product Manager: as an agent in Rovo or M365 Copilot, or as this command in GitHub Copilot, in a local copy that Product never commits. Designer for the UI design section: with the UI design agent in Rovo or M365 Copilot, or in the design step of this command in GitHub Copilot. A developer when the work has no product owner. |
 | Input | One of: a one-line idea (Draft mode), a ticket key, URL or pasted definition (Import mode), an existing `feature.md` (Review mode). The AI says which mode it picked. |
-| Reads | In-repo: `espec/AGENTS.md`, `project.md`, `config.yaml`. The ticket, when a tool can reach it. |
+| Reads | In-repo: `espec/AGENTS.md`, `project.md`, `config.yaml`. The ticket, when a tool can reach it. The Figma frames the definition links, through a Figma MCP server. |
+| Design step | In GitHub Copilot one run covers the definition and its design. Draft mode asks for the Figma frame links in the interview; Import and Review ask once whether to read frames the UI design section does not map yet. It then reads each frame, interviews on how the design behaves, and writes the **UI design** section plus the `EC-n` and `AC-n` the person confirms, before the readiness check. No frames yet, or no Figma server: it says so and continues, and `/espec:design-context` runs the step alone later. |
 | Writes | The feature definition, printed as one Markdown block to paste into the ticket. In-repo: `espec/changes/<change-name>/feature.md` and `.espec.yaml` with `status: defined` when the definition is ready. |
-| Pauses when | Interviewing, at most four questions per round. A how is stated: it quotes it, offers an outcome rephrasing, and asks once whether to force it. The change folder already exists: asks whether to update or create new. Before updating a ticket: always asks. |
+| Pauses when | Interviewing, at most four questions per round. A how is stated: it quotes it, offers an outcome rephrasing, and asks once whether to force it. The change folder already exists: asks whether to update or create new. Figma frames are linked on an imported or existing definition: asks once whether to read them. The design shows behaviour the definition lacks: proposes an `EC-n` and `AC-n` for Product to confirm. Before updating a ticket: always asks. |
 | Output | The document, the review checklist as ✅ / ❌ lines with a one-line fix each, and the status: Draft or Ready for tech proposal. |
 
 It never writes a tech proposal, specs, tasks or code. Asked to, it points to `/espec:tech-proposal`
@@ -99,7 +100,7 @@ the approach" as a task.
 | Reads | `AGENTS.md`, `project.md`, `config.yaml` (the `implementation` rules, `security.*`, `review.base`). Then from disk: `feature.md`, `tech-proposal.md`, every file under `specs/`, `tasks.md`. |
 | Writes | Application code and tests. `tasks.md`: `- [ ]` becomes `- [x]` on the exact line, only after the named verification passed; on a mobile app, `S.n` tasks under `## Security` for the findings the change caused. `pull-request.md` at the end: a description a reviewer can read without the code, with a proposal-versus-implementation table, one row per acceptance criterion, verification, security validation, rollout and a release note. `security-report.md` when the security validation leaves findings. `.espec.yaml`: `in-progress` after the first check, `implemented` after the last. |
 | Pauses when | The conversation already holds earlier work on the change: it asks for a new chat or session. The gate fails: `.espec.yaml` is not `proposed` or `in-progress`, `tech-proposal.md` or `tasks.md` is missing, or the status line of `tech-proposal.md` is not Approved. A blocking Question for Product is still open. A task is unclear or contradicts another. The task needs work the proposal or specs do not describe. It is tempted to narrow, defer or simplify specified behaviour. Implementation reveals a design problem. A test fails for a reason outside the task. `msa doctor` names a missing scanner: asks whether to install it or skip the security validation. |
-| Output | Progress as `N/M tasks complete` with the next pending tasks. On a mobile app, before the pull request: the security validation with [AI Mobile Security Assessment](https://github.com/Mindera/AI-Mobile-Security-Assessment), run only when the signed-in GitHub user can read its private repository (`security.tool` in `config.yaml`): findings in touched files fixed as `S.n` tasks, pre-existing ones reported, and the outcome on the pull request as "Security validation passed", "skipped: <reason>" or "⚠️ Security findings: fix before merge" with the report in `security-report.md`. On completion: `pull-request.md` printed with `gh pr create --body-file espec/changes/<change-name>/pull-request.md`, tasks done this session, anything deferred with the reason, and "All tasks complete. Review, then run `/espec:archive <change-name>`." With `review.tool: diffcompass` in `config.yaml`, `/espec:review <change-name>` for the reviewer. At the end of every session, finished or stopped early, the coverage report: every `AC` as Delivered, Partial or Not delivered with its file, test and `Q.n`, every proposal item as proposed or differing with a reason, and the match figure. |
+| Output | Progress as `N/M tasks complete` with the next pending tasks. On a mobile app, before the pull request: the security validation with [AI Mobile Security Assessment](https://github.com/Mindera/AI-Mobile-Security-Assessment), run only when the signed-in GitHub user can read its private repository (`security.tool` in `config.yaml`): findings in touched files fixed as `S.n` tasks, pre-existing ones reported, and the outcome on the pull request as "Security validation passed", "skipped: <reason>" or an alert with the report in `security-report.md`: "⚠️ Security findings: fix before merge" while a finding remains in a touched file, "⚠️ Security findings: pre-existing, not from this change" when only pre-existing ones are left. On completion: `pull-request.md` printed with `gh pr create --body-file espec/changes/<change-name>/pull-request.md`, tasks done this session, anything deferred with the reason, and "All tasks complete. Review, then run `/espec:archive <change-name>`." With `review.tool: diffcompass` in `config.yaml`, `/espec:review <change-name>` for the reviewer. At the end of every session, finished or stopped early, the coverage report: every `AC` as Delivered, Partial or Not delivered with its file, test and `Q.n`, every proposal item as proposed or differing with a reason, and the match figure. |
 
 It never edits `espec/specs/`. A behaviour change found during implementation goes into the change's
 delta specs as a proposed tech proposal update, which the user confirms.
@@ -206,7 +207,7 @@ tour from `repos/<name>` and prints a brief to paste into the tour's Ask panel.
 |---|---|
 | GitHub Copilot | `/espec-design-context <source>` |
 | Prompt file | [template/.github/prompts/espec-design-context.prompt.md](../template/.github/prompts/espec-design-context.prompt.md) |
-| Who runs it | A Product Manager or Designer with GitHub Copilot, on their local change folder, or a developer after importing the ticket. |
+| Who runs it | Whoever needs the design step alone. `/espec:feature-definition` already runs it in the same run when the definition links Figma frames. A Product Manager or Designer with GitHub Copilot when the frames arrive or change after the definition, on their local change folder; a developer after importing a ticket written in Rovo or M365 Copilot. |
 | Input | A change name, a ticket key, or Figma frame URLs. The change folder must exist: import the ticket with `/espec:feature-definition` first. |
 | Needs | A Figma MCP server (`get_metadata`, `get_design_context`, `get_screenshot`). See [setup step 7](guides/setup-engineering.md#step-7-let-copilot-reach-the-ticket-system-optional-recommended). |
 | Reads | `AGENTS.md`, `project.md`, `config.yaml`, `feature.md`, the ticket's description, links and comments, and every linked frame. |

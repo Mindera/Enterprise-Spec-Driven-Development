@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="./VERSION"><img alt="Version: v1.0.23" src="https://img.shields.io/badge/version-v1.0.23-orange.svg?style=flat-square"></a>
+  <a href="./VERSION"><img alt="Version: v1.0.24" src="https://img.shields.io/badge/version-v1.0.24-orange.svg?style=flat-square"></a>
   <a href="./LICENSE.md"><img alt="License: Sustainable Use 1.0" src="https://img.shields.io/badge/License-Sustainable%20Use%201.0-blue.svg?style=flat-square"></a>
   <img alt="GitHub Copilot" src="https://img.shields.io/badge/Developers-GitHub%20Copilot-24292f?style=flat-square">
   <img alt="Rovo" src="https://img.shields.io/badge/Product-Rovo-0052cc?style=flat-square">
@@ -27,7 +27,7 @@
 ```
 
 <p align="center">
-  <img src="assets/espec-workflow.gif" alt="The espec workflow: Product defines the feature in Rovo or M365 Copilot, or in GitHub Copilot, the ticket is the hand-off where both streams join, and Engineering checks, assesses, proposes, implements, reviews and archives in GitHub Copilot" width="800">
+  <img src="assets/espec-workflow.gif" alt="The espec workflow: Product defines the feature in Rovo or M365 Copilot, or with one command in GitHub Copilot, the ticket is the hand-off where both streams join, and Engineering checks, assesses, proposes, implements, reviews and archives in GitHub Copilot" width="800">
 </p>
 
 ## Built for the enterprise
@@ -63,11 +63,11 @@ Agent:          Noted as ⚠️ FT-1 with your reason. Now, the second use case.
                 Readiness check: all ✅. Status: Ready for tech proposal.
                 Paste this into BILL-142.
 
-Or, with GitHub Copilot, the same interview as a command in a local clone:
+Or, with GitHub Copilot, one command in a local clone for the definition and its design:
 PM:               /espec-feature-definition BILL-142
-Designer:         /espec-design-context bill-142-invoice-csv-export
-Copilot:          Read 3 Figma frames. The export dialog shows progress, but no frame shows
-                  a failed export. What does the user see? Proposed EC-10 and AC-14. Confirm?
+Copilot:          ...the same interview, then: the definition links 3 Figma frames. Read them.
+                  The export dialog shows progress, but no frame shows a failed export.
+                  What does the user see? Proposed EC-10 and AC-14. Confirm?
                   ...
                   Write the description to BILL-142? The local change folder is not committed.
 
@@ -134,7 +134,8 @@ Copilot:          Synced invoice-export (new) and invoice-list (1 modified).
 | 4 | **Archive** | `/espec:archive` · `/espec:archive-clean` | Developers | Main specs updated; outdated specs purged or corrected |
 
 **Phase 1** starts in product language only. It asks for every use case, every edge case and an
-explicit out of scope. When a *how* slips in, it asks you to rephrase it as an outcome. If you insist,
+explicit out of scope. In GitHub Copilot the same command then reads the Figma frames and asks how
+the design behaves, so the definition and its UI design come out of one run. When a *how* slips in, it asks you to rephrase it as an outcome. If you insist,
 it is recorded as a ⚠️ **forced technical note** that engineering must accept or override, with a
 reason, in the tech proposal. It ends with a developer's technical assessment of the ticket against
 the code, so product decides scope with the facts before anyone designs.
@@ -217,7 +218,8 @@ Copilot:          Security validation: android detected. Running msa assess on t
                   2 findings in files this change touches: D01 SessionStore.kt:10, D06 HttpClient.kt:36.
                   Added S.1 and S.2 to tasks.md. Fixing S.1...
                   Second run: 0 findings in this change, 3 pre-existing.
-                  ⚠️ Security findings: fix before merge. Report saved as security-report.md.
+                  ⚠️ Security findings: pre-existing, not from this change. Report saved as
+                  security-report.md.
 ```
 
 - **Optional, by access.** The tool's repository is private. The step runs only when the signed-in
@@ -226,10 +228,12 @@ Copilot:          Security validation: android detected. Running msa assess on t
 - **Fixes what the change caused.** A finding in a file the diff touches becomes a task in a
   `## Security` group of `tasks.md`, is fixed, and is checked when a second run no longer reports it.
   Pre-existing findings are reported, not fixed in the change.
-- **Alert on the pull request.** Findings left: `pull-request.md` carries "⚠️ Security findings: fix
-  before merge", one row per finding and the report, saved as `security-report.md` in the change
-  folder. No findings: one line, "Security validation passed". The reviewer treats a finding in a
-  touched file as a change request, and the DiffCompass tour flags it.
+- **Alert on the pull request.** Findings left: `pull-request.md` carries an alert, one row per
+  finding and the report, saved as `security-report.md` in the change folder. The alert reads
+  "⚠️ Security findings: fix before merge" while a finding sits in a file the change touches: the
+  reviewer treats it as a change request, and the DiffCompass tour flags it. When only pre-existing
+  findings are left it reads "⚠️ Security findings: pre-existing, not from this change". No findings:
+  one line, "Security validation passed".
 
 ## How it flows
 
@@ -240,8 +244,7 @@ flowchart LR
     DSA[Designer] -->|adds experience from Figma| FDA
   end
   subgraph productB [Product · GitHub Copilot, nothing committed]
-    PMB[Product Manager] -->|/espec:feature-definition| FDB[Local feature.md]
-    DSB[Designer or PM] -->|/espec:design-context| FDB
+    PMB[Product Manager, Designer] -->|/espec:feature-definition, definition and UI design| FDB[Local feature.md]
   end
   FDA -->|ticket| T[(Jira / GitHub issue)]
   FDB -->|ticket| T
@@ -280,7 +283,7 @@ Your repo also gets its own copy of the validator in `espec/bin` and a GitHub Ac
 runs it on every pull request, so format rules are checked without any dependency
 on this toolkit. Then name your tech proposal approvers in CODEOWNERS
 ([engineering setup, step 5](docs/guides/setup-engineering.md#step-5-protect-approval-and-the-main-specs)).
-To pin a version, check out its tag (`git -C ~/espec checkout v1.0.23`) before `init` or `update`.
+To pin a version, check out its tag (`git -C ~/espec checkout v1.0.24`) before `init` or `update`.
 
 ### Product and design
 
@@ -289,8 +292,9 @@ Two ways to start, one ticket at the end:
 - **Rovo or M365 Copilot.** Open [`product-ai/`](product-ai/), pick `rovo/` or `m365-copilot/`, and
   create the two agents from the files there. Each file holds the name, description, starters and the
   instructions to paste.
-- **GitHub Copilot.** Clone the repository engineering set up and run `/espec-feature-definition` and
-  `/espec-design-context`. Commit nothing: the ticket is the hand-off
+- **GitHub Copilot.** Clone the repository engineering set up and run `/espec-feature-definition`:
+  one command interviews for the definition, then reads the Figma frames into its UI design. Commit
+  nothing: the ticket is the hand-off
   ([setup](docs/roles-and-tools.md#github-copilot-product-managers-designers)).
 
 Either way, add the ticket template from `product-ai/ticket-templates/` to Jira or GitHub. Done.
@@ -324,9 +328,10 @@ proposal reads. Browse the [worked example](examples/) for a full change, phase 
 your-repo/
 ├── .diffcompass.json                      # Code review tour settings: read the change folder first
 ├── .markdownlint-cli2.yaml                # Optional markdownlint settings that skip the managed files
+├── .claude/commands/espec-*.md            # The same commands for GitHub Copilot CLI and Claude Code
 ├── .github/
 │   ├── copilot-instructions.md            # Repo-wide rules for Copilot
-│   ├── prompts/espec-*.prompt.md          # The five commands, the assessment, two inspections, review, design context
+│   ├── prompts/espec-*.prompt.md          # The five commands, the assessment, two inspections, review, the design step
 │   ├── instructions/espec.instructions.md # Format rules applied to espec/**
 │   ├── workflows/espec-validate.yml       # CI: validates changes and specs on every pull request
 │   ├── ISSUE_TEMPLATE/feature-definition.md
@@ -363,7 +368,7 @@ Questions, bugs and ideas go to [GitHub Issues](https://github.com/Mindera/Enter
 Pull requests are welcome. Keep the README simple and the prompts shorter than the documents they
 produce.
 
-The current version is **v1.0.23**, kept in [`VERSION`](VERSION). Every change bumps the last number
+The current version is **v1.0.24**, kept in [`VERSION`](VERSION). Every change bumps the last number
 (`vX.Y.Z` → `vX.Y.Z+1`) and adds an entry to the [changelog](CHANGELOG.md); every version merged to
 `main` is tagged and released. See [`AGENTS.md`](AGENTS.md) for the rules every contributor and every
 AI assistant follows.

@@ -5,9 +5,10 @@ Engineering owns phases 2 to 4. The two sides may use different AI tools, so the
 them is a ticket written in a fixed format that any assistant can read and any human can review.
 
 Product starts in one of two ways. Without GitHub Copilot, Product Managers and Designers use the
-agents in Rovo or M365 Copilot. With GitHub Copilot, they run the espec commands in a local copy of
-the repository and commit nothing. Both streams end with the definition on the ticket and join at the
-readiness check, which a developer runs. From there the flow is the same.
+agents in Rovo or M365 Copilot. With GitHub Copilot, they run `/espec:feature-definition`, one command
+for the definition and its UI design, in a local copy of the repository and commit nothing. Both
+streams end with the definition on the ticket and join at the readiness check, which a developer runs.
+From there the flow is the same.
 
 The formats and rules live in [template/espec/AGENTS.md](../template/espec/AGENTS.md). This page
 explains how the phases connect across roles and tools. For the commands see
@@ -28,9 +29,7 @@ flowchart TB
 
   subgraph ProductB["With GitHub Copilot · nothing committed"]
     direction TB
-    PMB["Product Manager<br/>/espec:feature-definition<br/>what and why, never how"]
-    DSB["Product or Designer<br/>/espec:design-context<br/>Figma frames, then an interview"]
-    PMB --> DSB
+    PMB["Product Manager and Designer<br/>/espec:feature-definition<br/>what and why, never how,<br/>then the Figma frames and a design interview"]
   end
   end
 
@@ -58,7 +57,7 @@ flowchart TB
   end
 
   DSA -->|"paste as description"| TK
-  DSB -->|"write or paste the description"| TK
+  PMB -->|"write or paste the description"| TK
   TK -->|"check, then assess against the code"| RC
   AS -.->|"Ready, or Further discovery required"| TA
   TA -.->|"scope decisions, confirmations"| Product
@@ -87,7 +86,7 @@ checks and assesses it against the repository before the tech proposal starts.
 |---|---|
 | Command | `/espec:feature-definition` |
 | Who | The Product Manager writes. The Designer fills the UI design section from the Figma frames. QA reviews edge cases and acceptance criteria. |
-| Tool | Without GitHub Copilot: Rovo or M365 Copilot, with the agents in [product-ai/](../product-ai/README.md). With GitHub Copilot: `/espec-feature-definition` and `/espec-design-context` in a local copy of the repository (see below). A developer who starts a feature uses the same commands. |
+| Tool | Without GitHub Copilot: Rovo or M365 Copilot, with the agents in [product-ai/](../product-ai/README.md). With GitHub Copilot: `/espec-feature-definition` in a local copy of the repository, one command for the definition and its UI design (see below). A developer who starts a feature uses the same command. |
 | Inputs | The idea, the research, the available UI designs, the business why, known uncertainties. |
 | Outputs | The ticket description in the feature definition format, with the readiness checklist all ✅ and the status line set to Ready for tech proposal. In GitHub Copilot, also a local `espec/changes/<change-name>/feature.md` that Product does not commit. |
 | Exit criteria | **Ready for tech proposal** on the ticket: Why, What, at least one UC, edge cases, out of scope and acceptance criteria are present, every UC and EC maps to an AC, open questions are answered or accepted as deferred, and no how sits outside the forced notes. `/espec:inspect-feature-definition` returns Ready for tech proposal. |
@@ -98,7 +97,7 @@ checks and assesses it against the repository before the tech proposal starts.
 | | Without GitHub Copilot | With GitHub Copilot |
 |---|---|---|
 | Define | `@espec Feature Definition` agent in Rovo or M365 Copilot | `/espec-feature-definition` (Draft, or Import from the ticket) in a local copy of the repository |
-| Design | `@espec UI Design` agent, from the Figma frames | `/espec-design-context <change-name>`: reads the Figma frames, then interviews Product or Design on how the design behaves and which use cases and edge cases each screen serves |
+| Design | `@espec UI Design` agent, from the Figma frames | The same command, in the same run: it reads the Figma frames, then interviews Product or Design on how the design behaves and which use cases and edge cases each screen serves. `/espec-design-context <change-name>` runs that step alone when the frames arrive later |
 | Ticket | Pasted, or written by the Rovo agent through Jira actions | Written through the Atlassian or GitHub MCP server on a yes, or pasted |
 | Repository | Untouched | Untouched: the change folder is a local working copy, deleted once the ticket holds the final text |
 | Join | A developer runs `/espec-inspect-feature-definition` on the ticket, then `/espec-assess` | The same |
@@ -175,7 +174,7 @@ A bug runs through the same phases with a lighter definition and proposal: see
 | Tool | GitHub Copilot: `/espec-implementation <change-name>`. |
 | Inputs | The approved change folder, re-read from disk every time, in a new chat or session so the proposal conversation does not steer the code. |
 | Outputs | Code and tests. `tasks.md` with a task checked off only after its verification passed. `pull-request.md`: the pull request description, readable without the code, with a proposal-versus-implementation table. `.espec.yaml` moves to `in-progress` after the first check and `implemented` after the last. In the chat, a coverage report: how much of the proposal and the feature definition the code delivers, criterion by criterion. |
-| Security | On a mobile app, before the pull request description: [AI Mobile Security Assessment](https://github.com/Mindera/AI-Mobile-Security-Assessment) against OWASP MASVS, run only when the signed-in GitHub user can read its private repository. Findings in files the change touches are fixed as `S.n` tasks; the rest go on the pull request as "⚠️ Security findings: fix before merge" with `security-report.md`. No findings: "Security validation passed". No access: skipped, and the pull request says so. |
+| Security | On a mobile app, before the pull request description: [AI Mobile Security Assessment](https://github.com/Mindera/AI-Mobile-Security-Assessment) against OWASP MASVS, run only when the signed-in GitHub user can read its private repository. Findings in files the change touches are fixed as `S.n` tasks; the rest go on the pull request with `security-report.md`, under "⚠️ Security findings: pre-existing, not from this change", or under "⚠️ Security findings: fix before merge" while a finding remains in a touched file. No findings: "Security validation passed". No access: skipped, and the pull request says so. |
 | Exit criteria | **All tasks complete**: every checkbox in `tasks.md` is `[x]`, including the QA verification group. |
 | Hand-off | The pull request, whose description is `pull-request.md`. It links to the ticket, and its Release note section becomes the ticket comment at archive. |
 | Code review | The reviewer reads `pull-request.md`, then runs `/espec:review <number>` to walk the diff with [DiffCompass](https://github.com/Mindera/diffcompass). `.diffcompass.json` points its agent at the change folder, so the tour follows **How to review** and flags drift from the tech proposal and the delta specs. |
@@ -210,7 +209,7 @@ changes `espec/specs/` without archiving a change fails. See
 | Artifact | Ticket | Repository |
 |---|---|---|
 | Feature definition | Description. Product edits here. | `espec/changes/<change-name>/feature.md`, an identical copy from `# Feature:` down, plus the marker and header line on Jira |
-| Design notes | **UI design** section of the description | Same section of `feature.md` |
+| UI design | **UI design** section of the description | Same section of `feature.md` |
 | Forced technical notes | `## Forced technical notes` in the description | Same section of `feature.md`, reviewed in `tech-proposal.md` |
 | Technical assessment | Comment from engineering, with the outcome | Printed by `/espec:assess`. On request, `espec/changes/<change-name>/inspections/YYYY-MM-DD-assess.md` |
 | Questions for Product | Comment from engineering | `## Questions for Product` in `tech-proposal.md` |

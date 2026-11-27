@@ -8,9 +8,9 @@ Short answers. The rules behind them are in
 No. In many enterprises GitHub Copilot is licensed per developer seat and tied to membership of the
 GitHub organisation, so Product Managers and Designers get Microsoft 365 Copilot or Atlassian Rovo and
 work in Jira, Confluence and Teams. Others do give product a Copilot seat. espec supports both:
-without Copilot, phase 1 runs in the Rovo or M365 agents; with Copilot, it runs as
-`/espec-feature-definition` and `/espec-design-context` in a local copy of the repository that
-product never commits. Either way the result is the ticket, and both streams join when a developer
+without Copilot, phase 1 runs in the Rovo or M365 agents; with Copilot, it runs as one command,
+`/espec-feature-definition`, which covers the definition and its UI design in a local copy of the
+repository that product never commits. Either way the result is the ticket, and both streams join when a developer
 runs the readiness check on it. The format is the same, so engineering cannot tell, and does not need
 to know, which tool product used.
 

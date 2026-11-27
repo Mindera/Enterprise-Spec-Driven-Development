@@ -50,9 +50,10 @@ optionally followed by the change name. Steps 1 to 5 below say what differs.
    - `.espec.yaml` is not at `implemented`, or tasks are unchecked: say how many.
    - `pull-request.md` is missing or lacks a section: name it and point to `/espec:implementation`.
    - The pull request body differs from `pull-request.md`: say so. The description is the review's map.
-   - The **Security validation** section carries the alert: say how many findings sit in files the diff
-     touches. Each is a change request until fixed. Skipped: say why, so the reviewer knows no
-     assessment ran.
+   - The **Security validation** section carries an alert: say how many findings sit in files the diff
+     touches. Each is a change request until fixed. An alert that says "pre-existing, not from this
+     change" while a finding sits in a touched file is wrong: say so. Skipped: say why, so the reviewer
+     knows no assessment ran.
    In a spec hub, read these files from the hub checkout, count only unchecked tasks in the
    `[<name>]` groups for this repo, and compare the pull request body with this repo's block in
    `pull-request.md`. Report when the body does not link the hub change folder.

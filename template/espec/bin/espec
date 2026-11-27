@@ -449,7 +449,7 @@ validate_pull_request() {
   local f="$1/pull-request.md" status="" h missing=""
   [ -f "$1/.espec.yaml" ] && status=$(yaml_value "$1/.espec.yaml" status)
   if [ -f "$f" ]; then
-    for h in "## Summary" "## Proposal versus implementation" "## Behaviour delivered" "## Deviations and deferred work" "## How to review" "## Verification" "## Rollout" "## Release note"; do
+    for h in "## Summary" "## Proposal versus implementation" "## Behaviour delivered" "## Deviations and deferred work" "## How to review" "## Verification" "## Security validation" "## Rollout" "## Release note"; do
       grep -q "^$h" "$f" || missing="$missing '$h'"
     done
     if [ -z "$missing" ]; then ok "pull-request.md: all sections present"; else bad "pull-request.md: missing section(s):$missing"; fi

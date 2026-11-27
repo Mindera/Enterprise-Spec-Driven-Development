@@ -86,9 +86,12 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
      file the change did not touch is pre-existing: do not fix it here (step 7), report it.
    - **Record the outcome** in the **Security validation** section of `pull-request.md` (step 10).
      Findings remain, pre-existing or declined by the user: copy `report.md` to
-     `espec/changes/<change-name>/security-report.md`, write the alert line
-     "⚠️ Security findings: fix before merge", the scorecard, one row per finding (row, weakness,
-     `File:LINE`, standard, in this change or pre-existing) and a link to `security-report.md`. No
+     `espec/changes/<change-name>/security-report.md`, write the alert line, the scorecard, one row
+     per finding (row, weakness, `File:LINE`, standard, in this change or pre-existing) and a link to
+     `security-report.md`. The alert line is "⚠️ Security findings: fix before merge" while a finding
+     remains in a file the change touches, and
+     "⚠️ Security findings: pre-existing, not from this change" when every finding left is
+     pre-existing: those are not fixed here and do not block this pull request. No
      findings: write "Security validation passed: <platforms>, <tool> <rubric version>, <date>" and
      attach nothing. Skipped: "Security validation skipped: <reason>".
    - The assessment is static. Never probe the app's backend or any host the report names, and never

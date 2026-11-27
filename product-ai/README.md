@@ -6,16 +6,16 @@ repository. It lives wherever your product team keeps its working material (Conf
 a shared drive).
 
 Product Managers and Designers who have GitHub Copilot do not need this pack: they run
-`/espec-feature-definition` and `/espec-design-context` in a local copy of the repository, commit
-nothing, and write the result to the ticket. See
+`/espec-feature-definition` in a local copy of the repository, one command for the definition and its
+UI design, commit nothing, and write the result to the ticket. See
 [GitHub Copilot for Product Managers and Designers](../docs/roles-and-tools.md#github-copilot-product-managers-designers).
 Both ways end on the same ticket. The ticket templates here apply to both.
 
 | Folder | What is in it | Who uses it |
 |--------|---------------|-------------|
-| `rovo/` | Two Rovo Agent definitions: Feature Definition and Design Notes. Name, description, starters and the full instructions to paste. | Rovo admins, then PMs and Designers |
+| `rovo/` | Two Rovo Agent definitions: Feature Definition and UI Design. Name, description, starters and the full instructions to paste. | Rovo admins, then PMs and Designers |
 | `m365-copilot/` | The same two agents for Microsoft 365 Copilot agent builder. | M365 admins, then PMs and Designers |
-| `prompts/` | Copy-paste prompts for any chat when creating an agent is not possible: define a feature, add design notes, review a definition. | PMs, Designers, reviewers |
+| `prompts/` | Copy-paste prompts for any chat when creating an agent is not possible: define a feature, add the UI design, review a definition. | PMs, Designers, reviewers |
 | `ticket-templates/` | The feature definition as a Jira description template and as a GitHub issue template, plus the ticket workflow. | PMs, Jira and GitHub admins |
 
 ## The one rule
@@ -37,7 +37,7 @@ you state a solution they ask you to rephrase it as an outcome, and if you insis
 1. Open the agent and say "Define a new feature with me". Answer the questions. Insist on edge cases.
 2. When the readiness check is all ✅, paste the result into the ticket and set the status line to
    **Ready for tech proposal**.
-3. Ask a Designer to run the UI Design agent on the ticket and paste the experience section back.
+3. Ask a Designer to run the UI Design agent on the ticket and paste the UI design section back.
 4. A developer assesses the ticket against the code with `/espec:assess` and posts the result as a
    ticket comment: what exists today, what depends on other teams, alternatives with their
    consequences, anything that cannot be met as written. Decide on what it raises; the ticket

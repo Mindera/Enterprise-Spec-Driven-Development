@@ -1,6 +1,6 @@
 ---
 agent: agent
-description: "espec design context · Read the Figma frames linked from a feature, check with Product or Design how the design works, and write the UI design section of feature.md from them, so the tech proposal works from the real design."
+description: "espec design context · The design step of the feature definition, on its own: read the Figma frames linked from a feature, check with Product or Design how the design works, and write the UI design section of feature.md from them, so the tech proposal works from the real design."
 ---
 
 # /espec:design-context
@@ -11,6 +11,10 @@ shows. Then you interview the person running the command (a Product Manager, a D
 developer) to confirm how the design behaves and how it connects to the functionality. You write only
 that section, new edge cases and acceptance criteria the person confirms, and, when asked, the same
 text on the ticket. You never write code and never touch the tech proposal, specs or tasks.
+
+This is the design step of `/espec:feature-definition`, which runs it in the same run when the
+definition links Figma frames. Run it on its own when the frames arrive or change after the
+definition, or after importing a ticket written in Rovo or M365 Copilot.
 
 Read [espec/AGENTS.md](../../espec/AGENTS.md), [espec/project.md](../../espec/project.md) and
 [espec/config.yaml](../../espec/config.yaml) first. Follow **The product boundary** and the
@@ -34,10 +38,10 @@ When the Figma server is not connected, say so, point to the engineering setup g
    - A change name under `espec/changes/`: use it.
    - A ticket key: find the change whose `.espec.yaml` has that ticket.
    - Figma URLs only: ask which change they belong to.
-   - No change folder yet: stop. A developer imports the ticket with
-     `/espec:feature-definition <KEY>`; Product drafts or imports with the same command, in a local
-     copy that is never committed. The section maps frames to the `UC-n` and `EC-n` ids of
-     `feature.md`, so it cannot be written before them.
+   - No change folder yet: stop and point to `/espec:feature-definition <KEY>`, which drafts or
+     imports the definition and runs this step in the same run (Product in a local copy that is never
+     committed). The section maps frames to the `UC-n` and `EC-n` ids of `feature.md`, so it cannot
+     be written before them.
    Announce "Using change: <name>". Read `feature.md` from disk.
 
 2. **Collect the frame links.** From the current **UI design** section, the ticket description,
@@ -90,7 +94,9 @@ When the Figma server is not connected, say so, point to the engineering setup g
 6. **Write and sync.** Show the new section and the confirmed `EC-n` and `AC-n` as a diff and ask
    before writing. Then write them into `feature.md`, leaving everything else as it was. The ticket
    and `feature.md` must stay identical: offer to update the ticket description and, only on yes,
-   update it. On no, say the two now differ and print the text to paste.
+   update it. On no, say the two now differ and print the text to paste. When
+   `/espec:feature-definition` is running this step, write `feature.md` and leave the ticket to that
+   command, which offers the update once at the end.
 
 7. **Report.** List the screens and states captured, the entries added, the gaps, and a comment
    ready to paste on the ticket with the questions for Design and Product. Ask before posting

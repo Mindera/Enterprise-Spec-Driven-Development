@@ -511,7 +511,7 @@ function Test-PullRequest([string]$Change) {
   if (Test-Path -LiteralPath $f) {
     $text = Get-Content -LiteralPath $f -Raw
     $missing = @()
-    foreach ($h in @('## Summary', '## Proposal versus implementation', '## Behaviour delivered', '## Deviations and deferred work', '## How to review', '## Verification', '## Rollout', '## Release note')) {
+    foreach ($h in @('## Summary', '## Proposal versus implementation', '## Behaviour delivered', '## Deviations and deferred work', '## How to review', '## Verification', '## Security validation', '## Rollout', '## Release note')) {
       if ($text -notmatch ('(?m)^' + [regex]::Escape($h))) { $missing += $h }
     }
     if ($missing.Count -eq 0) { Add-Pass 'pull-request.md: all sections present' }

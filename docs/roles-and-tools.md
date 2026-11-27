@@ -21,7 +21,7 @@ how to set each tool up. The underlying rules are in
 | Phase | Does | Tool |
 |---|---|---|
 | 1 | Describes the problem to the feature definition agent. Answers the interview in short rounds. Confirms or rejects the proposed edge cases. Lists what is out of scope. Sets the status to Ready for tech proposal and pastes the document as the ticket description. | Rovo Agent or M365 Copilot agent from [product-ai/](../product-ai/README.md) |
-| 1, with GitHub Copilot | The same interview with `/espec-feature-definition` in a local copy of the repository. Runs `/espec-design-context` with the Designer when the frames are in Figma and answers its questions on behaviour. Writes the ticket description on a yes, or pastes it. Commits nothing and deletes the local change folder once the ticket holds the final text. | `/espec-feature-definition`, `/espec-design-context`, an Atlassian or GitHub MCP server for the ticket |
+| 1, with GitHub Copilot | The same interview with `/espec-feature-definition` in a local copy of the repository. When the frames are in Figma, the same run reads them and asks how the design behaves; the PM answers with the Designer. Writes the ticket description on a yes, or pastes it. Commits nothing and deletes the local change folder once the ticket holds the final text. | `/espec-feature-definition`, the Figma MCP server, an Atlassian or GitHub MCP server for the ticket |
 | 2 | Answers the Questions for Product that engineering posts as a ticket comment. Updates the ticket description when an answer changes the definition. | The ticket. The review prompt in [product-ai/prompts/review-feature-definition.prompt.md](../product-ai/prompts/review-feature-definition.prompt.md) to check the result |
 | 3 | Stays reachable. A scope question during implementation comes back as a ticket comment. | The ticket |
 | 4 | Reads the release note comment. Closes the ticket. | The ticket |
@@ -41,8 +41,8 @@ Never:
 | Phase | Does | Tool |
 |---|---|---|
 | 1 | Fills the **UI design** section: flows, screens, the empty / loading / error / success states, content and tone, accessibility needs, links to design files. Proposes edge cases that come from the UI (what the user sees when something fails). | The UI design agent: [product-ai/rovo/ui-design-agent.md](../product-ai/rovo/ui-design-agent.md) or [product-ai/m365-copilot/ui-design-agent.md](../product-ai/m365-copilot/ui-design-agent.md), or the prompt in [product-ai/prompts/ui-design.prompt.md](../product-ai/prompts/ui-design.prompt.md) |
-| 1, with GitHub Copilot | Runs `/espec-design-context` on the local change folder: it reads the Figma frames, then interviews the Designer or the PM on how each screen behaves and which use cases and edge cases it serves. Confirms the edge cases it proposes with the PM. Commits nothing; the PM writes the result to the ticket. | GitHub Copilot with the Figma MCP server |
-| 1, engineering side | When the frames are in Figma and the definition came from Rovo or M365, a developer runs `/espec-design-context` after the import. Answers the questions it lists. | The ticket |
+| 1, with GitHub Copilot | Joins the design step of the PM's `/espec-feature-definition` run: it reads the Figma frames, then interviews the Designer or the PM on how each screen behaves and which use cases and edge cases it serves. When the frames are ready after the definition, runs that step alone with `/espec-design-context` on the local change folder. Confirms the edge cases it proposes with the PM. Commits nothing; the PM writes the result to the ticket. | GitHub Copilot with the Figma MCP server |
+| 1, engineering side | When the frames are in Figma and the definition came from Rovo or M365, the import offers to read them, or a developer runs `/espec-design-context` afterwards. Answers the questions it lists. | The ticket |
 | 2 | Answers UI design questions from the tech proposal. | The ticket |
 | 3 | Reviews the built screens against the states listed in phase 1. A `Q.n` task can name this review. | The ticket, the staging environment |
 | 4 | Nothing. | |
@@ -146,13 +146,15 @@ agents in Rovo or M365.
 
 1. Clone the repository that already has espec (an engineer ran `espec init`) and open it in an IDE
    with Copilot Chat, or in GitHub Copilot CLI. Type `/espec-` to see the commands.
-2. Connect the Figma MCP server for `/espec-design-context`, and the Atlassian or GitHub MCP server so
+2. Connect the Figma MCP server for the design step, and the Atlassian or GitHub MCP server so
    Copilot can read the ticket and write its description on a yes. The settings are in
    [engineering setup, step 7](guides/setup-engineering.md#step-7-let-copilot-reach-the-ticket-system-optional-recommended).
    Without a ticket server, paste the description by hand.
-3. Run `/espec-feature-definition` and `/espec-design-context`. The change folder they write is a
-   local working copy: do not commit it, and delete it once the ticket holds the final text.
-   Engineering starts from the ticket with `/espec-inspect-feature-definition`.
+3. Run `/espec-feature-definition`. One command covers the definition and its design: it interviews
+   for the what and the why, then reads the Figma frames and asks how the design behaves. When the
+   frames are not ready yet, `/espec-design-context` runs that design step alone later. The change
+   folder it writes is a local working copy: do not commit it, and delete it once the ticket holds the
+   final text. Engineering starts from the ticket with `/espec-inspect-feature-definition`.
 
 ### GitHub Copilot (Developers, QA, reviewers)
 

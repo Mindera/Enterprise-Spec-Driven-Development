@@ -11,8 +11,10 @@ Read `espec/AGENTS.md` for the conventions and `espec/project.md` for project co
 3. **Implementation** follows the tasks and checks them off as they are verified.
 4. **Archive** folds the deltas into `espec/specs/` and moves the change to `espec/changes/archive/`.
 
-Commands in Copilot Chat: `/espec-feature-definition`, `/espec-tech-proposal`,
-`/espec-implementation`, `/espec-archive`, `/espec-archive-clean`. Read-only reviews:
+Commands in Copilot Chat: `/espec-feature-definition` (the definition and, when it links Figma
+frames, its UI design in the same run), `/espec-tech-proposal`, `/espec-implementation`,
+`/espec-archive`, `/espec-archive-clean`. The design step on its own, for frames that arrive after
+the definition: `/espec-design-context`. Read-only reviews:
 `/espec-inspect-feature-definition`, `/espec-assess` (the technical assessment that sits between
 the feature definition and the tech proposal), `/espec-inspect-tech-proposal`. Code review:
 `/espec-review` (a DiffCompass tour of the implementation pull request). GitHub Copilot CLI does not
