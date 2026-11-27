@@ -379,6 +379,12 @@ the definition's success metrics can be read. Archive-clean lists a change once 
 and records the answer as `metrics_reviewed` and `metrics_outcome`. See
 [Product acceptance and success metrics](../template/espec/AGENTS.md#product-acceptance-and-success-metrics).
 
+Merged is not live, so archive also records `rollout` (`pending`, `partial` or `live`) and
+`rollout_note`: who has the change and what the next step waits for. A change turned off later
+becomes `withdrawn`; one whose code was removed while later changes built on it becomes `reverted`.
+The main specs describe the code on the main branch and carry no rollout state. See
+[Merged, live and rolled back](../template/espec/AGENTS.md#merged-live-and-rolled-back).
+
 `lane` says how the change travels. `standard`, the default when the line is absent, is the four
 phases. `small` takes a short definition (Why, What, Out of scope, Acceptance criteria) and a short
 proposal, in one pull request with the code, approved once. `urgent` ships the fix first: the folder

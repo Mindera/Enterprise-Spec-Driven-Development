@@ -90,6 +90,22 @@ Yes. At archive each success metric in the definition gets a date, listed in the
 for the numbers, records the outcome in the archived change and prints a comment for the ticket. A
 metric that was not met is product's call: nothing, a new ticket, or a rollback.
 
+## The feature is merged but still behind a flag. Do the specs lie?
+
+No. The main specs describe what the code on the main branch does, not what a given user sees today.
+A rollout flag is not behaviour and stays out of the requirements. Where the change is live is
+recorded with the change: `rollout` in `.espec.yaml` says pending, partial or live, the release note
+says it in words, and `/espec:archive-clean` lists the changes that are not live yet. The same holds
+for a mobile release waiting in store review.
+
+## We reverted a feature. What happens to its specs?
+
+It depends on what was undone, and it is never a hand edit of `espec/specs/`. A flag switched off
+leaves the specs alone and sets `rollout: withdrawn`. Code reverted before the archive puts the change
+back to `proposed`. Code reverted after the archive reverts the archive commit too, or, when later
+changes built on it, gets a new change whose delta removes the requirements. The four cases are in
+[When a change is rolled back](guides/08-archive.md#when-a-change-is-rolled-back).
+
 ## Two changes edit the same requirement at the same time?
 
 Both deltas copy the requirement as it was when each proposal was written, so the second archive

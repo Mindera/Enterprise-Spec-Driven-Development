@@ -61,7 +61,9 @@ Input: `${input:source:Change name, ticket key or URL, or a pasted feature defin
 4. **Explore the code before writing.** Read `project.md`, then the modules, tests, configuration and
    documentation that the feature touches. Record what you observed with file paths; distinguish
    observed facts from assumptions. Check `espec/specs/` for capabilities that already cover part of
-   the behaviour and reuse their exact names and paths.
+   the behaviour and reuse their exact names and paths. Check the archived changes that touched
+   those capabilities: one whose `rollout` in `.espec.yaml` is not `live` describes behaviour that is
+   in the specs and on the main branch but not yet in front of users. Name it in Context.
 
 5. **Write `tech-proposal.md`** from `espec/templates/tech-proposal.md`, following the Tech proposal
    format in AGENTS.md. In particular:

@@ -17,6 +17,8 @@ skip_specs: false                # true only when the main specs need no change 
 # accepted_by: <name>                     # set by /espec:archive: who accepted the result
 # accepted: <YYYY-MM-DD>                  # the date of the acceptance
 # archived_without_acceptance: <reason>   # set by /espec:archive when nobody accepted
+# rollout: <state>                       # set by /espec:archive: pending | partial | live | withdrawn | reverted
+# rollout_note: <note>                    # who has it, and what the next step waits for
 # metrics_review_due: <YYYY-MM-DD>        # set by /espec:archive: when the success metrics can be read
 # metrics_reviewed: <YYYY-MM-DD>          # set by /espec:archive-clean when the outcome is recorded
 # metrics_outcome: <outcome>              # met | partly met | not met | not measured, with the numbers

@@ -25,6 +25,7 @@
 - Requirements without scenarios:
 - Archived changes eligible for pruning:
 - Success metrics due for review (change, metric, due date, outcome once given):
+- Changes not live for everyone yet (change, rollout, note, where it stands now once given):
 
 ## Applied actions
 

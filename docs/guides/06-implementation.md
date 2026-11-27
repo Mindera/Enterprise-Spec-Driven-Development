@@ -198,6 +198,7 @@ acceptance. An example: [examples/acceptance-request.md](../../examples/acceptan
 
 | Symptom | Cause | Fix |
 |---|---|---|
+| QA cannot verify before the merge | Staging deploys from the main branch | Merge with the `Q.n` lines open, behind a flag or ahead of the release. The command writes `pull-request.md` with those lines under Deviations and deferred work and leaves the status at `in-progress`. QA runs the group after the deploy, the status moves to `implemented`, and the archive waits until then |
 | The command stops: the ticket differs from `feature.md` | Product edited the description after approval, or someone changed it by mistake | Read the difference. A real scope change goes through `/espec-tech-proposal` and a new approval; a mistake is corrected on the ticket. Do not build from the new text directly |
 | A task is checked but the test it names does not exist | The AI checked early | Uncheck it, say "run the verification named in task N.M before checking it". Audit the group |
 | The AI keeps "simplifying" an acceptance criterion | Scope pressure | Say no. The criterion is product's; a change to it is a Question for Product on the ticket |

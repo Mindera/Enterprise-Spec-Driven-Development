@@ -110,7 +110,9 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
      copy a secret value into the report, the tasks or the chat: the tool cites where a secret is.
 
 10. **Write the pull request description.** When every task is checked, or when the user stops early
-   and asks for a pull request anyway, write `pull-request.md` from
+   and asks for a pull request anyway, or when QA can only verify after the merge (the open `Q.n`
+   lines then go under Deviations and deferred work, and the status stays `in-progress` until they
+   are checked), write `pull-request.md` from
    `espec/templates/pull-request.md`, following the Pull request description format in AGENTS.md.
    Re-read `tech-proposal.md` from disk and compare it with what you actually built: every decision,
    endpoint, data model element, rollout step and forced note gets a row, "As proposed" or the

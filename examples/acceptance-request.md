@@ -38,8 +38,10 @@ Reply "Accepted", or say which criterion is not as defined.
 ```
 
 Mariana Costa replied "Accepted" on 2026-10-24, after trying AC-1, AC-3, AC-5 and AC-13 herself and
-reading the rest. At archive, `.espec.yaml` gets `accepted_by: Mariana Costa`, `accepted: 2026-10-24`
-and `metrics_review_due: 2027-03-31`, the latest date among the definition's success metrics (the two
+reading the rest. At archive, `.espec.yaml` gets `accepted_by: Mariana Costa`, `accepted: 2026-10-24`,
+`rollout: partial` with the note "flag invoice-csv-export: internal organisation, then the three
+design partners; everyone one week later if the error rate stays under 1%", and
+`metrics_review_due: 2027-03-31`, the latest date among the definition's success metrics (the two
 enterprise renewals due in Q1 2027). The release note lists all five metrics under "To check after
 release" with their dates: 60 days after release for adoption, one quarter for the drop in support
 requests, monthly for speed and error rate.

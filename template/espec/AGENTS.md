@@ -331,6 +331,9 @@ Rules:
   deltas and the archive step match on.
 - Specs describe observable behaviour, inputs, outputs, errors and constraints. Class names, libraries,
   endpoints chosen for internal reasons and execution details belong in the tech proposal.
+- Specs describe the code on the main branch, not what a given user sees today. A rollout flag stays
+  out of a requirement; a lasting condition such as a plan, a role or a market goes in. Where a
+  change is live is recorded with the change (see **Merged, live and rolled back**).
 - Keep a requirement's description (text between the heading and its first scenario) short. One
   behaviour per requirement; put examples and edge cases in scenarios.
 
@@ -867,6 +870,8 @@ archived_without_sync: ""        # set by /espec:archive when the deltas were no
 accepted_by: <name>              # set by /espec:archive: who accepted the result
 accepted: 2026-11-01             # the date of the acceptance
 archived_without_acceptance: ""  # set by /espec:archive when nobody accepted, with the reason
+rollout: partial                 # set by /espec:archive: pending | partial | live | withdrawn | reverted
+rollout_note: ""                 # who has it, and what the next step waits for
 metrics_review_due: 2027-01-31   # set by /espec:archive: when the success metrics can be read
 metrics_reviewed: 2027-02-03     # set by /espec:archive-clean when the outcome is recorded
 metrics_outcome: ""              # met | partly met | not met | not measured, with the numbers read
@@ -941,6 +946,50 @@ Reply "Accepted", or say which criterion is not as defined.
 - A metric that was not met is a product decision, not a defect. The comment asks product what
   follows: nothing, a new ticket, or a rollback.
 
+## Merged, live and rolled back
+
+Merging is not releasing. The main specs describe what the code on the main branch does. Whether
+users have it yet is a fact about the rollout, and it is recorded with the change, not in the specs.
+
+- A rollout flag, a staged percentage or a pending store release is not behaviour: keep it out of
+  requirements. A lasting condition (a plan, a role, a market, a platform) is behaviour: the
+  requirement states it.
+- `/espec:archive` runs once the code is merged, so the specs follow the code. It records where the
+  change is live in `.espec.yaml` as `rollout`, with `rollout_note` saying who has it and what the
+  next step waits for:
+
+  | `rollout` | Means |
+  |-----------|-------|
+  | `pending` | Merged, available to nobody yet: the flag is off, the store release is in review, the release train has not left |
+  | `partial` | Available to some: a staged rollout, some markets, some app versions |
+  | `live` | Available to everyone it is meant for |
+  | `withdrawn` | Turned off after it was available. The code is still on the main branch |
+  | `reverted` | The code was removed again. The note names the commit or the change that removed it |
+
+- The release note says the same in words. `/espec:archive-clean` lists every archived change that is
+  `pending`, `partial` or `withdrawn`, asks where it stands now and records the answer.
+- A tech proposal that touches a capability reads the archived changes on it that are not `live`:
+  their behaviour is in the specs and on the main branch, and not yet in front of users.
+- Where QA can only verify after the merge, because staging deploys from the main branch, the pull
+  request merges with the `Q.n` lines it could not run still open, named under Deviations and
+  deferred work, behind a flag or ahead of the release. The change stays `in-progress` until QA
+  checks them, and the archive waits.
+
+### Rolling back
+
+What to do depends on what was undone.
+
+| What happened | The specs | The change |
+|---------------|-----------|------------|
+| Turned off, code stays: a flag switched off, a rollout halted, a store release pulled | Unchanged. They describe the code | `rollout: withdrawn`, with the reason in `rollout_note` and a comment on the ticket. Back on: `partial` or `live` again. Never coming back: remove the code with a change of its own, whose delta holds the REMOVED requirements |
+| Code reverted before the archive | Unchanged. The delta was never applied | Uncheck the tasks the revert undid and set `status: proposed`. The approval stands unless the cause changes the design, which sets the proposal back to In review. Not coming back: cancel it with `/espec:archive` |
+| Code reverted after the archive, and no later change touched the same requirements | Revert the archive commit in the same pull request as the code. The specs return to what they were and the folder returns to `espec/changes/` | As the row above: back to `proposed`, or cancelled |
+| Code reverted after the archive, and later changes built on it | A new change restores the truth: its delta removes or modifies the requirements, like any change. Urgent lane when production is the reason | The archived change gets `rollout: reverted`, and its note names the new change |
+
+A rollback is never a hand edit of `espec/specs/`. The change that was rolled back keeps its folder:
+it is the record of what was tried. Its success metrics are recorded as not measured, with the
+reason.
+
 ## Archive rules (`/espec:archive`)
 
 1. Refuse to archive with unchecked tasks unless the user confirms and the reason is recorded.
@@ -967,6 +1016,8 @@ Reply "Accepted", or say which criterion is not as defined.
    write a note for the ticket saying what was cancelled and why. Its deltas are never applied.
 9. Before moving the folder, record the acceptance of the result and the date its success metrics are
    due, as **Product acceptance and success metrics** says. Never record an acceptance nobody gave.
+10. Record where the change is live as `rollout` and `rollout_note`, as **Merged, live and rolled
+    back** says. A change whose code was reverted is not archived as shipped: follow **Rolling back**.
 
 ## Archive clean rules (`/espec:archive-clean`)
 
@@ -988,6 +1039,10 @@ The goal is a `espec/specs/` folder that describes only what the system does tod
 7. Append the applied actions to the same `cleanup.md`. The report is the audit trail.
 8. List the archived changes whose success metrics are due for review, ask for each outcome, and
    record only what the user answers. Never invent a number.
+9. List the archived changes whose `rollout` is `pending`, `partial` or `withdrawn`, ask where each
+   stands now, and record only what the user answers. Code behind a flag that is off is still
+   evidence for Keep. A requirement whose change is `rollout: reverted` and whose code is gone is a
+   Purge, with that change as the evidence.
 
 ## Coverage report
 

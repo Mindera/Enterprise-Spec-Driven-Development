@@ -36,6 +36,12 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
      `accepted_by` and `accepted` in `.espec.yaml`. Not found: say so, print the acceptance request
      and ask whether to wait or to archive anyway. Archiving anyway records the reason as
      `archived_without_acceptance` and in the release note.
+   - **Rollout.** Read the Rollout section of `pull-request.md` and ask where the change is live
+     now: nobody yet, some users, or everyone it is meant for. Set `rollout` (`pending`, `partial` or
+     `live`) and `rollout_note` (who has it, what the next step waits for) in `.espec.yaml`, as
+     **Merged, live and rolled back** in AGENTS.md defines them.
+   - The code of the change was reverted: stop. It is not archived as shipped. Show the row of
+     **Rolling back** in AGENTS.md that applies and follow it.
    - **Success metrics.** For each item under Success metrics in `feature.md`: the number, the date
      it can first be read and who reads it. Ask for a date the definition does not give. Set
      `metrics_review_due` in `.espec.yaml` to the latest of them. No metrics: set nothing.
@@ -85,7 +91,8 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
    exists, and update it for anything that changed since. Otherwise write a short note for the
    ticket: what shipped, which capabilities changed (added, modified, removed requirements by name),
    what was deferred and why. Add who accepted the result and when, or that it was archived without
-   acceptance and why, and, when the change has success metrics, a "To check after release" list:
+   acceptance and why, where it is live (the rollout and its note), and, when the change has
+   success metrics, a "To check after release" list:
    each metric, its date and who reads it. When a tool can reach
    the ticket and the user asks, post it as a comment and transition the ticket. Never do so unasked.
 
@@ -99,6 +106,7 @@ Input: `${input:change:Change name (leave empty to pick from the active changes)
 **Specs:** ✓ synced (<capabilities>) | no delta specs | sync skipped: <reason> | not applied (cancelled)
 **Tasks:** 12/12 complete | archived with 2 open tasks: <reason>
 **Accepted:** <name>, <YYYY-MM-DD> | archived without acceptance: <reason>
+**Rollout:** live | partial: <who has it> | pending: <what it waits for>
 **Metrics review due:** <YYYY-MM-DD> | no success metrics
 ```
 
